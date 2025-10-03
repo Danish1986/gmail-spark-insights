@@ -12,28 +12,40 @@ const Landing = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const platform = Capacitor.getPlatform();
+    const initializeGoogleAuth = async () => {
+      try {
+        const platform = Capacitor.getPlatform();
+        console.log('[GoogleAuth] Platform:', platform);
+        
+        if (platform === 'android' || platform === 'ios') {
+          console.log('[GoogleAuth] Initializing...');
+          await GoogleAuth.initialize({
+            clientId: '775297343977-l6k6f1sah7q52f3t9oam1lvlognrt892.apps.googleusercontent.com',
+            scopes: ['profile', 'email'],
+            grantOfflineAccess: true,
+          });
+          console.log('[GoogleAuth] ✅ Initialization complete');
+        }
+      } catch (error) {
+        console.error('[GoogleAuth] ❌ Initialization failed:', error);
+        toast.error('Failed to initialize Google Sign-In');
+      }
+    };
     
-    if (platform === 'android' || platform === 'ios') {
-      // Initialize GoogleAuth for native platforms
-      GoogleAuth.initialize({
-        clientId: '775297343977-l6k6f1sah7q52f3t9oam1lvlognrt892.apps.googleusercontent.com',
-        scopes: ['profile', 'email'],
-        grantOfflineAccess: true,
-      });
-    }
+    initializeGoogleAuth();
   }, []);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
       const platform = Capacitor.getPlatform();
+      console.log('[GoogleAuth] Starting sign-in...');
       
       if (platform === 'android' || platform === 'ios') {
-        // Native Google Sign-In for mobile
+        console.log('[GoogleAuth] Calling GoogleAuth.signIn()...');
         const googleUser = await GoogleAuth.signIn();
+        console.log('[GoogleAuth] Sign-in successful, got user');
         
-        // Sign in to Supabase with the Google ID token
         const { error } = await supabase.auth.signInWithIdToken({
           provider: 'google',
           token: googleUser.authentication.idToken,
@@ -41,7 +53,6 @@ const Landing = () => {
 
         if (error) throw error;
         
-        // Navigate to dashboard on success
         navigate("/dashboard");
       } else {
         // Web OAuth flow for browsers
@@ -57,7 +68,9 @@ const Landing = () => {
         if (error) throw error;
       }
     } catch (error: any) {
+      console.error('[GoogleAuth] Sign-in error:', error);
       toast.error(error.message || "Failed to sign in with Google");
+    } finally {
       setLoading(false);
     }
   };
