@@ -70,37 +70,26 @@ export const InvestmentModal = ({ isOpen, onClose, data }: InvestmentModalProps)
         </div>
 
         <div className="p-4 space-y-4">
-          {/* Summary Cards */}
+          {/* Compact Summary */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-muted/50 rounded-xl p-3">
               <div className="text-xs text-muted-foreground mb-1">Total Invested</div>
-              <div className="text-xl font-bold">₹{Math.round(data.totalInvested).toLocaleString("en-IN")}</div>
+              <div className="text-lg font-bold">₹{Math.round(data.totalInvested).toLocaleString("en-IN")}</div>
             </div>
             <div className="bg-muted/50 rounded-xl p-3">
               <div className="text-xs text-muted-foreground mb-1">Current Value</div>
-              <div className="text-xl font-bold">₹{Math.round(data.currentValue).toLocaleString("en-IN")}</div>
+              <div className="text-lg font-bold">₹{Math.round(data.currentValue).toLocaleString("en-IN")}</div>
               <div className="text-xs text-success font-semibold">▲ {totalReturn.toFixed(2)}%</div>
-            </div>
-            <div className="bg-muted/50 rounded-xl p-3">
-              <div className="text-xs text-muted-foreground mb-1">YTD Invested</div>
-              <div className="text-xl font-bold">₹{Math.round(data.ytdInvested).toLocaleString("en-IN")}</div>
-            </div>
-            <div className="bg-muted/50 rounded-xl p-3">
-              <div className="text-xs text-muted-foreground mb-1">This Month</div>
-              <div className="text-xl font-bold">₹{Math.round(data.thisMonth).toLocaleString("en-IN")}</div>
-              <div className={`text-xs font-semibold ${monthChange >= 0 ? "text-success" : "text-destructive"}`}>
-                {monthChange >= 0 ? "▲" : "▼"} {Math.abs(monthChange).toFixed(2)}%
-              </div>
             </div>
           </div>
 
-          {/* Period Selector */}
+          {/* Period Selector + Amount Inline */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             {(["1M", "3M", "6M", "12M", "Till Date"] as const).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-colors ${
                   period === p
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -111,38 +100,37 @@ export const InvestmentModal = ({ isOpen, onClose, data }: InvestmentModalProps)
             ))}
           </div>
 
-          {/* Period Investment Amount */}
-          <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4">
-            <div className="text-sm text-muted-foreground mb-1">Invested in {period}</div>
-            <div className="text-2xl font-bold">₹{Math.round(periodAmount).toLocaleString("en-IN")}</div>
+          <div className="bg-muted/30 rounded-lg px-3 py-2 flex items-center justify-between">
+            <div className="text-xs text-muted-foreground">Invested in {period}</div>
+            <div className="font-bold">₹{Math.round(periodAmount).toLocaleString("en-IN")}</div>
           </div>
 
-          {/* Investment Categories */}
-          <div className="space-y-3">
+          {/* Investment Categories - Compact List */}
+          <div className="space-y-2">
             <h3 className="text-sm font-semibold text-muted-foreground">Portfolio Breakdown</h3>
             {data.categories.map((category) => (
               <button
                 key={category.name}
                 onClick={() => setSelectedCategory(category)}
-                className="w-full bg-card rounded-xl p-4 border hover:border-primary/50 transition-colors text-left"
+                className="w-full bg-card rounded-xl p-3 border hover:border-primary/50 transition-colors text-left"
               >
-                <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full`} style={{ backgroundColor: category.color }} />
-                    <div className="font-semibold">{category.name}</div>
+                    <div className="font-semibold text-sm">{category.name}</div>
                     <div className="text-xs text-muted-foreground">• {category.count}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">₹{Math.round(category.amount).toLocaleString("en-IN")}</div>
-                    <div className="text-xs text-success font-semibold">+{category.monthReturn}% 1M</div>
+                    <div className="font-bold text-sm">₹{Math.round(category.amount).toLocaleString("en-IN")}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="text-xs text-muted-foreground">{category.portfolioPercent}% of portfolio</div>
+                <div className="flex items-center justify-between text-xs">
+                  <div className="text-muted-foreground">{category.portfolioPercent}% of portfolio</div>
+                  <div className="text-success font-semibold">+{category.monthReturn}% 1M</div>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-1.5 mt-2">
                   <div
-                    className="h-2 rounded-full"
+                    className="h-1.5 rounded-full"
                     style={{ width: `${category.portfolioPercent}%`, backgroundColor: category.color }}
                   />
                 </div>

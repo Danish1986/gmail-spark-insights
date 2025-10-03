@@ -8,6 +8,11 @@ import { PaymentMethodModal } from "@/components/PaymentMethodModal";
 import { CategoryDrillDownModal } from "@/components/CategoryDrillDownModal";
 import { InvestmentModal } from "@/components/InvestmentModal";
 import { FixedExpensesModal } from "@/components/FixedExpensesModal";
+import { SalaryDetailModal } from "@/components/SalaryDetailModal";
+import { DividendDetailModal } from "@/components/DividendDetailModal";
+import { RefundsDetailModal } from "@/components/RefundsDetailModal";
+import { InterestDetailModal } from "@/components/InterestDetailModal";
+import { InvestmentDetailModal } from "@/components/InvestmentDetailModal";
 import { RECOMMENDED_CARDS } from "@/data/recommendedCards";
 import { TrendingUp, Sparkles, Building2 } from "lucide-react";
 
@@ -566,6 +571,223 @@ const MOCK_DATA = {
       },
     ],
   },
+  // Income L2 Data - Salary History
+  salaryHistory: {
+    currentMonth: 423782,
+    history: [
+      { month: "Sep 2025", base: 380000, bonus: 30000, incentive: 13782, total: 423782, change: 5.2 },
+      { month: "Aug 2025", base: 380000, bonus: 0, incentive: 22500, total: 402500, change: -2.1 },
+      { month: "Jul 2025", base: 380000, bonus: 0, incentive: 31200, total: 411200, change: 3.5 },
+      { month: "Jun 2025", base: 380000, bonus: 0, incentive: 17350, total: 397350, change: -1.8 },
+      { month: "May 2025", base: 380000, bonus: 25000, incentive: 19600, total: 424600, change: 6.8 },
+      { month: "Apr 2025", base: 380000, bonus: 0, incentive: 17500, total: 397500, change: 0.0 },
+    ],
+  },
+  // Income L2 Data - Dividend Sources (by period)
+  dividendSources: {
+    "1M": {
+      total: 11287,
+      sources: [
+        { company: "Reliance Industries", amount: 3250, percentage: 28.8, date: "Sep 25" },
+        { company: "HDFC Bank", amount: 2800, percentage: 24.8, date: "Sep 20" },
+        { company: "TCS", amount: 2100, percentage: 18.6, date: "Sep 18" },
+        { company: "Infosys", amount: 1850, percentage: 16.4, date: "Sep 15" },
+        { company: "ICICI Bank", amount: 625, percentage: 5.5, date: "Sep 12" },
+        { company: "Wipro", amount: 380, percentage: 3.4, date: "Sep 10" },
+        { company: "Axis Bank", amount: 152, percentage: 1.3, date: "Sep 8" },
+        { company: "Mahindra & Mahindra", amount: 85, percentage: 0.8, date: "Sep 5" },
+        { company: "Asian Paints", amount: 25, percentage: 0.2, date: "Sep 3" },
+        { company: "Hindustan Unilever", amount: 12, percentage: 0.1, date: "Sep 2" },
+        { company: "Maruti Suzuki", amount: 6, percentage: 0.1, date: "Sep 1" },
+        { company: "Britannia Industries", amount: 2, percentage: 0.0, date: "Sep 1" },
+      ],
+    },
+    "3M": {
+      total: 32450,
+      sources: [
+        { company: "Reliance Industries", amount: 9800, percentage: 30.2, date: "Jul-Sep" },
+        { company: "HDFC Bank", amount: 8350, percentage: 25.7, date: "Jul-Sep" },
+        { company: "TCS", amount: 6100, percentage: 18.8, date: "Jul-Sep" },
+        { company: "Infosys", amount: 5250, percentage: 16.2, date: "Jul-Sep" },
+        { company: "ICICI Bank", amount: 1650, percentage: 5.1, date: "Jul-Sep" },
+        { company: "Wipro", amount: 820, percentage: 2.5, date: "Jul-Sep" },
+        { company: "Axis Bank", amount: 280, percentage: 0.9, date: "Jul-Sep" },
+        { company: "Mahindra & Mahindra", amount: 120, percentage: 0.4, date: "Jul-Sep" },
+        { company: "Asian Paints", amount: 48, percentage: 0.1, date: "Jul-Sep" },
+        { company: "Hindustan Unilever", amount: 20, percentage: 0.1, date: "Jul-Sep" },
+        { company: "Maruti Suzuki", amount: 9, percentage: 0.0, date: "Jul-Sep" },
+        { company: "Britannia Industries", amount: 3, percentage: 0.0, date: "Jul-Sep" },
+      ],
+    },
+    "6M": {
+      total: 58900,
+      sources: [
+        { company: "Reliance Industries", amount: 18200, percentage: 30.9, date: "Apr-Sep" },
+        { company: "HDFC Bank", amount: 15100, percentage: 25.6, date: "Apr-Sep" },
+        { company: "TCS", amount: 10800, percentage: 18.3, date: "Apr-Sep" },
+        { company: "Infosys", amount: 9500, percentage: 16.1, date: "Apr-Sep" },
+        { company: "ICICI Bank", amount: 3100, percentage: 5.3, date: "Apr-Sep" },
+        { company: "Wipro", amount: 1450, percentage: 2.5, date: "Apr-Sep" },
+        { company: "Axis Bank", amount: 480, percentage: 0.8, date: "Apr-Sep" },
+        { company: "Mahindra & Mahindra", amount: 180, percentage: 0.3, date: "Apr-Sep" },
+        { company: "Asian Paints", amount: 58, percentage: 0.1, date: "Apr-Sep" },
+        { company: "Hindustan Unilever", amount: 22, percentage: 0.0, date: "Apr-Sep" },
+        { company: "Maruti Suzuki", amount: 8, percentage: 0.0, date: "Apr-Sep" },
+        { company: "Britannia Industries", amount: 2, percentage: 0.0, date: "Apr-Sep" },
+      ],
+    },
+    "12M": {
+      total: 112300,
+      sources: [
+        { company: "Reliance Industries", amount: 35200, percentage: 31.3, date: "Oct-Sep" },
+        { company: "HDFC Bank", amount: 28500, percentage: 25.4, date: "Oct-Sep" },
+        { company: "TCS", amount: 20100, percentage: 17.9, date: "Oct-Sep" },
+        { company: "Infosys", amount: 18200, percentage: 16.2, date: "Oct-Sep" },
+        { company: "ICICI Bank", amount: 6100, percentage: 5.4, date: "Oct-Sep" },
+        { company: "Wipro", amount: 2780, percentage: 2.5, date: "Oct-Sep" },
+        { company: "Axis Bank", amount: 950, percentage: 0.8, date: "Oct-Sep" },
+        { company: "Mahindra & Mahindra", amount: 320, percentage: 0.3, date: "Oct-Sep" },
+        { company: "Asian Paints", amount: 98, percentage: 0.1, date: "Oct-Sep" },
+        { company: "Hindustan Unilever", amount: 38, percentage: 0.0, date: "Oct-Sep" },
+        { company: "Maruti Suzuki", amount: 10, percentage: 0.0, date: "Oct-Sep" },
+        { company: "Britannia Industries", amount: 4, percentage: 0.0, date: "Oct-Sep" },
+      ],
+    },
+  },
+  // Income L2 Data - Refunds Sources (by period)
+  refundsSources: {
+    "1M": {
+      total: 1889,
+      sources: [
+        { merchant: "Amazon Refund", amount: 850, date: "Sep 18", reason: "Product return" },
+        { merchant: "Flipkart Cancellation", amount: 450, date: "Sep 12", reason: "Order cancelled" },
+        { merchant: "Zomato Refund", amount: 120, date: "Sep 8", reason: "Wrong order" },
+        { merchant: "Swiggy Credit", amount: 85, date: "Sep 5", reason: "Delivery delay" },
+        { merchant: "BookMyShow Refund", amount: 280, date: "Sep 15", reason: "Event cancelled" },
+        { merchant: "Uber Refund", amount: 64, date: "Sep 20", reason: "Overcharge" },
+        { merchant: "Myntra Return", amount: 40, date: "Sep 3", reason: "Size issue" },
+      ],
+    },
+    "3M": {
+      total: 5870,
+      sources: [
+        { merchant: "Amazon Refund", amount: 2450, date: "Jul-Sep", reason: "Various returns" },
+        { merchant: "Flipkart Cancellation", amount: 1320, date: "Jul-Sep", reason: "Order cancellations" },
+        { merchant: "Myntra Return", amount: 890, date: "Jul-Sep", reason: "Product returns" },
+        { merchant: "Zomato Refund", amount: 420, date: "Jul-Sep", reason: "Order issues" },
+        { merchant: "Swiggy Credit", amount: 280, date: "Jul-Sep", reason: "Various credits" },
+        { merchant: "BookMyShow Refund", amount: 320, date: "Jul-Sep", reason: "Cancellations" },
+        { merchant: "Uber Refund", amount: 120, date: "Jul-Sep", reason: "Trip adjustments" },
+        { merchant: "Ajio Return", amount: 48, date: "Jul-Sep", reason: "Size exchange" },
+        { merchant: "MakeMyTrip Refund", amount: 22, date: "Jul-Sep", reason: "Booking change" },
+      ],
+    },
+    "6M": {
+      total: 11450,
+      sources: [
+        { merchant: "Amazon Refund", amount: 4850, date: "Apr-Sep", reason: "Various returns" },
+        { merchant: "Flipkart Cancellation", amount: 2680, date: "Apr-Sep", reason: "Order cancellations" },
+        { merchant: "Myntra Return", amount: 1820, date: "Apr-Sep", reason: "Product returns" },
+        { merchant: "Zomato Refund", amount: 780, date: "Apr-Sep", reason: "Order issues" },
+        { merchant: "Swiggy Credit", amount: 520, date: "Apr-Sep", reason: "Various credits" },
+        { merchant: "BookMyShow Refund", amount: 450, date: "Apr-Sep", reason: "Cancellations" },
+        { merchant: "Uber Refund", amount: 210, date: "Apr-Sep", reason: "Trip adjustments" },
+        { merchant: "Ajio Return", amount: 88, date: "Apr-Sep", reason: "Size exchange" },
+        { merchant: "MakeMyTrip Refund", amount: 42, date: "Apr-Sep", reason: "Booking changes" },
+        { merchant: "Ola Refund", amount: 10, date: "Apr-Sep", reason: "Trip credit" },
+      ],
+    },
+    "12M": {
+      total: 24680,
+      sources: [
+        { merchant: "Amazon Refund", amount: 9850, date: "Oct-Sep", reason: "Various returns" },
+        { merchant: "Flipkart Cancellation", amount: 5680, date: "Oct-Sep", reason: "Order cancellations" },
+        { merchant: "Myntra Return", amount: 3820, date: "Oct-Sep", reason: "Product returns" },
+        { merchant: "Zomato Refund", amount: 1680, date: "Oct-Sep", reason: "Order issues" },
+        { merchant: "Swiggy Credit", amount: 1120, date: "Oct-Sep", reason: "Various credits" },
+        { merchant: "BookMyShow Refund", amount: 980, date: "Oct-Sep", reason: "Cancellations" },
+        { merchant: "Uber Refund", amount: 450, date: "Oct-Sep", reason: "Trip adjustments" },
+        { merchant: "Ajio Return", amount: 620, date: "Oct-Sep", reason: "Size exchange" },
+        { merchant: "MakeMyTrip Refund", amount: 380, date: "Oct-Sep", reason: "Booking changes" },
+        { merchant: "Ola Refund", amount: 80, date: "Oct-Sep", reason: "Trip credit" },
+        { merchant: "BigBasket Refund", amount: 20, date: "Oct-Sep", reason: "Item missing" },
+      ],
+    },
+  },
+  // Income L2 Data - Interest Sources + Optimizer
+  interestSources: {
+    "1M": 6435,
+    "3M": 19305,
+    "6M": 38610,
+    "12M": 77220,
+    sources: [
+      {
+        bank: "HDFC Bank",
+        accountType: "Savings Account",
+        avgBalance: 1250000,
+        interestRate: 4.0,
+        monthlyInterest: 4167,
+        annualInterest: 50000,
+      },
+      {
+        bank: "ICICI Bank",
+        accountType: "Fixed Deposit",
+        avgBalance: 500000,
+        interestRate: 6.5,
+        monthlyInterest: 2708,
+        annualInterest: 32500,
+      },
+      {
+        bank: "SBI",
+        accountType: "Savings Account",
+        avgBalance: 450000,
+        interestRate: 3.5,
+        monthlyInterest: 1313,
+        annualInterest: 15750,
+      },
+    ],
+    totalParkedFunds: 2200000,
+    recommendedAccounts: [
+      {
+        id: "idfc-savings",
+        bank: "IDFC FIRST Bank",
+        accountType: "Savings Account",
+        interestRate: 7.0,
+        features: [
+          "Zero balance account",
+          "Instant UPI access",
+          "No monthly maintenance charges",
+          "Up to ₹5L insured by RBI",
+        ],
+        incrementalGain: {
+          "3M": 9375,
+          "6M": 18750,
+          "12M": 37500,
+          "24M": 75000,
+          "36M": 112500,
+        },
+      },
+      {
+        id: "slice-northeast",
+        bank: "Slice North East Small Finance Bank",
+        accountType: "Savings Account",
+        interestRate: 7.5,
+        features: [
+          "Up to ₹5L insured by RBI",
+          "Zero balance account",
+          "High liquidity with instant access",
+          "Mobile-first banking experience",
+        ],
+        incrementalGain: {
+          "3M": 10937.5,
+          "6M": 21875,
+          "12M": 43750,
+          "24M": 87500,
+          "36M": 131250,
+        },
+      },
+    ],
+  },
   categoryTransactions: {
     "Travel": [
       { id: "t1", date: "2025-09-03", merchant: "Booking.com", merchantLogo: "https://logo.clearbit.com/booking.com", amount: 125000, method: "Credit Card", category: "Travel" },
@@ -865,6 +1087,11 @@ const Index = () => {
   }>({ isOpen: false, category: "", color: "" });
   const [showInvestmentModal, setShowInvestmentModal] = useState(false);
   const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
+  const [showSalaryModal, setShowSalaryModal] = useState(false);
+  const [showDividendModal, setShowDividendModal] = useState(false);
+  const [showRefundsModal, setShowRefundsModal] = useState(false);
+  const [showInterestModal, setShowInterestModal] = useState(false);
+  const [selectedInvestmentCategory, setSelectedInvestmentCategory] = useState<any>(null);
 
   const handleMonthNavigate = (direction: "prev" | "next") => {
     if (direction === "prev") {
@@ -960,29 +1187,38 @@ const Index = () => {
                 </button>
               </div>
 
-              {/* Investment Section */}
-              <button
-                onClick={() => setShowInvestmentModal(true)}
-                className="mx-3 mt-5 bg-white rounded-2xl p-4 shadow-sm border border-border hover:border-primary transition-all text-left w-[calc(100%-24px)]"
-              >
+              {/* Investment Section - Inline like Categories */}
+              <div className="mx-3 mt-5">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="text-lg font-bold text-foreground">💰 Investments</div>
-                  <div className="text-xs text-primary font-medium">View details →</div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-muted/50 rounded-xl p-3">
-                    <div className="text-xs text-muted-foreground mb-1">Total Invested</div>
-                    <div className="text-lg font-bold">{formatINR(MOCK_DATA.investments.totalInvested)}</div>
+                  <div className="text-lg font-bold text-foreground flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-foreground" /> 💰 Investments
                   </div>
-                  <div className="bg-muted/50 rounded-xl p-3">
-                    <div className="text-xs text-muted-foreground mb-1">Current Value</div>
-                    <div className="text-lg font-bold">{formatINR(MOCK_DATA.investments.currentValue)}</div>
-                    <div className="text-xs text-success font-semibold">
-                      ▲ {(((MOCK_DATA.investments.currentValue - MOCK_DATA.investments.totalInvested) / MOCK_DATA.investments.totalInvested) * 100).toFixed(2)}%
-                    </div>
-                  </div>
+                  <button onClick={() => setShowInvestmentModal(true)} className="text-xs text-primary font-medium">
+                    View details →
+                  </button>
                 </div>
-              </button>
+                <div className="bg-card rounded-2xl p-4 shadow-sm border border-border space-y-2">
+                  {MOCK_DATA.investments.categories.map((cat) => (
+                    <button
+                      key={cat.name}
+                      onClick={() => setSelectedInvestmentCategory(cat)}
+                      className="w-full flex items-center justify-between py-2 hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors"
+                    >
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
+                        <div className="font-semibold text-sm">{cat.name}</div>
+                        <div className="text-xs text-muted-foreground">• {cat.count}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-sm">{formatINR(cat.amount)}</div>
+                        <div className="text-xs text-muted-foreground">{cat.portfolioPercent}%</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+                </div>
+              </div>
 
               {/* Fixed Expenses Prediction */}
               <button
@@ -1009,7 +1245,17 @@ const Index = () => {
                 </div>
               </button>
 
-              <ChartSection title="Incoming Split" data={MOCK_DATA.incomingSplit} type="bar" />
+              <ChartSection 
+                title="Incoming Split" 
+                data={MOCK_DATA.incomingSplit} 
+                type="bar" 
+                onItemClick={(name) => {
+                  if (name === "Salary") setShowSalaryModal(true);
+                  if (name === "Dividend") setShowDividendModal(true);
+                  if (name === "Interest") setShowInterestModal(true);
+                  if (name === "Refunds") setShowRefundsModal(true);
+                }}
+              />
               
               {/* Spends by Category - with drill-down */}
               <div className="mx-3 mt-5">
@@ -1611,6 +1857,19 @@ const Index = () => {
           onClose={() => setShowFixedExpensesModal(false)}
           data={MOCK_DATA.fixedExpenses}
         />
+        
+        {/* Income L2 Modals */}
+        <SalaryDetailModal isOpen={showSalaryModal} onClose={() => setShowSalaryModal(false)} data={MOCK_DATA.salaryHistory} />
+        <DividendDetailModal isOpen={showDividendModal} onClose={() => setShowDividendModal(false)} data={MOCK_DATA.dividendSources} />
+        <RefundsDetailModal isOpen={showRefundsModal} onClose={() => setShowRefundsModal(false)} data={MOCK_DATA.refundsSources} />
+        <InterestDetailModal isOpen={showInterestModal} onClose={() => setShowInterestModal(false)} data={MOCK_DATA.interestSources} />
+        {selectedInvestmentCategory && (
+          <InvestmentDetailModal
+            isOpen={!!selectedInvestmentCategory}
+            onClose={() => setSelectedInvestmentCategory(null)}
+            category={selectedInvestmentCategory}
+          />
+        )}
       </div>
     </div>
   );

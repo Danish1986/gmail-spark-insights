@@ -10,6 +10,7 @@ interface ChartSectionProps {
   title: string;
   data: ChartData[];
   type?: "bar" | "progress";
+  onItemClick?: (itemName: string) => void;
 }
 
 const formatINR = (amount: number) => {
@@ -38,7 +39,7 @@ const Dot = ({ color }: { color: string }) => (
   <span className="inline-block w-2.5 h-2.5 rounded-full mr-2" style={{ background: color }} />
 );
 
-export const ChartSection = ({ title, data, type = "bar" }: ChartSectionProps) => {
+export const ChartSection = ({ title, data, type = "bar", onItemClick }: ChartSectionProps) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
@@ -65,7 +66,11 @@ export const ChartSection = ({ title, data, type = "bar" }: ChartSectionProps) =
             </div>
             <div className="mt-4 divide-y">
               {data.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2">
+                <div 
+                  key={idx} 
+                  className={`flex items-center justify-between py-2 ${onItemClick ? 'cursor-pointer hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors' : ''}`}
+                  onClick={() => onItemClick?.(item.name)}
+                >
                   <div className="flex items-center text-foreground font-medium">
                     <Dot color={item.color} /> {item.name}
                   </div>
