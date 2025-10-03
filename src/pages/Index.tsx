@@ -25,7 +25,7 @@ const MOCK_DATA = {
   incomingSplit: [
     { name: "Salary", value: 423782, color: "#3b82f6" },
     { name: "Dividend", value: 11287, color: "#22c55e" },
-    { name: "Interest", value: 25743, color: "#a78bfa" },
+    { name: "Interest", value: 25743, color: "#a78bfa", hasOptimization: true },
     { name: "Refunds", value: 1889, color: "#f59e0b" },
     { name: "Others", value: 20341, color: "#60a5fa" },
   ],
@@ -1254,6 +1254,30 @@ const Index = () => {
                   if (name === "Refunds") setShowRefundsModal(true);
                 }}
               />
+
+              {/* Optimization Opportunity Card */}
+              <div className="mx-3 mt-4">
+                <button
+                  onClick={() => setShowInterestModal(true)}
+                  className="w-full bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-3 shadow-sm hover:shadow-md transition-all text-left"
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="text-2xl">💡</div>
+                    <div className="flex-1">
+                      <div className="text-xs font-semibold text-orange-600 mb-0.5">OPTIMIZATION OPPORTUNITY</div>
+                      <div className="text-sm font-bold text-foreground mb-1">
+                        Switch to high-interest savings account
+                      </div>
+                      <div className="text-xs text-muted-foreground mb-2">
+                        Earn ₹43,750 more per year with better interest rates
+                      </div>
+                      <div className="text-xs text-primary font-medium">
+                        View recommendations →
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </div>
               
               {/* Spends by Category - with drill-down */}
               <div className="mx-3 mt-5">

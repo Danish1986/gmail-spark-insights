@@ -4,6 +4,7 @@ interface ChartData {
   name: string;
   value: number;
   color: string;
+  hasOptimization?: boolean;
 }
 
 interface ChartSectionProps {
@@ -71,8 +72,12 @@ export const ChartSection = ({ title, data, type = "bar", onItemClick }: ChartSe
                   className={`flex items-center justify-between py-2 ${onItemClick ? 'cursor-pointer hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors' : ''}`}
                   onClick={() => onItemClick?.(item.name)}
                 >
-                  <div className="flex items-center text-foreground font-medium">
-                    <Dot color={item.color} /> {item.name}
+                  <div className="flex items-center text-foreground font-medium gap-1">
+                    <Dot color={item.color} /> 
+                    {item.name}
+                    {item.hasOptimization && (
+                      <span className="text-xs">💡</span>
+                    )}
                   </div>
                   <div className="text-foreground font-semibold">
                     {formatINR(item.value)}
