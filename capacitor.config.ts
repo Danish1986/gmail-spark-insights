@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.lovable.gmailinsights',
   appName: 'gmail-spark-insights',
   webDir: 'dist',
+  bundledWebRuntime: false,
   plugins: {
     GoogleAuth: {
       scopes: ['profile', 'email'],
