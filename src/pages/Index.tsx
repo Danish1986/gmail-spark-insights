@@ -1284,7 +1284,7 @@ const Index = () => {
                 <div className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-gray-900" /> Spends by Category
                 </div>
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-border">
+                <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
                   {MOCK_DATA.categorySplit.map((c, i) => {
                     const total = MOCK_DATA.categorySplit.reduce((sum, cat) => sum + cat.value, 0);
                     const pctVal = ((c.value / total) * 100).toFixed(1);
@@ -1315,7 +1315,7 @@ const Index = () => {
                 <div className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-gray-900" /> Payment Methods
                 </div>
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-border">
+                <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
                   {MOCK_DATA.spendsByInstrument.map((method, i) => {
                     const total = MOCK_DATA.spendsByInstrument.reduce((sum, m) => sum + m.value, 0);
                     const pctVal = ((method.value / total) * 100).toFixed(1);
