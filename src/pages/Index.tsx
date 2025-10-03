@@ -1293,17 +1293,17 @@ const Index = () => {
                       <button
                         key={i}
                         onClick={() => setCategoryModal({ isOpen: true, category: c.name, color: c.color })}
-                      className="w-full mb-3 text-left hover:bg-accent/50 rounded-lg p-2 transition-colors"
+                        className="w-full text-left hover:bg-accent/50 rounded-lg p-2 transition-colors border-b border-border last:border-b-0"
                       >
-                      <div className="flex justify-between font-medium text-foreground mb-1">
-                        <span className="flex items-center gap-1.5">
-                          <span className="text-sm">{getCategoryIcon(c.name)}</span>
-                          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
-                          <span className="text-sm">{c.name}</span>
-                        </span>
-                        <span className="text-sm">{formatINR(c.value)} • {pctVal}%</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="flex justify-between font-medium text-foreground mb-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-sm">{getCategoryIcon(c.name)}</span>
+                            <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
+                            <span className="text-sm">{c.name}</span>
+                          </span>
+                          <span className="text-sm">{formatINR(c.value)} • {pctVal}%</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div className="h-full" style={{ width: `${pctVal}%`, background: c.color }} />
                         </div>
                       </button>
@@ -1325,16 +1325,16 @@ const Index = () => {
                       <button
                         key={i}
                         onClick={() => setPaymentMethodModal({ isOpen: true, method: method.name, color: method.color })}
-                        className="w-full mb-3 text-left hover:bg-accent/50 rounded-lg p-2 transition-colors"
+                        className="w-full text-left hover:bg-accent/50 rounded-lg p-2 transition-colors border-b border-border last:border-b-0"
                       >
-                      <div className="flex justify-between font-medium text-foreground mb-1">
-                        <span className="flex items-center gap-1.5">
-                          <span className="text-sm">{getCategoryIcon(method.name)}</span>
-                          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: method.color }} />
-                          <span className="text-sm">{method.name}</span>
-                        </span>
-                        <span className="text-sm">{formatINR(method.value)} • {pctVal}%</span>
-                      </div>
+                        <div className="flex justify-between font-medium text-foreground mb-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-sm">{getCategoryIcon(method.name)}</span>
+                            <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: method.color }} />
+                            <span className="text-sm">{method.name}</span>
+                          </span>
+                          <span className="text-sm">{formatINR(method.value)} • {pctVal}%</span>
+                        </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div className="h-full" style={{ width: `${pctVal}%`, background: method.color }} />
                         </div>
