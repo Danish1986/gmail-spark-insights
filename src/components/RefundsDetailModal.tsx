@@ -30,29 +30,29 @@ export const RefundsDetailModal = ({ isOpen, onClose, data }: RefundsDetailModal
   return (
     <>
       <div className="fixed inset-0 bg-black/50 z-50 animate-in fade-in" onClick={onClose} />
-      <div className="fixed inset-x-0 bottom-0 z-50 bg-background rounded-t-3xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom">
-        <div className="sticky top-0 bg-background border-b px-4 py-3 flex items-center justify-between z-10">
-          <h2 className="text-lg font-bold">Refunds & Credits</h2>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full">
-            <X className="h-5 w-5" />
+      <div className="fixed inset-x-0 bottom-0 z-50 bg-background rounded-t-xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom max-w-md mx-auto left-0 right-0">
+        <div className="sticky top-0 bg-background border-b px-3 py-2.5 flex items-center justify-between z-10">
+          <h2 className="text-base font-bold">Refunds & Credits</h2>
+          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full">
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className="p-3 space-y-3">
           {/* Summary */}
-          <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4">
-            <div className="text-sm text-muted-foreground mb-1">Total Refunds ({period})</div>
-            <div className="text-2xl font-bold">₹{Math.round(currentData.total).toLocaleString("en-IN")}</div>
-            <div className="text-xs text-muted-foreground mt-1">From {currentData.sources.length} transactions</div>
+          <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-3">
+            <div className="text-xs text-muted-foreground mb-0.5">Total Refunds ({period})</div>
+            <div className="text-xl font-bold">₹{Math.round(currentData.total).toLocaleString("en-IN")}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">From {currentData.sources.length} transactions</div>
           </div>
 
           {/* Period Selector */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
             {(["1M", "3M", "6M", "12M"] as const).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-medium whitespace-nowrap transition-colors ${
                   period === p
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -64,18 +64,18 @@ export const RefundsDetailModal = ({ isOpen, onClose, data }: RefundsDetailModal
           </div>
 
           {/* Refund Sources - ALL SHOWN */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-muted-foreground">Refund Sources</h3>
+          <div className="space-y-1.5">
+            <h3 className="text-xs font-semibold text-muted-foreground">Refund Sources</h3>
             {currentData.sources.map((source, idx) => (
-              <div key={idx} className="bg-card rounded-xl p-3 border">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <RotateCcw className="h-4 w-4 text-primary" />
-                    <div className="font-semibold text-sm">{source.merchant}</div>
+              <div key={idx} className="bg-card rounded-lg p-2 border">
+                <div className="flex items-center justify-between mb-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <RotateCcw className="h-3 w-3 text-primary" />
+                    <div className="font-semibold text-xs">{source.merchant}</div>
                   </div>
-                  <div className="font-bold text-success">+₹{Math.round(source.amount).toLocaleString("en-IN")}</div>
+                  <div className="font-bold text-xs text-success">+₹{Math.round(source.amount).toLocaleString("en-IN")}</div>
                 </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground ml-6">
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground ml-4.5">
                   <div>{source.reason}</div>
                   <div>{source.date}</div>
                 </div>
@@ -84,11 +84,11 @@ export const RefundsDetailModal = ({ isOpen, onClose, data }: RefundsDetailModal
           </div>
 
           {/* Insights */}
-          <div className="bg-muted/50 rounded-xl p-3">
+          <div className="bg-muted/50 rounded-lg p-2.5">
             <div className="flex items-start gap-2">
-              <RotateCcw className="h-4 w-4 text-primary mt-0.5" />
-              <div className="text-xs">
-                <div className="font-semibold mb-1">💡 INSIGHTS</div>
+              <RotateCcw className="h-3 w-3 text-primary mt-0.5" />
+              <div className="text-[10px]">
+                <div className="font-semibold mb-0.5">💡 INSIGHTS</div>
                 <div className="text-muted-foreground">
                   You received ₹{Math.round(currentData.total).toLocaleString("en-IN")} in refunds this period from {currentData.sources.length} merchants. 
                   Largest refund from {topMerchant.merchant} (₹{Math.round(topMerchant.amount).toLocaleString("en-IN")}).
