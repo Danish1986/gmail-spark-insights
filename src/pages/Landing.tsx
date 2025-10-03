@@ -11,40 +11,18 @@ const Landing = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const initializeGoogleAuth = async () => {
-      try {
-        const platform = Capacitor.getPlatform();
-        console.log('[GoogleAuth] Platform:', platform);
-        
-        if (platform === 'android' || platform === 'ios') {
-          console.log('[GoogleAuth] Initializing...');
-          await GoogleAuth.initialize({
-            clientId: '775297343977-l6k6f1sah7q52f3t9oam1lvlognrt892.apps.googleusercontent.com',
-            scopes: ['profile', 'email'],
-            grantOfflineAccess: true,
-          });
-          console.log('[GoogleAuth] ✅ Initialization complete');
-        }
-      } catch (error) {
-        console.error('[GoogleAuth] ❌ Initialization failed:', error);
-        toast.error('Failed to initialize Google Sign-In');
-      }
-    };
-    
-    initializeGoogleAuth();
-  }, []);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
       const platform = Capacitor.getPlatform();
+      console.log('[GoogleAuth] Platform:', platform);
       console.log('[GoogleAuth] Starting sign-in...');
       
       if (platform === 'android' || platform === 'ios') {
-        console.log('[GoogleAuth] Calling GoogleAuth.signIn()...');
+        // Plugin auto-initializes from capacitor.config.ts on native platforms
         const googleUser = await GoogleAuth.signIn();
-        console.log('[GoogleAuth] Sign-in successful, got user');
+        console.log('[GoogleAuth] ✅ Sign-in successful');
         
         const { error } = await supabase.auth.signInWithIdToken({
           provider: 'google',
@@ -52,23 +30,20 @@ const Landing = () => {
         });
 
         if (error) throw error;
-        
         navigate("/dashboard");
       } else {
         // Web OAuth flow for browsers
-        const redirectUrl = `${window.location.origin}/dashboard`;
-        
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: redirectUrl,
+            redirectTo: `${window.location.origin}/dashboard`,
           },
         });
 
         if (error) throw error;
       }
     } catch (error: any) {
-      console.error('[GoogleAuth] Sign-in error:', error);
+      console.error('[GoogleAuth] ❌ Error:', error);
       toast.error(error.message || "Failed to sign in with Google");
     } finally {
       setLoading(false);
