@@ -1,120 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 240 33% 99%;
-    --foreground: 240 10% 10%;
+    /* Clean white & light backgrounds */
+    --background: 220 15% 98%; /* #F8F9FB */
+    --foreground: 220 10% 15%; /* Near black */
+    --card: 0 0% 100%; /* Pure white */
+    --card-foreground: 220 10% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
-
-    --primary: 262 83% 58%;
+    /* Sky blue primary (hero gradient) */
+    --primary: 200 98% 55%; /* Sky-500 */
     --primary-foreground: 0 0% 100%;
+    --primary-dark: 215 85% 45%; /* Indigo-600 */
 
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 6% 10%;
+    /* Subtle grays */
+    --muted: 220 10% 50%;
+    --muted-foreground: 220 10% 45%;
+    --secondary: 220 15% 96%;
+    --secondary-foreground: 220 10% 15%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    /* Borders */
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 200 98% 55%;
 
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 100%;
-
+    /* Success green */
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-
+    /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 262 83% 58%;
+    /* Status colors */
+    --status-green: 142 71% 45%;
+    --status-blue: 200 98% 55%;
+    --status-orange: 38 92% 50%;
 
+    /* Accent colors */
+    --accent: 220 15% 96%;
+    --accent-foreground: 220 10% 15%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 15%;
+
+    /* Chart colors */
+    --chart-1: 200 98% 55%; /* Blue */
+    --chart-2: 142 71% 45%; /* Green */
+    --chart-3: 262 83% 58%; /* Purple */
+    --chart-4: 38 92% 50%; /* Orange */
+    --chart-5: 340 82% 52%; /* Red */
+
+    /* Border radius */
     --radius: 0.75rem;
-    
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(282 83% 68%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(162 71% 55%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100% / 0.8) 0%, hsl(0 0% 100% / 0.4) 100%);
-    
-    --shadow-soft: 0 2px 8px hsl(240 10% 10% / 0.04);
-    --shadow-medium: 0 4px 16px hsl(240 10% 10% / 0.08);
-    --shadow-strong: 0 8px 32px hsl(240 10% 10% / 0.12);
-    --shadow-glow: 0 0 24px hsl(262 83% 58% / 0.2);
-    
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.08);
+    --shadow-xl: 0 10px 20px rgba(0, 0, 0, 0.1);
+
+    /* Sidebar (keep for compatibility) */
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 240 10% 8%;
-    --foreground: 240 5% 96%;
+    --background: 220 15% 10%;
+    --foreground: 220 10% 95%;
+    --card: 220 15% 12%;
+    --card-foreground: 220 10% 95%;
 
-    --card: 240 6% 12%;
-    --card-foreground: 240 5% 96%;
-
-    --popover: 240 6% 12%;
-    --popover-foreground: 240 5% 96%;
-
-    --primary: 262 83% 58%;
+    --primary: 200 98% 55%;
     --primary-foreground: 0 0% 100%;
+    --primary-dark: 215 85% 35%;
 
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 240 5% 96%;
+    --muted: 220 10% 40%;
+    --muted-foreground: 220 10% 60%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 220 10% 95%;
 
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 64%;
-
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 100%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 200 98% 55%;
 
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 262 83% 58%;
-    
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(282 83% 68%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(162 71% 55%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(240 6% 14% / 0.8) 0%, hsl(240 6% 12% / 0.6) 100%);
-    
-    --shadow-soft: 0 2px 8px hsl(0 0% 0% / 0.2);
-    --shadow-medium: 0 4px 16px hsl(0 0% 0% / 0.3);
-    --shadow-strong: 0 8px 32px hsl(0 0% 0% / 0.4);
-    --shadow-glow: 0 0 24px hsl(262 83% 58% / 0.3);
+    --accent: 220 15% 15%;
+    --accent-foreground: 220 10% 95%;
+
+    --popover: 220 15% 12%;
+    --popover-foreground: 220 10% 95%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -130,8 +122,37 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
   }
 }

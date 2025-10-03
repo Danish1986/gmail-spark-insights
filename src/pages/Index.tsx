@@ -1,308 +1,225 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreditCard } from "@/components/CreditCard";
-import { StatCard } from "@/components/StatCard";
-import { SpendingChart } from "@/components/SpendingChart";
-import { TransactionTable } from "@/components/TransactionTable";
-import { Button } from "@/components/ui/button";
-import {
-  Wallet,
-  TrendingUp,
-  ShoppingBag,
-  Zap,
-  Calendar,
-  DollarSign,
-  ArrowUpRight,
-  Target,
-  Sparkles,
-} from "lucide-react";
+import { BottomTabNav } from "@/components/BottomTabNav";
+import { Hero } from "@/components/Hero";
+import { ChartSection } from "@/components/ChartSection";
+import { CreditCardTile } from "@/components/CreditCardTile";
+import { TransactionList } from "@/components/TransactionList";
 
-const mockCreditCards = [
-  {
-    name: "HDFC Diners Black",
-    bank: "HDFC Bank",
-    last4: "4567",
-    expiry: "12/26",
-    rewardPoints: 142500,
-    rewardValue: 71250,
-    status: "redeem" as const,
-    rewardRates: { dining: 10, shopping: 5, travel: 8, fuel: 3 },
-    benefits: ["Airport Lounge Access", "Golf Privileges"],
-  },
-  {
-    name: "ICICI Amazon Pay",
-    bank: "ICICI Bank",
-    last4: "8901",
-    expiry: "06/27",
-    rewardPoints: 8750,
-    rewardValue: 2187.5,
-    status: "accumulate" as const,
-    rewardRates: { dining: 2, shopping: 5, travel: 2, fuel: 2 },
-    benefits: ["Amazon Prime", "No Annual Fee"],
-  },
-  {
-    name: "Axis Magnus",
-    bank: "Axis Bank",
-    last4: "2345",
-    expiry: "09/27",
-    rewardPoints: 12800,
-    rewardValue: 5120,
-    status: "review" as const,
-    rewardRates: { dining: 6, shopping: 4, travel: 12, fuel: 2 },
-    benefits: ["Travel Vouchers", "Unlimited Lounge Access"],
-  },
-];
-
-const spendingData = [
-  { day: "1-5", amount: 15000 },
-  { day: "6-10", amount: 28000 },
-  { day: "11-15", amount: 22000 },
-  { day: "16-20", amount: 31000 },
-  { day: "21-25", amount: 19000 },
-  { day: "26-30", amount: 25000 },
-];
-
-const transactionBreakdown = [
-  { range: "< ₹100", count: 45, percentage: 22, potentialRewards: 450 },
-  { range: "₹100 - ₹200", count: 38, percentage: 19, potentialRewards: 760 },
-  { range: "₹200 - ₹500", count: 52, percentage: 26, potentialRewards: 2600 },
-  { range: "₹500 - ₹1000", count: 31, percentage: 15, potentialRewards: 3100 },
-  { range: "₹1000 - ₹2000", count: 22, percentage: 11, potentialRewards: 4400 },
-  { range: "> ₹2000", count: 14, percentage: 7, potentialRewards: 8400 },
-];
+// Mock data
+const MOCK_DATA = {
+  months: [
+    { month: "Aug 2025", income: 570000, spends: 1620819, investments: 120000 },
+    { month: "Sep 2025", income: 501489, spends: 375982, investments: 100794 },
+  ],
+  incomingSplit: [
+    { name: "Salary", value: 423782, color: "#3b82f6" },
+    { name: "Dividend", value: 11287, color: "#22c55e" },
+    { name: "Interest", value: 25743, color: "#a78bfa" },
+    { name: "Refunds", value: 1889, color: "#f59e0b" },
+    { name: "Others", value: 20341, color: "#60a5fa" },
+  ],
+  categorySplit: [
+    { name: "Food", value: 5080, color: "#f87171" },
+    { name: "Groceries", value: 97000, color: "#34d399" },
+    { name: "Shopping", value: 11273, color: "#60a5fa" },
+    { name: "Travel", value: 449653, color: "#f59e0b" },
+    { name: "Utilities", value: 63853, color: "#a78bfa" },
+  ],
+  spendsByInstrument: [
+    { name: "UPI", value: 456291, color: "#f59e0b" },
+    { name: "Credit Card", value: 985465, color: "#3b82f6" },
+    { name: "IMPS/NEFT", value: 275000, color: "#a78bfa" },
+    { name: "P2A Transfer", value: 125000, color: "#22c55e" },
+    { name: "Others", value: 417958, color: "#ef4444" },
+  ],
+  cards: [
+    {
+      id: "hdfc-diners",
+      name: "HDFC Diners Black",
+      bank: "HDFC Bank",
+      logo: "https://upload.wikimedia.org/wikipedia/commons/5/53/HDFC_Bank_Logo.svg",
+      last4: "4567",
+      exp: "12/26",
+      limit: 500000,
+      utilizationPct: 14,
+      spends: 120000,
+      rewardPoints: 142500,
+      rewardValue: 71250,
+      benefits: ["Airport Lounge", "Golf Privileges", "Dining 10x"],
+      transactions: [
+        {
+          id: 1,
+          date: "2025-09-12",
+          merchant: "Olive Bar & Kitchen",
+          merchantLogo: "https://logo.clearbit.com/olivebarandkitchen.com",
+          amount: 4500,
+          points: 450,
+        },
+        {
+          id: 2,
+          date: "2025-09-03",
+          merchant: "Booking.com",
+          merchantLogo: "https://logo.clearbit.com/booking.com",
+          amount: 12000,
+          points: 960,
+        },
+        {
+          id: 3,
+          date: "2025-09-20",
+          merchant: "Zomato",
+          merchantLogo: "https://logo.clearbit.com/zomato.com",
+          amount: 800,
+          points: 80,
+        },
+      ],
+    },
+    {
+      id: "axis-magnus",
+      name: "Axis Magnus",
+      bank: "Axis Bank",
+      logo: "https://upload.wikimedia.org/wikipedia/commons/7/74/Axis_Bank_logo.svg",
+      last4: "2345",
+      exp: "09/27",
+      limit: 300000,
+      utilizationPct: 4,
+      spends: 60000,
+      rewardPoints: 12800,
+      rewardValue: 5120,
+      benefits: ["Travel Vouchers", "Lounge Access"],
+      transactions: [
+        {
+          id: 4,
+          date: "2025-09-10",
+          merchant: "Starbucks",
+          merchantLogo: "https://logo.clearbit.com/starbucks.com",
+          amount: 800,
+          points: 48,
+        },
+      ],
+    },
+  ],
+};
 
 const Index = () => {
-  const [selectedMonth, setSelectedMonth] = useState("current");
+  const [activeTab, setActiveTab] = useState("home");
+  const [monthIndex, setMonthIndex] = useState(1); // Sep 2025
+  const [activeCardId, setActiveCardId] = useState(MOCK_DATA.cards[0].id);
+
+  const handleMonthNavigate = (direction: "prev" | "next") => {
+    if (direction === "prev") {
+      setMonthIndex((prev) => Math.max(0, prev - 1));
+    } else {
+      setMonthIndex((prev) => Math.min(MOCK_DATA.months.length - 1, prev + 1));
+    }
+  };
+
+  const activeCard = MOCK_DATA.cards.find((c) => c.id === activeCardId) || MOCK_DATA.cards[0];
+  const totalMonthPoints = activeCard.transactions.reduce((sum, t) => sum + t.points, 0);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">CardIQ</h1>
-                <p className="text-xs text-muted-foreground">Smart Rewards Optimizer</p>
-              </div>
-            </div>
-            <Button variant="premium" size="sm">
-              <ArrowUpRight className="h-4 w-4 mr-1" />
-              Connect Gmail
-            </Button>
-          </div>
+    <div className="min-h-screen flex justify-center bg-gradient-to-b from-blue-50 to-gray-50">
+      <div className="w-full max-w-[420px] min-h-screen bg-white shadow-2xl rounded-t-3xl flex flex-col">
+        {/* Top bar */}
+        <div className="h-3 safe-top" />
+        <div className="p-4 border-b border-border">
+          <h1 className="text-xl font-extrabold text-foreground tracking-tight">Financial Life</h1>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="home" className="space-y-8">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 h-12 bg-secondary/50 p-1 rounded-xl">
-            <TabsTrigger value="home" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">
-              Home
-            </TabsTrigger>
-            <TabsTrigger value="cards" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">
-              Credit Cards
-            </TabsTrigger>
-            <TabsTrigger value="goals" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">
-              Goals & Forecasts
-            </TabsTrigger>
-            <TabsTrigger
-              value="optimize"
-              className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm"
-            >
-              Optimization
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Home Tab */}
-          <TabsContent value="home" className="space-y-8">
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard
-                title="Total Spends This Month"
-                value="₹1,40,000"
-                icon={Wallet}
-                trend={{ value: "12%", positive: false }}
-              />
-              <StatCard
-                title="Rewards Earned"
-                value="₹8,450"
-                icon={TrendingUp}
-                trend={{ value: "8%", positive: true }}
-              />
-              <StatCard title="Active Cards" value="3" icon={ShoppingBag} />
-              <StatCard title="Optimization Score" value="87/100" icon={Zap} trend={{ value: "5 pts", positive: true }} />
+        {/* Main content */}
+        <div className="flex-grow overflow-y-auto pb-20">
+          {activeTab === "home" && (
+            <div>
+              <Hero data={MOCK_DATA.months} currentIndex={monthIndex} onNavigate={handleMonthNavigate} />
+              <ChartSection title="Incoming Split" data={MOCK_DATA.incomingSplit} type="bar" />
+              <ChartSection title="Spends by Category" data={MOCK_DATA.categorySplit} type="progress" />
+              <ChartSection title="Payment Methods" data={MOCK_DATA.spendsByInstrument} type="bar" />
             </div>
+          )}
 
-            {/* Spending Pattern */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-medium)]">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-1">Spending Pattern</h2>
-                  <p className="text-sm text-muted-foreground">30-day journey breakdown</p>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  This Month
-                </Button>
-              </div>
-              <SpendingChart data={spendingData} />
-              <div className="mt-6 p-4 bg-accent/50 rounded-lg">
-                <p className="text-sm text-foreground">
-                  <span className="font-semibold">First 10 days insight:</span> Your spending was 23% higher than usual,
-                  primarily driven by travel (₹28,450) and shopping (₹14,320) categories. Consider using your Axis Magnus
-                  for travel to maximize rewards.
-                </p>
-              </div>
-            </div>
+          {activeTab === "optimize" && (
+            <div className="p-4">
+              <div className="text-lg font-bold mb-3 text-foreground">Credit Cards</div>
 
-            {/* Category Breakdown */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-medium)]">
-                <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-primary" />
-                  Top Categories
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { name: "Travel", amount: 44965, percent: 32 },
-                    { name: "Groceries", amount: 28420, percent: 20 },
-                    { name: "Shopping", amount: 19850, percent: 14 },
-                    { name: "Food & Dining", amount: 15680, percent: 11 },
-                    { name: "Utilities", amount: 12340, percent: 9 },
-                  ].map((cat) => (
-                    <div key={cat.name} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium text-foreground">{cat.name}</span>
-                        <span className="text-muted-foreground">₹{cat.amount.toLocaleString("en-IN")}</span>
-                      </div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-primary to-purple-600 rounded-full"
-                          style={{ width: `${cat.percent}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-medium)]">
-                <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Target className="h-5 w-5 text-primary" />
-                  Payment Methods
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { name: "Credit Cards", amount: 98546, icon: "💳" },
-                    { name: "UPI", amount: 45629, icon: "📱" },
-                    { name: "P2M Transfers", amount: 27500, icon: "🔄" },
-                    { name: "P2A Transfers", amount: 12500, icon: "👤" },
-                    { name: "IMPS/NEFT", amount: 8650, icon: "🏦" },
-                  ].map((method) => (
-                    <div key={method.name} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{method.icon}</span>
-                        <span className="font-medium text-foreground">{method.name}</span>
-                      </div>
-                      <span className="font-semibold text-foreground">
-                        ₹{method.amount.toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Credit Cards Tab */}
-          <TabsContent value="cards" className="space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-foreground mb-2">Your Credit Cards</h2>
-              <p className="text-muted-foreground">Manage and optimize your card rewards</p>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {mockCreditCards.map((card) => (
-                <CreditCard key={card.last4} {...card} />
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Goals & Forecasts Tab */}
-          <TabsContent value="goals" className="space-y-6">
-            <div className="rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-medium)] text-center">
-              <Target className="h-16 w-16 text-primary mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-foreground mb-2">Goals & Forecasts Coming Soon</h3>
-              <p className="text-muted-foreground mb-6">
-                Set financial goals and get AI-powered forecasts for your spending patterns
-              </p>
-              <Button variant="premium">Connect Gmail to Get Started</Button>
-            </div>
-          </TabsContent>
-
-          {/* Optimization Tab */}
-          <TabsContent value="optimize" className="space-y-6">
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-medium)]">
-              <h2 className="text-2xl font-bold text-foreground mb-4">Transaction Analysis & Optimization</h2>
-              <p className="text-muted-foreground mb-6">
-                Analyzing your P2M transactions to maximize reward potential
-              </p>
-              <TransactionTable data={transactionBreakdown} />
-              <div className="mt-6 p-6 bg-gradient-to-br from-success/10 to-success/5 rounded-xl border border-success/20">
-                <h4 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-success" />
-                  Optimization Insight
-                </h4>
-                <p className="text-sm text-foreground mb-4">
-                  You have <span className="font-bold">90 transactions above ₹200</span> (45% of total). By using your{" "}
-                  <span className="font-bold text-primary">HDFC Diners Black</span> card for these transactions, you
-                  could earn an additional:
-                </p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold text-success">₹19,310</span>
-                  <span className="text-muted-foreground">in rewards per month</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Recommended Cards */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-medium)]">
-              <h3 className="text-xl font-bold text-foreground mb-4">Recommended Card Strategy</h3>
-              <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded bg-primary/10">
-                      <TrendingUp className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-foreground mb-1">Use HDFC Diners Black for Dining</h4>
-                      <p className="text-sm text-muted-foreground">
-                        With 10x rewards on dining, you can earn up to ₹4,500 extra monthly on your food expenses
-                      </p>
+              {/* Overview card */}
+              <div className="mb-4 bg-card rounded-2xl p-4 shadow-sm border border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Cards</div>
+                    <div className="font-bold text-lg text-foreground">{MOCK_DATA.cards.length} active</div>
+                    <div className="text-xs text-muted-foreground">
+                      Total limit: ₹
+                      {MOCK_DATA.cards.reduce((a, b) => a + b.limit, 0).toLocaleString("en-IN")} • Avg util:{" "}
+                      {Math.round(
+                        MOCK_DATA.cards.reduce((a, b) => a + b.utilizationPct, 0) / MOCK_DATA.cards.length
+                      )}
+                      %
                     </div>
                   </div>
-                </div>
-                <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded bg-blue-500/10">
-                      <ShoppingBag className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <div className="text-sm text-muted-foreground">Total rewards</div>
+                    <div className="font-bold text-right text-foreground">
+                      {MOCK_DATA.cards.reduce((a, b) => a + b.rewardPoints, 0).toLocaleString()} pts
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-foreground mb-1">Use ICICI Amazon Pay for Online Shopping</h4>
-                      <p className="text-sm text-muted-foreground">
-                        5% cashback on Amazon and 5x rewards on other online shopping platforms
-                      </p>
+                    <div className="text-xs text-right text-success">
+                      ₹{MOCK_DATA.cards.reduce((a, b) => a + b.rewardValue, 0).toLocaleString("en-IN")}
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Card carousel */}
+              <div className="mb-4">
+                <div className="text-sm text-muted-foreground mb-2">Quick view</div>
+                <div className="overflow-x-auto no-scrollbar py-2">
+                  <div className="flex gap-4">
+                    {MOCK_DATA.cards.map((card) => (
+                      <CreditCardTile
+                        key={card.id}
+                        card={card}
+                        isActive={activeCardId === card.id}
+                        onClick={() => setActiveCardId(card.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Transactions */}
+              <TransactionList
+                cardName={activeCard.name}
+                cardBank={activeCard.bank}
+                last4={activeCard.last4}
+                exp={activeCard.exp}
+                month="Sep 2025"
+                transactions={activeCard.transactions}
+                totalPoints={totalMonthPoints}
+                rewardValue={activeCard.rewardValue}
+              />
             </div>
-          </TabsContent>
-        </Tabs>
-      </main>
+          )}
+
+          {activeTab === "loans" && (
+            <div className="p-4">
+              <div className="text-lg font-bold mb-3 text-foreground">Loans</div>
+              <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+                <p className="text-muted-foreground">No active loans</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "goals" && (
+            <div className="p-4">
+              <div className="text-lg font-bold mb-3 text-foreground">Goals</div>
+              <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+                <p className="text-muted-foreground">No goals configured</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom navigation */}
+        <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
     </div>
   );
 };
