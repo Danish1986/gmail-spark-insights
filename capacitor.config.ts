@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.9cdc8fb8661b49ca969c84aa279105d2',
+  appId: 'com.lovable.gmailinsights',
   appName: 'gmail-spark-insights',
   webDir: 'dist',
   plugins: {
