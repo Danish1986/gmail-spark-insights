@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      email_accounts: {
+        Row: {
+          access_token: string | null
+          connected_at: string | null
+          email: string
+          id: string
+          last_synced_at: string | null
+          provider: string
+          refresh_token: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          connected_at?: string | null
+          email: string
+          id?: string
+          last_synced_at?: string | null
+          provider: string
+          refresh_token?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          connected_at?: string | null
+          email?: string
+          id?: string
+          last_synced_at?: string | null
+          provider?: string
+          refresh_token?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          email_consent: boolean | null
+          email_consent_at: string | null
+          full_name: string | null
+          id: string
+          phone: string
+          terms_accepted: boolean | null
+          terms_accepted_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          email_consent?: boolean | null
+          email_consent_at?: string | null
+          full_name?: string | null
+          id: string
+          phone: string
+          terms_accepted?: boolean | null
+          terms_accepted_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          email_consent?: boolean | null
+          email_consent_at?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string
+          terms_accepted?: boolean | null
+          terms_accepted_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

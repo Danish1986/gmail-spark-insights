@@ -1,4 +1,5 @@
-import { Home, TrendingUp, FileText, Target } from "lucide-react";
+import { Home, TrendingUp, FileText, Target, User } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface BottomTabNavProps {
   activeTab: string;
@@ -6,23 +7,41 @@ interface BottomTabNavProps {
 }
 
 const navItems = [
-  { id: "home", label: "Home", icon: Home },
-  { id: "optimize", label: "Optimize", icon: TrendingUp },
-  { id: "loans", label: "Loans", icon: FileText },
-  { id: "goals", label: "Goals", icon: Target },
+  { id: "home", label: "Home", icon: Home, path: "/dashboard" },
+  { id: "optimize", label: "Optimize", icon: TrendingUp, path: null },
+  { id: "loans", label: "Loans", icon: FileText, path: null },
+  { id: "goals", label: "Goals", icon: Target, path: null },
+  { id: "profile", label: "Profile", icon: User, path: "/profile" },
 ];
 
 export const BottomTabNav = ({ activeTab, onTabChange }: BottomTabNavProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const handleTabClick = (item: typeof navItems[0]) => {
+    if (item.path) {
+      navigate(item.path);
+    } else {
+      onTabChange(item.id);
+    }
+  };
+
+  const isTabActive = (item: typeof navItems[0]) => {
+    if (item.path) {
+      return location.pathname === item.path;
+    }
+    return activeTab === item.id;
+  };
+
   return (
     <div className="sticky bottom-0 p-2 bg-white/50 backdrop-blur-lg safe-bottom">
-      <div className="grid grid-cols-4 border border-border bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl">
+      <div className="grid grid-cols-5 border border-border bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeTab === item.id;
+          const isActive = isTabActive(item);
           return (
             <button
               key={item.id}
-              onClick={() => onTabChange(item.id)}
+              onClick={() => handleTabClick(item)}
               className={`p-3 font-semibold flex flex-col text-xs items-center justify-center gap-1 rounded-xl transition-all duration-200 min-h-[60px] ${
                 isActive ? "bg-gray-900 text-white scale-105" : "text-gray-600 hover:bg-gray-100"
               }`}
