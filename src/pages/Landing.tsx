@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp, Shield, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Capacitor } from "@capacitor/core";
+import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -12,16 +14,35 @@ const Landing = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const platform = Capacitor.getPlatform();
       
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: redirectUrl,
-        },
-      });
+      if (platform === 'android' || platform === 'ios') {
+        // Native Google Sign-In for mobile
+        const googleUser = await GoogleAuth.signIn();
+        
+        // Sign in to Supabase with the Google ID token
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: googleUser.authentication.idToken,
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+        
+        // Navigate to dashboard on success
+        navigate("/dashboard");
+      } else {
+        // Web OAuth flow for browsers
+        const redirectUrl = `${window.location.origin}/dashboard`;
+        
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: redirectUrl,
+          },
+        });
+
+        if (error) throw error;
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in with Google");
       setLoading(false);

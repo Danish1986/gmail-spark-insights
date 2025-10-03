@@ -7,6 +7,13 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://9cdc8fb8-661b-49ca-969c-84aa279105d2.lovableproject.com?forceHideBadge=true',
     cleartext: true
+  },
+  plugins: {
+    GoogleAuth: {
+      scopes: ['profile', 'email'],
+      serverClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+      forceCodeForRefreshToken: true
+    }
   }
 };
 
