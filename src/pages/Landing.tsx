@@ -1,49 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Shield, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Capacitor } from "@capacitor/core";
-import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 
 const Landing = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const platform = Capacitor.getPlatform();
-      console.log('[GoogleAuth] Platform:', platform);
-      console.log('[GoogleAuth] Starting sign-in...');
-      
-      if (platform === 'android' || platform === 'ios') {
-        // Plugin auto-initializes from capacitor.config.ts on native platforms
-        const googleUser = await GoogleAuth.signIn();
-        console.log('[GoogleAuth] ✅ Sign-in successful');
-        
-        const { error } = await supabase.auth.signInWithIdToken({
-          provider: 'google',
-          token: googleUser.authentication.idToken,
-        });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
 
-        if (error) throw error;
-        navigate("/dashboard");
-      } else {
-        // Web OAuth flow for browsers
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${window.location.origin}/dashboard`,
-          },
-        });
-
-        if (error) throw error;
-      }
+      if (error) throw error;
     } catch (error: any) {
-      console.error('[GoogleAuth] ❌ Error:', error);
+      console.error('Sign-in error:', error);
       toast.error(error.message || "Failed to sign in with Google");
     } finally {
       setLoading(false);
