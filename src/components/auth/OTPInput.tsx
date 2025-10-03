@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface OTPInputProps {
   phone: string;
@@ -17,6 +17,11 @@ export const OTPInput = ({ phone, onVerified, onResend }: OTPInputProps) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
+    // Auto-focus first input on mount
+    inputRefs.current[0]?.focus();
+  }, []);
+
+  useEffect(() => {
     if (resendTimer > 0) {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
       return () => clearTimeout(timer);
@@ -24,10 +29,8 @@ export const OTPInput = ({ phone, onVerified, onResend }: OTPInputProps) => {
   }, [resendTimer]);
 
   const handleChange = (index: number, value: string) => {
-    if (value.length > 1) {
-      value = value.slice(-1);
-    }
-
+    if (value.length > 1) return;
+    
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -36,22 +39,26 @@ export const OTPInput = ({ phone, onVerified, onResend }: OTPInputProps) => {
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
+
+    // Auto-verify when all 6 digits entered
+    if (value && index === 5) {
+      const otpCode = [...newOtp.slice(0, 5), value].join("");
+      if (otpCode.length === 6) {
+        setTimeout(() => handleVerify(otpCode), 100);
+      }
+    }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  const handleVerify = async () => {
-    const otpCode = otp.join("");
-    if (otpCode.length !== 6) {
-      toast({
-        title: "Invalid OTP",
-        description: "Please enter all 6 digits",
-        variant: "destructive",
-      });
+  const handleVerify = async (otpCode?: string) => {
+    const code = otpCode || otp.join("");
+    if (code.length !== 6) {
+      toast.error("Please enter all 6 digits");
       return;
     }
 
@@ -59,78 +66,99 @@ export const OTPInput = ({ phone, onVerified, onResend }: OTPInputProps) => {
     try {
       const { error } = await supabase.auth.verifyOtp({
         phone,
-        token: otpCode,
+        token: code,
         type: "sms",
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Phone verified successfully",
-      });
-      
+      toast.success("Phone verified successfully!");
       onVerified();
     } catch (error: any) {
-      toast({
-        title: "Verification failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message || "Verification failed");
+      // Clear OTP on error
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResend = () => {
-    setResendTimer(30);
-    setOtp(["", "", "", "", "", ""]);
-    inputRefs.current[0]?.focus();
-    onResend();
+  const handleResend = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone,
+      });
+
+      if (error) throw error;
+
+      setOtp(["", "", "", "", "", ""]);
+      setResendTimer(30);
+      inputRefs.current[0]?.focus();
+      toast.success("OTP sent successfully!");
+      onResend();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to resend OTP");
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-sm text-muted-foreground mb-4 text-center">
-          Enter the 6-digit code sent to {phone}
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold text-foreground">
+          Enter verification code
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          We've sent a 6-digit code to<br />
+          <span className="font-medium text-foreground">{phone}</span>
         </p>
-        
-        <div className="flex gap-2 justify-center">
+      </div>
+
+      {/* OTP Input */}
+      <div className="space-y-6">
+        <div className="flex gap-2 justify-between">
           {otp.map((digit, index) => (
             <Input
               key={index}
               ref={(el) => (inputRefs.current[index] = el)}
-              type="text"
+              type="tel"
               inputMode="numeric"
               maxLength={1}
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="w-12 h-12 text-center text-lg font-semibold"
+              className="w-12 h-14 text-center text-xl font-bold"
+              disabled={loading}
             />
           ))}
         </div>
-      </div>
 
-      <Button 
-        onClick={handleVerify} 
-        disabled={loading || otp.join("").length !== 6}
-        className="w-full"
-        size="lg"
-      >
-        {loading ? "Verifying..." : "Verify OTP"}
-      </Button>
+        {/* Verify Button */}
+        <Button 
+          onClick={() => handleVerify()} 
+          disabled={loading || otp.join("").length !== 6}
+          className="w-full h-12 text-base font-semibold"
+          size="lg"
+        >
+          {loading ? "Verifying..." : "Verify OTP"}
+        </Button>
 
-      <div className="text-center">
-        {resendTimer > 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Resend OTP in {resendTimer}s
-          </p>
-        ) : (
-          <Button variant="link" onClick={handleResend}>
-            Resend OTP
-          </Button>
-        )}
+        {/* Resend OTP */}
+        <div className="text-center">
+          {resendTimer > 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Didn't receive code? Resend in <span className="font-medium text-foreground">{resendTimer}s</span>
+            </p>
+          ) : (
+            <button
+              onClick={handleResend}
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Resend OTP
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
