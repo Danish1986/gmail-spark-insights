@@ -49,48 +49,44 @@ export const FixedExpensesModal = ({ isOpen, onClose, data }: FixedExpensesModal
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
-          {/* Summary */}
-          <div className="bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-xl p-4">
-            <div className="text-sm text-muted-foreground mb-1">
+        <div className="p-4 space-y-3">
+          {/* Summary - More Compact */}
+          <div className="bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-xl p-3">
+            <div className="text-xs text-muted-foreground mb-1">
               Predicted Monthly Requirement
-              <span className="text-xs ml-2">(Based on last {data.basedOnMonths} months)</span>
+              <span className="text-[10px] ml-1">(Based on last {data.basedOnMonths} months)</span>
             </div>
-            <div className="text-2xl font-bold">₹{Math.round(data.predictedAmount).toLocaleString("en-IN")}</div>
+            <div className="text-xl font-bold">₹{Math.round(data.predictedAmount).toLocaleString("en-IN")}</div>
           </div>
 
-          {/* Categories */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground">Expense Categories</h3>
-            {data.categories.map((category) => (
-              <button
-                key={category.name}
-                onClick={() => setSelectedCategory(category)}
-                className="w-full bg-card rounded-xl p-4 border hover:border-primary/50 transition-colors text-left"
-              >
-                <div className="flex items-start justify-between mb-2">
+          {/* Categories - Compact List */}
+          <div className="space-y-0">
+            <h3 className="text-xs font-semibold text-muted-foreground mb-2 px-1">Expense Categories</h3>
+            <div className="bg-card rounded-xl border divide-y divide-border">
+              {data.categories.map((category) => (
+                <button
+                  key={category.name}
+                  onClick={() => setSelectedCategory(category)}
+                  className="w-full p-3 hover:bg-muted/50 transition-colors text-left flex items-center justify-between min-h-[44px]"
+                >
+                  <div className="flex items-center gap-2.5 flex-1">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0`} style={{ backgroundColor: category.color }} />
+                    <div className="font-semibold text-sm text-foreground">{category.name}</div>
+                  </div>
                   <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full`} style={{ backgroundColor: category.color }} />
-                    <div className="font-semibold">{category.name}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold">₹{Math.round(category.amount).toLocaleString("en-IN")}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {((category.amount / totalAmount) * 100).toFixed(1)}%
+                    <div className="text-right">
+                      <div className="font-bold text-sm">₹{Math.round(category.amount).toLocaleString("en-IN")}</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {((category.amount / totalAmount) * 100).toFixed(1)}%
+                      </div>
                     </div>
+                    <svg className="w-4 h-4 text-muted-foreground flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full"
-                    style={{
-                      width: `${(category.amount / totalAmount) * 100}%`,
-                      backgroundColor: category.color,
-                    }}
-                  />
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

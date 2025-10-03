@@ -31,6 +31,94 @@ const MOCK_DATA = {
     { name: "Travel", value: 449653, color: "#f59e0b" },
     { name: "Utilities", value: 63853, color: "#a78bfa" },
   ],
+  // User Profile for Card Recommendations
+  userProfile: {
+    monthlyIncome: 150000,
+    annualIncome: 1800000,
+    currentPrimaryCard: {
+      id: "hdfc-reg",
+      name: "HDFC Regalia",
+      bank: "HDFC Bank",
+      rewardRates: {
+        dining: 2,
+        shopping: 1,
+        travel: 2,
+        groceries: 1,
+        utilities: 0.5,
+      },
+    },
+  },
+  eligibleCards: [
+    {
+      id: "amex-platinum",
+      name: "American Express Platinum",
+      bank: "American Express",
+      annualFee: 60000,
+      incomeRequirement: 1500000,
+      rewardRates: {
+        dining: 5,
+        shopping: 3,
+        travel: 10,
+        groceries: 2,
+        utilities: 1,
+      },
+      incrementalRewards: {
+        dining: 3200,
+        shopping: 1800,
+        travel: 8500,
+        groceries: 900,
+        utilities: 400,
+        total: 14800,
+      },
+      annualBenefit: 177600, // 12 months
+    },
+    {
+      id: "hdfc-infinia",
+      name: "HDFC Infinia",
+      bank: "HDFC Bank",
+      annualFee: 12500,
+      incomeRequirement: 1800000,
+      rewardRates: {
+        dining: 4,
+        shopping: 2.5,
+        travel: 6,
+        groceries: 2,
+        utilities: 1,
+      },
+      incrementalRewards: {
+        dining: 2100,
+        shopping: 1400,
+        travel: 4200,
+        groceries: 800,
+        utilities: 350,
+        total: 8850,
+      },
+      annualBenefit: 106200, // 12 months
+    },
+    {
+      id: "sbi-elite",
+      name: "SBI Card Elite",
+      bank: "SBI Card",
+      annualFee: 4999,
+      incomeRequirement: 1200000,
+      rewardRates: {
+        dining: 3,
+        shopping: 2,
+        travel: 5,
+        groceries: 1.5,
+        utilities: 1,
+      },
+      incrementalRewards: {
+        dining: 1100,
+        shopping: 900,
+        travel: 3200,
+        groceries: 450,
+        utilities: 280,
+        total: 5930,
+      },
+      annualBenefit: 71160, // 12 months
+    },
+  ],
   // Historical optimization data (12 months)
   optimizationHistory: [
     { month: "Oct 2024", totalSpends: 320000, upiP2MSpends: 85000, missedRewards: 8500, creditCardSpends: 235000, earnedRewards: 11750, potentialRewards: 20250 },
@@ -1106,6 +1194,126 @@ const Index = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-5 w-5 text-success" />
                   <h2 className="text-lg font-bold text-foreground">Reward Optimization Planner</h2>
+                </div>
+
+                {/* Eligibility & Card Recommendations */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-4 mb-4 border border-green-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-success/10 rounded-full">
+                      <Sparkles className="h-4 w-4 text-success" />
+                      <span className="text-xs font-bold text-success">You're Eligible for Premium Cards!</span>
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-gray-700 mb-3">
+                    Based on your annual income of <span className="font-bold">{formatINR(MOCK_DATA.userProfile.annualIncome)}</span> ({formatINR(MOCK_DATA.userProfile.monthlyIncome)}/month), you qualify for premium credit cards with better rewards.
+                  </div>
+
+                  {/* Current Card Analysis */}
+                  <div className="bg-white/80 rounded-xl p-3 mb-3 border border-gray-200">
+                    <div className="text-xs font-semibold text-gray-900 mb-2">📊 Your Current Primary Card</div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <div className="text-sm font-bold text-gray-900">{MOCK_DATA.userProfile.currentPrimaryCard.name}</div>
+                        <div className="text-xs text-gray-600">{MOCK_DATA.userProfile.currentPrimaryCard.bank}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-red-600 font-semibold">Lower Rewards</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-5 gap-1 text-xs">
+                      <div className="text-center p-1.5 bg-red-50 rounded">
+                        <div className="text-gray-600 text-[10px]">Dining</div>
+                        <div className="font-bold text-red-600">{MOCK_DATA.userProfile.currentPrimaryCard.rewardRates.dining}%</div>
+                      </div>
+                      <div className="text-center p-1.5 bg-red-50 rounded">
+                        <div className="text-gray-600 text-[10px]">Shop</div>
+                        <div className="font-bold text-red-600">{MOCK_DATA.userProfile.currentPrimaryCard.rewardRates.shopping}%</div>
+                      </div>
+                      <div className="text-center p-1.5 bg-red-50 rounded">
+                        <div className="text-gray-600 text-[10px]">Travel</div>
+                        <div className="font-bold text-red-600">{MOCK_DATA.userProfile.currentPrimaryCard.rewardRates.travel}%</div>
+                      </div>
+                      <div className="text-center p-1.5 bg-red-50 rounded">
+                        <div className="text-gray-600 text-[10px]">Grocery</div>
+                        <div className="font-bold text-red-600">{MOCK_DATA.userProfile.currentPrimaryCard.rewardRates.groceries}%</div>
+                      </div>
+                      <div className="text-center p-1.5 bg-red-50 rounded">
+                        <div className="text-gray-600 text-[10px]">Bills</div>
+                        <div className="font-bold text-red-600">{MOCK_DATA.userProfile.currentPrimaryCard.rewardRates.utilities}%</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Top Recommended Card */}
+                  {MOCK_DATA.eligibleCards.slice(0, 1).map((card) => (
+                    <div key={card.id} className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-3 border-2 border-purple-300 mb-2">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="text-xs font-semibold text-purple-600 mb-0.5">🎯 RECOMMENDED</div>
+                          <div className="text-sm font-bold text-gray-900">{card.name}</div>
+                          <div className="text-xs text-gray-600">{card.bank}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-success font-semibold">+{formatINR(card.incrementalRewards.total)}/mo</div>
+                          <div className="text-[10px] text-gray-500">more rewards</div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-5 gap-1 text-xs mb-2">
+                        <div className="text-center p-1.5 bg-green-100 rounded">
+                          <div className="text-gray-600 text-[10px]">Dining</div>
+                          <div className="font-bold text-success">{card.rewardRates.dining}%</div>
+                        </div>
+                        <div className="text-center p-1.5 bg-green-100 rounded">
+                          <div className="text-gray-600 text-[10px]">Shop</div>
+                          <div className="font-bold text-success">{card.rewardRates.shopping}%</div>
+                        </div>
+                        <div className="text-center p-1.5 bg-green-100 rounded">
+                          <div className="text-gray-600 text-[10px]">Travel</div>
+                          <div className="font-bold text-success">{card.rewardRates.travel}%</div>
+                        </div>
+                        <div className="text-center p-1.5 bg-green-100 rounded">
+                          <div className="text-gray-600 text-[10px]">Grocery</div>
+                          <div className="font-bold text-success">{card.rewardRates.groceries}%</div>
+                        </div>
+                        <div className="text-center p-1.5 bg-green-100 rounded">
+                          <div className="text-gray-600 text-[10px]">Bills</div>
+                          <div className="font-bold text-success">{card.rewardRates.utilities}%</div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white/60 rounded-lg p-2 text-xs">
+                        <div className="font-semibold text-gray-900 mb-1">💰 Annual Impact Calculator</div>
+                        <div className="text-gray-700">
+                          If you had used <span className="font-bold text-purple-600">{card.name}</span> for the last 12 months, you would have earned{" "}
+                          <span className="font-bold text-success">{formatINR(card.annualBenefit)} more</span> in rewards!
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <div className="text-gray-600 text-[10px]">
+                            Annual Fee: {formatINR(card.annualFee)} • Net Benefit: <span className="font-bold text-success">{formatINR(card.annualBenefit - card.annualFee)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Other Eligible Cards - Compact View */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-semibold text-gray-700">Other Options:</div>
+                    {MOCK_DATA.eligibleCards.slice(1).map((card) => (
+                      <div key={card.id} className="bg-white/60 rounded-lg p-2.5 border border-gray-200 flex items-center justify-between">
+                        <div>
+                          <div className="text-xs font-bold text-gray-900">{card.name}</div>
+                          <div className="text-[10px] text-gray-600">{card.bank} • Fee: {formatINR(card.annualFee)}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs font-bold text-success">+{formatINR(card.incrementalRewards.total)}/mo</div>
+                          <div className="text-[10px] text-gray-500">{formatINR(card.annualBenefit)}/yr</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 
                 {/* Time Period Selector */}
