@@ -29,6 +29,21 @@ const MOCK_DATA = {
     { name: "Travel", value: 449653, color: "#f59e0b" },
     { name: "Utilities", value: 63853, color: "#a78bfa" },
   ],
+  // Historical optimization data (12 months)
+  optimizationHistory: [
+    { month: "Oct 2024", totalSpends: 320000, upiP2MSpends: 85000, missedRewards: 8500, creditCardSpends: 235000, earnedRewards: 11750, potentialRewards: 20250 },
+    { month: "Nov 2024", totalSpends: 295000, upiP2MSpends: 78000, missedRewards: 7800, creditCardSpends: 217000, earnedRewards: 10850, potentialRewards: 18650 },
+    { month: "Dec 2024", totalSpends: 450000, upiP2MSpends: 120000, missedRewards: 12000, creditCardSpends: 330000, earnedRewards: 16500, potentialRewards: 28500 },
+    { month: "Jan 2025", totalSpends: 310000, upiP2MSpends: 82000, missedRewards: 8200, creditCardSpends: 228000, earnedRewards: 11400, potentialRewards: 19600 },
+    { month: "Feb 2025", totalSpends: 285000, upiP2MSpends: 75000, missedRewards: 7500, creditCardSpends: 210000, earnedRewards: 10500, potentialRewards: 18000 },
+    { month: "Mar 2025", totalSpends: 340000, upiP2MSpends: 90000, missedRewards: 9000, creditCardSpends: 250000, earnedRewards: 12500, potentialRewards: 21500 },
+    { month: "Apr 2025", totalSpends: 315000, upiP2MSpends: 83000, missedRewards: 8300, creditCardSpends: 232000, earnedRewards: 11600, potentialRewards: 19900 },
+    { month: "May 2025", totalSpends: 365000, upiP2MSpends: 96000, missedRewards: 9600, creditCardSpends: 269000, earnedRewards: 13450, potentialRewards: 23050 },
+    { month: "Jun 2025", totalSpends: 330000, upiP2MSpends: 87000, missedRewards: 8700, creditCardSpends: 243000, earnedRewards: 12150, potentialRewards: 20850 },
+    { month: "Jul 2025", totalSpends: 355000, upiP2MSpends: 93000, missedRewards: 9300, creditCardSpends: 262000, earnedRewards: 13100, potentialRewards: 22400 },
+    { month: "Aug 2025", totalSpends: 380000, upiP2MSpends: 100000, missedRewards: 10000, creditCardSpends: 280000, earnedRewards: 14000, potentialRewards: 24000 },
+    { month: "Sep 2025", totalSpends: 376000, upiP2MSpends: 98000, missedRewards: 9800, creditCardSpends: 278000, earnedRewards: 13900, potentialRewards: 23700 },
+  ],
   categoryTransactions: {
     "Travel": [
       { id: "t1", date: "2025-09-03", merchant: "Booking.com", merchantLogo: "https://logo.clearbit.com/booking.com", amount: 125000, method: "Credit Card", category: "Travel" },
@@ -310,6 +325,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [monthIndex, setMonthIndex] = useState(1); // Sep 2025
   const [selectedCardId, setSelectedCardId] = useState(MOCK_DATA.cards[0].id);
+  const [optimizationPeriod, setOptimizationPeriod] = useState<"1m" | "3m" | "6m" | "12m">("12m");
   const [drillDownModal, setDrillDownModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -604,11 +620,154 @@ const Index = () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-5 w-5 text-success" />
-                  <h2 className="text-lg font-bold text-foreground">Reward Optimization</h2>
+                  <h2 className="text-lg font-bold text-foreground">Reward Optimization Planner</h2>
                 </div>
                 
+                {/* Time Period Selector */}
+                <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
+                  {[
+                    { key: "1m", label: "1 Month" },
+                    { key: "3m", label: "3 Months" },
+                    { key: "6m", label: "6 Months" },
+                    { key: "12m", label: "12 Months" },
+                  ].map((period) => (
+                    <button
+                      key={period.key}
+                      onClick={() => setOptimizationPeriod(period.key as any)}
+                      className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                        optimizationPeriod === period.key
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "bg-white text-gray-600 border border-gray-200 hover:border-primary"
+                      }`}
+                    >
+                      {period.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Historical Optimization Data */}
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-border mb-4">
+                  {(() => {
+                    const periodMap = { "1m": 1, "3m": 3, "6m": 6, "12m": 12 };
+                    const monthsToShow = periodMap[optimizationPeriod];
+                    const historyData = MOCK_DATA.optimizationHistory.slice(-monthsToShow);
+                    
+                    const totalMissed = historyData.reduce((sum, m) => sum + m.missedRewards, 0);
+                    const totalEarned = historyData.reduce((sum, m) => sum + m.earnedRewards, 0);
+                    const totalPotential = historyData.reduce((sum, m) => sum + m.potentialRewards, 0);
+                    const avgMissedPerMonth = Math.round(totalMissed / monthsToShow);
+                    
+                    return (
+                      <>
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-3 gap-2 mb-4">
+                          <div className="text-center p-3 bg-green-50 rounded-xl">
+                            <div className="text-xs text-gray-600 mb-1">Earned</div>
+                            <div className="text-base font-bold text-success">{formatINR(totalEarned)}</div>
+                            <div className="text-xs text-gray-500 mt-1">{monthsToShow}m avg</div>
+                          </div>
+                          <div className="text-center p-3 bg-red-50 rounded-xl">
+                            <div className="text-xs text-gray-600 mb-1">Missed</div>
+                            <div className="text-base font-bold text-red-600">{formatINR(totalMissed)}</div>
+                            <div className="text-xs text-gray-500 mt-1">{formatINR(avgMissedPerMonth)}/mo</div>
+                          </div>
+                          <div className="text-center p-3 bg-purple-50 rounded-xl">
+                            <div className="text-xs text-gray-600 mb-1">Potential</div>
+                            <div className="text-base font-bold text-purple-600">{formatINR(totalPotential)}</div>
+                            <div className="text-xs text-gray-500 mt-1">max possible</div>
+                          </div>
+                        </div>
+
+                        {/* Monthly Breakdown Chart */}
+                        <div className="mb-4">
+                          <div className="text-sm font-semibold text-gray-900 mb-3">Monthly Rewards Opportunity</div>
+                          <div className="space-y-2">
+                            {historyData.map((monthData, idx) => {
+                              const missedPct = (monthData.missedRewards / monthData.potentialRewards) * 100;
+                              const earnedPct = (monthData.earnedRewards / monthData.potentialRewards) * 100;
+                              
+                              return (
+                                <div key={idx} className="border border-gray-200 rounded-xl p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <div className="text-xs font-semibold text-gray-900">{monthData.month}</div>
+                                    <div className="text-xs text-gray-500">
+                                      Spend: {formatINR(monthData.totalSpends)}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Stacked Progress Bar */}
+                                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden flex mb-2">
+                                    <div 
+                                      className="bg-success" 
+                                      style={{ width: `${earnedPct}%` }}
+                                      title={`Earned: ${formatINR(monthData.earnedRewards)}`}
+                                    />
+                                    <div 
+                                      className="bg-red-500" 
+                                      style={{ width: `${missedPct}%` }}
+                                      title={`Missed: ${formatINR(monthData.missedRewards)}`}
+                                    />
+                                  </div>
+                                  
+                                  <div className="flex justify-between text-xs">
+                                    <div className="flex items-center gap-1">
+                                      <span className="w-2 h-2 rounded-full bg-success" />
+                                      <span className="text-gray-600">Earned: {formatINR(monthData.earnedRewards)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <span className="w-2 h-2 rounded-full bg-red-500" />
+                                      <span className="text-gray-600">Missed: {formatINR(monthData.missedRewards)}</span>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="mt-2 pt-2 border-t border-gray-100">
+                                    <div className="text-xs text-gray-600">
+                                      <span className="font-semibold">UPI P2M:</span> {formatINR(monthData.upiP2MSpends)} • 
+                                      <span className="font-semibold ml-2">CC:</span> {formatINR(monthData.creditCardSpends)}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Insights */}
+                        <div className="space-y-3">
+                          <div className="p-3 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl">
+                            <div className="text-xs font-semibold text-gray-900 mb-1">💰 Optimization Opportunity</div>
+                            <div className="text-xs text-gray-700">
+                              In the last {monthsToShow} month{monthsToShow > 1 ? "s" : ""}, you missed{" "}
+                              <span className="font-bold text-red-600">{formatINR(totalMissed)}</span> in rewards! 
+                              Switch UPI P2M transactions to credit cards to earn more.
+                            </div>
+                          </div>
+
+                          <div className="p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
+                            <div className="text-xs font-semibold text-gray-900 mb-1">✅ Good Progress</div>
+                            <div className="text-xs text-gray-700">
+                              You've earned <span className="font-bold text-success">{formatINR(totalEarned)}</span> in rewards. 
+                              That's {Math.round((totalEarned / totalPotential) * 100)}% of your maximum potential!
+                            </div>
+                          </div>
+
+                          <div className="p-3 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl">
+                            <div className="text-xs font-semibold text-gray-900 mb-1">🎯 Monthly Goal</div>
+                            <div className="text-xs text-gray-700">
+                              Aim to reduce missed rewards to under {formatINR(avgMissedPerMonth / 2)} per month by using 
+                              credit cards for all transactions above ₹200.
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+                
+                {/* Current Month Analysis */}
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-border mb-4">
                   {/* Summary Cards */}
+                  <div className="text-sm font-semibold text-gray-900 mb-3">Current Month (Sep 2025)</div>
                   <div className="grid grid-cols-3 gap-2 mb-4">
                     <div className="text-center p-3 bg-purple-50 rounded-xl">
                       <div className="text-xs text-gray-600 mb-1">Current Rewards</div>
