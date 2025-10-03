@@ -1281,9 +1281,9 @@ const Index = () => {
               
               {/* Spends by Category - with drill-down */}
               <div className="mx-3 mt-5">
-                <div className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-gray-900" /> Spends by Category
-                </div>
+              <div className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-foreground" /> 📁 Spends by Category
+              </div>
                 <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
                   {MOCK_DATA.categorySplit.map((c, i) => {
                     const total = MOCK_DATA.categorySplit.reduce((sum, cat) => sum + cat.value, 0);
@@ -1292,16 +1292,16 @@ const Index = () => {
                       <button
                         key={i}
                         onClick={() => setCategoryModal({ isOpen: true, category: c.name, color: c.color })}
-                        className="w-full mb-3 text-left hover:bg-gray-50 rounded-lg p-2 transition-colors"
+                      className="w-full mb-3 text-left hover:bg-accent/50 rounded-lg p-2 transition-colors"
                       >
-                        <div className="flex justify-between font-medium text-gray-700 mb-1">
+                      <div className="flex justify-between font-medium text-foreground mb-1">
                           <span className="flex items-center">
                             <span className="inline-block w-2.5 h-2.5 rounded-full mr-2" style={{ background: c.color }} />
                             {c.name}
                           </span>
                           <span>{formatINR(c.value)} • {pctVal}%</span>
                         </div>
-                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div className="h-full" style={{ width: `${pctVal}%`, background: c.color }} />
                         </div>
                       </button>
@@ -1312,9 +1312,9 @@ const Index = () => {
 
               {/* Payment Methods - with drill-down */}
               <div className="mx-3 mt-5">
-                <div className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-gray-900" /> Payment Methods
-                </div>
+              <div className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-foreground" /> 💳 Payment Methods
+              </div>
                 <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
                   {MOCK_DATA.spendsByInstrument.map((method, i) => {
                     const total = MOCK_DATA.spendsByInstrument.reduce((sum, m) => sum + m.value, 0);
@@ -1323,16 +1323,16 @@ const Index = () => {
                       <button
                         key={i}
                         onClick={() => setPaymentMethodModal({ isOpen: true, method: method.name, color: method.color })}
-                        className="w-full mb-3 text-left hover:bg-gray-50 rounded-lg p-2 transition-colors"
+                        className="w-full mb-3 text-left hover:bg-accent/50 rounded-lg p-2 transition-colors"
                       >
-                        <div className="flex justify-between font-medium text-gray-700 mb-1">
+                        <div className="flex justify-between font-medium text-foreground mb-1">
                           <span className="flex items-center">
                             <span className="inline-block w-2.5 h-2.5 rounded-full mr-2" style={{ background: method.color }} />
                             {method.name}
                           </span>
                           <span>{formatINR(method.value)} • {pctVal}%</span>
                         </div>
-                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div className="h-full" style={{ width: `${pctVal}%`, background: method.color }} />
                         </div>
                       </button>
