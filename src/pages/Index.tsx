@@ -14,6 +14,7 @@ import { DividendDetailModal } from "@/components/DividendDetailModal";
 import { RefundsDetailModal } from "@/components/RefundsDetailModal";
 import { InterestDetailModal } from "@/components/InterestDetailModal";
 import { InvestmentDetailModal } from "@/components/InvestmentDetailModal";
+import { IncomingTransactionModal } from "@/components/IncomingTransactionModal";
 import { RECOMMENDED_CARDS } from "@/data/recommendedCards";
 import { TrendingUp, Sparkles, Building2 } from "lucide-react";
 
@@ -29,6 +30,55 @@ const MOCK_DATA = {
     { name: "Interest", value: 25743, color: "#a78bfa", hasOptimization: true },
     { name: "Refunds", value: 1889, color: "#f59e0b" },
     { name: "Others", value: 20341, color: "#60a5fa" },
+  ],
+  // Incoming transactions with categorization
+  incomingTransactions: [
+    // Salary transactions (locked, cannot retag)
+    { id: "inc_001", date: "2025-09-25", description: "Monthly Salary Credit", amount: 380000, category: "Salary", source: "HDFC Bank", canRetag: false },
+    { id: "inc_002", date: "2025-09-28", description: "Performance Bonus", amount: 30000, category: "Salary", source: "HDFC Bank", canRetag: false },
+    { id: "inc_003", date: "2025-09-30", description: "Sales Incentive", amount: 13782, category: "Salary", source: "HDFC Bank", canRetag: false },
+    { id: "inc_004", date: "2025-08-25", description: "Monthly Salary Credit", amount: 380000, category: "Salary", source: "HDFC Bank", canRetag: false },
+    { id: "inc_005", date: "2025-08-28", description: "Quarterly Incentive", amount: 22500, category: "Salary", source: "HDFC Bank", canRetag: false },
+    { id: "inc_006", date: "2025-07-25", description: "Monthly Salary Credit", amount: 380000, category: "Salary", source: "HDFC Bank", canRetag: false },
+    
+    // Dividend transactions (can retag)
+    { id: "inc_007", date: "2025-09-25", description: "Reliance Industries Dividend", amount: 3250, category: "Dividend", source: "Zerodha", canRetag: true },
+    { id: "inc_008", date: "2025-09-20", description: "HDFC Bank Dividend", amount: 2800, category: "Dividend", source: "Zerodha", canRetag: true },
+    { id: "inc_009", date: "2025-09-18", description: "TCS Dividend", amount: 2100, category: "Dividend", source: "Zerodha", canRetag: true },
+    { id: "inc_010", date: "2025-09-15", description: "Infosys Dividend", amount: 1850, category: "Dividend", source: "Zerodha", canRetag: true },
+    { id: "inc_011", date: "2025-09-12", description: "ICICI Bank Dividend", amount: 625, category: "Dividend", source: "Zerodha", canRetag: true },
+    { id: "inc_012", date: "2025-09-10", description: "Wipro Dividend", amount: 380, category: "Dividend", source: "Zerodha", canRetag: true },
+    { id: "inc_013", date: "2025-08-22", description: "Reliance Industries Dividend", amount: 3200, category: "Dividend", source: "Zerodha", canRetag: true },
+    { id: "inc_014", date: "2025-08-18", description: "HDFC Bank Dividend", amount: 2750, category: "Dividend", source: "Zerodha", canRetag: true },
+    { id: "inc_015", date: "2025-07-25", description: "TCS Dividend", amount: 2050, category: "Dividend", source: "Zerodha", canRetag: true },
+    
+    // Interest transactions (can retag)
+    { id: "inc_016", date: "2025-09-30", description: "Savings Account Interest", amount: 4167, category: "Interest", source: "HDFC Bank", canRetag: true },
+    { id: "inc_017", date: "2025-09-30", description: "Fixed Deposit Interest", amount: 2708, category: "Interest", source: "ICICI Bank", canRetag: true },
+    { id: "inc_018", date: "2025-09-30", description: "Savings Account Interest", amount: 1313, category: "Interest", source: "SBI", canRetag: true },
+    { id: "inc_019", date: "2025-08-31", description: "Savings Account Interest", amount: 4100, category: "Interest", source: "HDFC Bank", canRetag: true },
+    { id: "inc_020", date: "2025-08-31", description: "Fixed Deposit Interest", amount: 2650, category: "Interest", source: "ICICI Bank", canRetag: true },
+    { id: "inc_021", date: "2025-08-31", description: "Savings Account Interest", amount: 1280, category: "Interest", source: "SBI", canRetag: true },
+    { id: "inc_022", date: "2025-07-31", description: "Savings Account Interest", amount: 4050, category: "Interest", source: "HDFC Bank", canRetag: true },
+    
+    // Refunds transactions (can retag)
+    { id: "inc_023", date: "2025-09-18", description: "Amazon Product Return", amount: 850, category: "Refunds", source: "Amazon", canRetag: true },
+    { id: "inc_024", date: "2025-09-15", description: "BookMyShow Event Cancelled", amount: 280, category: "Refunds", source: "BookMyShow", canRetag: true },
+    { id: "inc_025", date: "2025-09-12", description: "Flipkart Order Cancelled", amount: 450, category: "Refunds", source: "Flipkart", canRetag: true },
+    { id: "inc_026", date: "2025-09-08", description: "Zomato Wrong Order", amount: 120, category: "Refunds", source: "Zomato", canRetag: true },
+    { id: "inc_027", date: "2025-09-05", description: "Swiggy Delivery Delay", amount: 85, category: "Refunds", source: "Swiggy", canRetag: true },
+    { id: "inc_028", date: "2025-09-03", description: "Myntra Size Issue", amount: 40, category: "Refunds", source: "Myntra", canRetag: true },
+    { id: "inc_029", date: "2025-09-20", description: "Uber Overcharge", amount: 64, category: "Refunds", source: "Uber", canRetag: true },
+    { id: "inc_030", date: "2025-08-20", description: "Amazon Product Return", amount: 920, category: "Refunds", source: "Amazon", canRetag: true },
+    
+    // Others transactions (can retag to proper categories)
+    { id: "inc_031", date: "2025-09-22", description: "Freelance Project Payment", amount: 15000, category: "Others", source: "Bank Transfer", canRetag: true },
+    { id: "inc_032", date: "2025-09-10", description: "Gift from Family", amount: 5000, category: "Others", source: "UPI", canRetag: true },
+    { id: "inc_033", date: "2025-09-02", description: "Cash Deposit", amount: 3500, category: "Others", source: "HDFC Bank", canRetag: true },
+    { id: "inc_034", date: "2025-08-18", description: "Consulting Fee", amount: 12000, category: "Others", source: "Bank Transfer", canRetag: true },
+    { id: "inc_035", date: "2025-08-05", description: "Rental Income", amount: 8000, category: "Others", source: "Bank Transfer", canRetag: true },
+    { id: "inc_036", date: "2025-07-28", description: "Sold Old Electronics", amount: 2500, category: "Others", source: "UPI", canRetag: true },
+    { id: "inc_037", date: "2025-07-15", description: "Online Course Payment", amount: 6500, category: "Others", source: "Bank Transfer", canRetag: true },
   ],
   categorySplit: [
     { name: "Food", value: 5080, color: "#f87171" },
@@ -1093,6 +1143,12 @@ const Index = () => {
   const [showRefundsModal, setShowRefundsModal] = useState(false);
   const [showInterestModal, setShowInterestModal] = useState(false);
   const [selectedInvestmentCategory, setSelectedInvestmentCategory] = useState<any>(null);
+  const [incomingTransactionModal, setIncomingTransactionModal] = useState<{
+    isOpen: boolean;
+    category: string;
+    color: string;
+  }>({ isOpen: false, category: "", color: "" });
+  const [transactions, setTransactions] = useState(MOCK_DATA.incomingTransactions);
 
   const handleMonthNavigate = (direction: "prev" | "next") => {
     if (direction === "prev") {
@@ -1249,10 +1305,12 @@ const Index = () => {
                 data={MOCK_DATA.incomingSplit} 
                 type="bar" 
                 onItemClick={(name) => {
-                  if (name === "Salary") setShowSalaryModal(true);
-                  if (name === "Dividend") setShowDividendModal(true);
-                  if (name === "Interest") setShowInterestModal(true);
-                  if (name === "Refunds") setShowRefundsModal(true);
+                  const categoryData = MOCK_DATA.incomingSplit.find(c => c.name === name);
+                  setIncomingTransactionModal({
+                    isOpen: true,
+                    category: name,
+                    color: categoryData?.color || "#000",
+                  });
                 }}
               />
 
@@ -1895,6 +1953,23 @@ const Index = () => {
             category={selectedInvestmentCategory}
           />
         )}
+        
+        {/* Incoming Transactions Modal */}
+        <IncomingTransactionModal
+          isOpen={incomingTransactionModal.isOpen}
+          onClose={() => setIncomingTransactionModal({ isOpen: false, category: "", color: "" })}
+          category={incomingTransactionModal.category}
+          color={incomingTransactionModal.color}
+          transactions={transactions.filter(t => t.category === incomingTransactionModal.category)}
+          onTagChange={(txnId, newCategory) => {
+            setTransactions(prev => {
+              const updated = prev.map(t => 
+                t.id === txnId ? { ...t, category: newCategory } : t
+              );
+              return updated;
+            });
+          }}
+        />
       </div>
     </div>
   );
