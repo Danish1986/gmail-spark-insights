@@ -1,9 +1,32 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, ArrowRight, Shield } from "lucide-react";
+import { TrendingUp, Shield, Mail } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message || "Failed to sign in with Google");
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/10 via-background to-background flex flex-col items-center justify-between px-6 py-8">
@@ -49,12 +72,19 @@ const Landing = () => {
       {/* Bottom Section - CTA */}
       <div className="w-full max-w-md space-y-6">
         <Button
-          onClick={() => navigate("/auth")}
+          onClick={handleGoogleSignIn}
+          disabled={loading}
           size="lg"
           className="w-full h-14 text-lg font-semibold shadow-lg"
         >
-          Get Started
-          <ArrowRight className="w-5 h-5 ml-2" />
+          {loading ? (
+            "Redirecting..."
+          ) : (
+            <>
+              <Mail className="w-5 h-5 mr-2" />
+              Sign in with Google
+            </>
+          )}
         </Button>
 
         {/* Trust Badge */}
