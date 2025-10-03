@@ -1,3 +1,4 @@
+import { getCategoryIcon } from "@/lib/categoryIcons";
 import { useState } from "react";
 import { BottomTabNav } from "@/components/BottomTabNav";
 import { Hero } from "@/components/Hero";
@@ -1295,12 +1296,13 @@ const Index = () => {
                       className="w-full mb-3 text-left hover:bg-accent/50 rounded-lg p-2 transition-colors"
                       >
                       <div className="flex justify-between font-medium text-foreground mb-1">
-                          <span className="flex items-center">
-                            <span className="inline-block w-2.5 h-2.5 rounded-full mr-2" style={{ background: c.color }} />
-                            {c.name}
-                          </span>
-                          <span>{formatINR(c.value)} • {pctVal}%</span>
-                        </div>
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-sm">{getCategoryIcon(c.name)}</span>
+                          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
+                          <span className="text-sm">{c.name}</span>
+                        </span>
+                        <span className="text-sm">{formatINR(c.value)} • {pctVal}%</span>
+                      </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div className="h-full" style={{ width: `${pctVal}%`, background: c.color }} />
                         </div>
@@ -1325,13 +1327,14 @@ const Index = () => {
                         onClick={() => setPaymentMethodModal({ isOpen: true, method: method.name, color: method.color })}
                         className="w-full mb-3 text-left hover:bg-accent/50 rounded-lg p-2 transition-colors"
                       >
-                        <div className="flex justify-between font-medium text-foreground mb-1">
-                          <span className="flex items-center">
-                            <span className="inline-block w-2.5 h-2.5 rounded-full mr-2" style={{ background: method.color }} />
-                            {method.name}
-                          </span>
-                          <span>{formatINR(method.value)} • {pctVal}%</span>
-                        </div>
+                      <div className="flex justify-between font-medium text-foreground mb-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-sm">{getCategoryIcon(method.name)}</span>
+                          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: method.color }} />
+                          <span className="text-sm">{method.name}</span>
+                        </span>
+                        <span className="text-sm">{formatINR(method.value)} • {pctVal}%</span>
+                      </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div className="h-full" style={{ width: `${pctVal}%`, background: method.color }} />
                         </div>
