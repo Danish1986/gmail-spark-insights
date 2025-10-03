@@ -6,6 +6,8 @@ import { CreditCardFull } from "@/components/CreditCardFull";
 import { DrillDownModal } from "@/components/DrillDownModal";
 import { PaymentMethodModal } from "@/components/PaymentMethodModal";
 import { CategoryDrillDownModal } from "@/components/CategoryDrillDownModal";
+import { InvestmentModal } from "@/components/InvestmentModal";
+import { FixedExpensesModal } from "@/components/FixedExpensesModal";
 import { RECOMMENDED_CARDS } from "@/data/recommendedCards";
 import { TrendingUp, Sparkles, Building2 } from "lucide-react";
 
@@ -44,6 +46,438 @@ const MOCK_DATA = {
     { month: "Aug 2025", totalSpends: 380000, upiP2MSpends: 100000, missedRewards: 10000, creditCardSpends: 280000, earnedRewards: 14000, potentialRewards: 24000 },
     { month: "Sep 2025", totalSpends: 376000, upiP2MSpends: 98000, missedRewards: 9800, creditCardSpends: 278000, earnedRewards: 13900, potentialRewards: 23700 },
   ],
+  // Investment portfolio data
+  investments: {
+    totalInvested: 2200000,
+    currentValue: 2440000,
+    ytdInvested: 400000,
+    thisMonth: 50000,
+    last3M: 150000,
+    last6M: 300000,
+    last12M: 600000,
+    tillDate: 2200000,
+    previousMonthInvested: 45000,
+    categories: [
+      {
+        name: "Gold",
+        color: "#f59e0b",
+        count: 2,
+        amount: 180000,
+        currentValue: 191160,
+        portfolioPercent: 8,
+        monthReturn: 6.2,
+        platforms: [
+          {
+            name: "HDFC Gold Fund",
+            logo: "https://logo.clearbit.com/hdfcbank.com",
+            amount: 100000,
+            type: "Gold ETF",
+            transactions: [
+              { date: "2025-09-05", amount: 5000, type: "SIP", isRecurring: true },
+              { date: "2025-08-05", amount: 5000, type: "SIP", isRecurring: true },
+              { date: "2025-07-05", amount: 5000, type: "SIP", isRecurring: true },
+            ],
+          },
+          {
+            name: "Paytm Gold",
+            logo: "https://logo.clearbit.com/paytm.com",
+            amount: 80000,
+            type: "Digital Gold",
+            transactions: [
+              { date: "2025-09-10", amount: 3000, type: "One-time Purchase" },
+              { date: "2025-08-15", amount: 4000, type: "One-time Purchase" },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Mutual Funds",
+        color: "#22c55e",
+        count: 3,
+        amount: 750000,
+        currentValue: 843000,
+        portfolioPercent: 34,
+        monthReturn: 12.4,
+        platforms: [
+          {
+            name: "Groww",
+            logo: "https://logo.clearbit.com/groww.in",
+            amount: 300000,
+            type: "Equity SIP",
+            transactions: [
+              { date: "2025-09-01", amount: 15000, type: "SIP - HDFC Mid Cap", isRecurring: true },
+              { date: "2025-08-01", amount: 15000, type: "SIP - HDFC Mid Cap", isRecurring: true },
+            ],
+          },
+          {
+            name: "Zerodha Coin",
+            logo: "https://logo.clearbit.com/zerodha.com",
+            amount: 250000,
+            type: "Index Fund SIP",
+            transactions: [
+              { date: "2025-09-05", amount: 10000, type: "SIP - Nifty 50 Index", isRecurring: true },
+              { date: "2025-08-05", amount: 10000, type: "SIP - Nifty 50 Index", isRecurring: true },
+            ],
+          },
+          {
+            name: "Paytm Money",
+            logo: "https://logo.clearbit.com/paytm.com",
+            amount: 200000,
+            type: "Debt Fund",
+            transactions: [
+              { date: "2025-09-10", amount: 8000, type: "SIP - Liquid Fund", isRecurring: true },
+              { date: "2025-08-10", amount: 8000, type: "SIP - Liquid Fund", isRecurring: true },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Stocks",
+        color: "#3b82f6",
+        count: 3,
+        amount: 400000,
+        currentValue: 472800,
+        portfolioPercent: 18,
+        monthReturn: 18.2,
+        platforms: [
+          {
+            name: "Zerodha Kite",
+            logo: "https://logo.clearbit.com/zerodha.com",
+            amount: 200000,
+            type: "Equity Trading",
+            transactions: [
+              { date: "2025-09-12", amount: 25000, type: "Bought TCS shares" },
+              { date: "2025-08-20", amount: 30000, type: "Bought Reliance shares" },
+            ],
+          },
+          {
+            name: "Angel One",
+            logo: "https://logo.clearbit.com/angelone.in",
+            amount: 150000,
+            type: "Direct Equity",
+            transactions: [
+              { date: "2025-09-08", amount: 20000, type: "Bought HDFC Bank shares" },
+              { date: "2025-07-15", amount: 35000, type: "Bought Infosys shares" },
+            ],
+          },
+          {
+            name: "Upstox",
+            logo: "https://logo.clearbit.com/upstox.com",
+            amount: 50000,
+            type: "Stock Trading",
+            transactions: [
+              { date: "2025-09-03", amount: 15000, type: "Bought ICICI Bank shares" },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Fixed Deposit",
+        color: "#8b5cf6",
+        count: 2,
+        amount: 500000,
+        currentValue: 536000,
+        portfolioPercent: 23,
+        monthReturn: 7.2,
+        platforms: [
+          {
+            name: "HDFC Bank FD",
+            logo: "https://logo.clearbit.com/hdfcbank.com",
+            amount: 300000,
+            type: "Fixed Deposit",
+            transactions: [
+              { date: "2025-01-15", amount: 300000, type: "FD Created - 7.5% p.a.", isRecurring: false },
+            ],
+          },
+          {
+            name: "SBI FD",
+            logo: "https://logo.clearbit.com/sbi.co.in",
+            amount: 200000,
+            type: "Tax Saver FD",
+            transactions: [
+              { date: "2025-03-20", amount: 200000, type: "FD Created - 7% p.a.", isRecurring: false },
+            ],
+          },
+        ],
+      },
+      {
+        name: "NPS",
+        color: "#a78bfa",
+        count: 1,
+        amount: 120000,
+        currentValue: 133800,
+        portfolioPercent: 5,
+        monthReturn: 11.5,
+        platforms: [
+          {
+            name: "NPS Tier 1",
+            logo: "https://logo.clearbit.com/npscra.nsdl.co.in",
+            amount: 120000,
+            type: "National Pension Scheme",
+            transactions: [
+              { date: "2025-09-01", amount: 5000, type: "Monthly Contribution", isRecurring: true },
+              { date: "2025-08-01", amount: 5000, type: "Monthly Contribution", isRecurring: true },
+              { date: "2025-07-01", amount: 5000, type: "Monthly Contribution", isRecurring: true },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Others",
+        color: "#6b7280",
+        count: 2,
+        amount: 80000,
+        currentValue: 85440,
+        portfolioPercent: 3,
+        monthReturn: 6.8,
+        platforms: [
+          {
+            name: "PPF Account",
+            logo: "https://ui-avatars.com/api/?name=PPF&background=random",
+            amount: 50000,
+            type: "Public Provident Fund",
+            transactions: [
+              { date: "2025-04-01", amount: 50000, type: "Annual Deposit", isRecurring: true },
+            ],
+          },
+          {
+            name: "Sukanya Samriddhi Yojana",
+            logo: "https://ui-avatars.com/api/?name=SSY&background=random",
+            amount: 30000,
+            type: "Girl Child Savings",
+            transactions: [
+              { date: "2025-06-01", amount: 30000, type: "Annual Deposit", isRecurring: true },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  // Fixed expenses prediction
+  fixedExpenses: {
+    predictedAmount: 145000,
+    basedOnMonths: 6,
+    categories: [
+      {
+        name: "Loans",
+        amount: 45000,
+        color: "#ef4444",
+        platforms: [
+          {
+            name: "HDFC Home Loan",
+            logo: "https://logo.clearbit.com/hdfcbank.com",
+            amount: 35000,
+            type: "Home Loan EMI",
+            transactions: [
+              { date: "2025-09-05", amount: 35000, description: "Home Loan EMI", isRecurring: true, recurringPattern: "Monthly on 5th" },
+              { date: "2025-08-05", amount: 35000, description: "Home Loan EMI", isRecurring: true, recurringPattern: "Monthly on 5th" },
+              { date: "2025-07-05", amount: 35000, description: "Home Loan EMI", isRecurring: true, recurringPattern: "Monthly on 5th" },
+            ],
+          },
+          {
+            name: "ICICI Car Loan",
+            logo: "https://logo.clearbit.com/icicibank.com",
+            amount: 10000,
+            type: "Car Loan EMI",
+            transactions: [
+              { date: "2025-09-10", amount: 10000, description: "Car Loan EMI", isRecurring: true, recurringPattern: "Monthly on 10th" },
+              { date: "2025-08-10", amount: 10000, description: "Car Loan EMI", isRecurring: true, recurringPattern: "Monthly on 10th" },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Investment SIPs",
+        amount: 50000,
+        color: "#22c55e",
+        platforms: [
+          {
+            name: "Groww SIP",
+            logo: "https://logo.clearbit.com/groww.in",
+            amount: 15000,
+            type: "Mutual Fund SIP",
+            transactions: [
+              { date: "2025-09-01", amount: 15000, description: "HDFC Mid Cap SIP", isRecurring: true, recurringPattern: "Monthly on 1st" },
+              { date: "2025-08-01", amount: 15000, description: "HDFC Mid Cap SIP", isRecurring: true, recurringPattern: "Monthly on 1st" },
+            ],
+          },
+          {
+            name: "Zerodha Coin SIP",
+            logo: "https://logo.clearbit.com/zerodha.com",
+            amount: 10000,
+            type: "Index Fund SIP",
+            transactions: [
+              { date: "2025-09-05", amount: 10000, description: "Nifty 50 Index SIP", isRecurring: true, recurringPattern: "Monthly on 5th" },
+              { date: "2025-08-05", amount: 10000, description: "Nifty 50 Index SIP", isRecurring: true, recurringPattern: "Monthly on 5th" },
+            ],
+          },
+          {
+            name: "NPS Monthly",
+            logo: "https://logo.clearbit.com/npscra.nsdl.co.in",
+            amount: 5000,
+            type: "NPS Contribution",
+            transactions: [
+              { date: "2025-09-01", amount: 5000, description: "NPS Tier 1 Contribution", isRecurring: true, recurringPattern: "Monthly on 1st" },
+              { date: "2025-08-01", amount: 5000, description: "NPS Tier 1 Contribution", isRecurring: true, recurringPattern: "Monthly on 1st" },
+            ],
+          },
+          {
+            name: "Paytm Money",
+            logo: "https://logo.clearbit.com/paytm.com",
+            amount: 8000,
+            type: "Debt Fund SIP",
+            transactions: [
+              { date: "2025-09-10", amount: 8000, description: "Liquid Fund SIP", isRecurring: true, recurringPattern: "Monthly on 10th" },
+            ],
+          },
+          {
+            name: "HDFC Gold SIP",
+            logo: "https://logo.clearbit.com/hdfcbank.com",
+            amount: 5000,
+            type: "Gold ETF SIP",
+            transactions: [
+              { date: "2025-09-05", amount: 5000, description: "Gold ETF SIP", isRecurring: true, recurringPattern: "Monthly on 5th" },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Credit Card Bills",
+        amount: 25000,
+        color: "#3b82f6",
+        platforms: [
+          {
+            name: "HDFC Diners Black",
+            logo: "https://logo.clearbit.com/hdfcbank.com",
+            amount: 18000,
+            type: "Credit Card Payment",
+            transactions: [
+              { date: "2025-09-20", amount: 18000, description: "Credit Card Bill Payment", isRecurring: true, recurringPattern: "Monthly on 20th" },
+              { date: "2025-08-20", amount: 17500, description: "Credit Card Bill Payment", isRecurring: true, recurringPattern: "Monthly on 20th" },
+            ],
+          },
+          {
+            name: "Axis Magnus",
+            logo: "https://logo.clearbit.com/axisbank.com",
+            amount: 7000,
+            type: "Credit Card Payment",
+            transactions: [
+              { date: "2025-09-25", amount: 7000, description: "Credit Card Bill Payment", isRecurring: true, recurringPattern: "Monthly on 25th" },
+              { date: "2025-08-25", amount: 6800, description: "Credit Card Bill Payment", isRecurring: true, recurringPattern: "Monthly on 25th" },
+            ],
+          },
+        ],
+      },
+      {
+        name: "P2A Regular Transfers",
+        amount: 15000,
+        color: "#f59e0b",
+        platforms: [
+          {
+            name: "Parents (Mom)",
+            logo: "https://ui-avatars.com/api/?name=Mom&background=random",
+            amount: 10000,
+            type: "Monthly Support",
+            transactions: [
+              { date: "2025-09-01", amount: 10000, description: "Monthly Support to Mom", isRecurring: true, recurringPattern: "Monthly on 1st" },
+              { date: "2025-08-01", amount: 10000, description: "Monthly Support to Mom", isRecurring: true, recurringPattern: "Monthly on 1st" },
+            ],
+          },
+          {
+            name: "Savings Transfer",
+            logo: "https://ui-avatars.com/api/?name=Savings&background=random",
+            amount: 5000,
+            type: "Auto Savings",
+            transactions: [
+              { date: "2025-09-15", amount: 5000, description: "Transfer to Savings Account", isRecurring: true, recurringPattern: "Monthly on 15th" },
+              { date: "2025-08-15", amount: 5000, description: "Transfer to Savings Account", isRecurring: true, recurringPattern: "Monthly on 15th" },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Utilities",
+        amount: 8000,
+        color: "#a78bfa",
+        platforms: [
+          {
+            name: "Electricity (BSES)",
+            logo: "https://logo.clearbit.com/bsesdelhi.com",
+            amount: 2500,
+            type: "Electricity Bill",
+            transactions: [
+              { date: "2025-09-05", amount: 2500, description: "Electricity Bill", isRecurring: true, recurringPattern: "Monthly on 5th" },
+              { date: "2025-08-05", amount: 2400, description: "Electricity Bill", isRecurring: true, recurringPattern: "Monthly on 5th" },
+            ],
+          },
+          {
+            name: "Internet (Airtel Fiber)",
+            logo: "https://logo.clearbit.com/airtel.in",
+            amount: 1200,
+            type: "Broadband Bill",
+            transactions: [
+              { date: "2025-09-10", amount: 1200, description: "Broadband Bill", isRecurring: true, recurringPattern: "Monthly on 10th" },
+              { date: "2025-08-10", amount: 1200, description: "Broadband Bill", isRecurring: true, recurringPattern: "Monthly on 10th" },
+            ],
+          },
+          {
+            name: "Mobile (Airtel)",
+            logo: "https://logo.clearbit.com/airtel.in",
+            amount: 599,
+            type: "Mobile Recharge",
+            transactions: [
+              { date: "2025-09-15", amount: 599, description: "Mobile Recharge", isRecurring: true, recurringPattern: "Monthly on 15th" },
+              { date: "2025-08-15", amount: 599, description: "Mobile Recharge", isRecurring: true, recurringPattern: "Monthly on 15th" },
+            ],
+          },
+          {
+            name: "Gas (HP Gas)",
+            logo: "https://logo.clearbit.com/hindustanpetroleum.com",
+            amount: 1150,
+            type: "LPG Cylinder",
+            transactions: [
+              { date: "2025-09-12", amount: 1150, description: "LPG Cylinder", isRecurring: true, recurringPattern: "Every 45 days" },
+              { date: "2025-07-28", amount: 1150, description: "LPG Cylinder", isRecurring: true, recurringPattern: "Every 45 days" },
+            ],
+          },
+          {
+            name: "OTT Subscriptions",
+            logo: "https://logo.clearbit.com/netflix.com",
+            amount: 2551,
+            type: "Subscriptions",
+            transactions: [
+              { date: "2025-09-20", amount: 649, description: "Netflix Premium", isRecurring: true, recurringPattern: "Monthly on 20th" },
+              { date: "2025-09-22", amount: 1499, description: "Amazon Prime", isRecurring: true, recurringPattern: "Monthly on 22nd" },
+              { date: "2025-09-26", amount: 299, description: "Disney+ Hotstar", isRecurring: true, recurringPattern: "Monthly on 26th" },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Education",
+        amount: 0,
+        color: "#06b6d4",
+        platforms: [],
+      },
+      {
+        name: "Others",
+        amount: 2000,
+        color: "#6b7280",
+        platforms: [
+          {
+            name: "Insurance Premium",
+            logo: "https://ui-avatars.com/api/?name=Insurance&background=random",
+            amount: 2000,
+            type: "Health Insurance",
+            transactions: [
+              { date: "2025-09-01", amount: 2000, description: "Health Insurance Premium", isRecurring: true, recurringPattern: "Monthly on 1st" },
+              { date: "2025-08-01", amount: 2000, description: "Health Insurance Premium", isRecurring: true, recurringPattern: "Monthly on 1st" },
+            ],
+          },
+        ],
+      },
+    ],
+  },
   categoryTransactions: {
     "Travel": [
       { id: "t1", date: "2025-09-03", merchant: "Booking.com", merchantLogo: "https://logo.clearbit.com/booking.com", amount: 125000, method: "Credit Card", category: "Travel" },
@@ -341,6 +775,8 @@ const Index = () => {
     category: string;
     color: string;
   }>({ isOpen: false, category: "", color: "" });
+  const [showInvestmentModal, setShowInvestmentModal] = useState(false);
+  const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
 
   const handleMonthNavigate = (direction: "prev" | "next") => {
     if (direction === "prev") {
@@ -435,6 +871,55 @@ const Index = () => {
                   <div className="text-xs text-primary mt-2 font-medium">View analysis →</div>
                 </button>
               </div>
+
+              {/* Investment Section */}
+              <button
+                onClick={() => setShowInvestmentModal(true)}
+                className="mx-3 mt-5 bg-white rounded-2xl p-4 shadow-sm border border-border hover:border-primary transition-all text-left w-[calc(100%-24px)]"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-lg font-bold text-foreground">💰 Investments</div>
+                  <div className="text-xs text-primary font-medium">View details →</div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-muted/50 rounded-xl p-3">
+                    <div className="text-xs text-muted-foreground mb-1">Total Invested</div>
+                    <div className="text-lg font-bold">{formatINR(MOCK_DATA.investments.totalInvested)}</div>
+                  </div>
+                  <div className="bg-muted/50 rounded-xl p-3">
+                    <div className="text-xs text-muted-foreground mb-1">Current Value</div>
+                    <div className="text-lg font-bold">{formatINR(MOCK_DATA.investments.currentValue)}</div>
+                    <div className="text-xs text-success font-semibold">
+                      ▲ {(((MOCK_DATA.investments.currentValue - MOCK_DATA.investments.totalInvested) / MOCK_DATA.investments.totalInvested) * 100).toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Fixed Expenses Prediction */}
+              <button
+                onClick={() => setShowFixedExpensesModal(true)}
+                className="mx-3 mt-5 bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-4 shadow-sm border border-orange-200 hover:border-primary transition-all text-left w-[calc(100%-24px)]"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-lg font-bold text-foreground">📊 Fixed Expenses</div>
+                  <div className="text-xs text-primary font-medium">View breakdown →</div>
+                </div>
+                <div className="mb-2">
+                  <div className="text-xs text-muted-foreground">Predicted Monthly Requirement (Based on last 6M)</div>
+                  <div className="text-2xl font-bold text-orange-700 mt-1">
+                    {formatINR(MOCK_DATA.fixedExpenses.predictedAmount)}
+                  </div>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {MOCK_DATA.fixedExpenses.categories.slice(0, 4).map((cat) => (
+                    <div key={cat.name} className="flex items-center gap-1.5 bg-white/60 rounded-lg px-2 py-1">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                      <div className="text-xs text-gray-700">{cat.name}: {formatINR(cat.amount)}</div>
+                    </div>
+                  ))}
+                </div>
+              </button>
 
               <ChartSection title="Incoming Split" data={MOCK_DATA.incomingSplit} type="bar" />
               
@@ -903,6 +1388,20 @@ const Index = () => {
             { month: "Aug", amount: 4800 },
             { month: "Sep", amount: MOCK_DATA.categorySplit.find(c => c.name === categoryModal.category)?.value || 0 },
           ]}
+        />
+
+        {/* Investment Modal */}
+        <InvestmentModal
+          isOpen={showInvestmentModal}
+          onClose={() => setShowInvestmentModal(false)}
+          data={MOCK_DATA.investments}
+        />
+
+        {/* Fixed Expenses Modal */}
+        <FixedExpensesModal
+          isOpen={showFixedExpensesModal}
+          onClose={() => setShowFixedExpensesModal(false)}
+          data={MOCK_DATA.fixedExpenses}
         />
       </div>
     </div>
