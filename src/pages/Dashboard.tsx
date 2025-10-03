@@ -28,8 +28,9 @@ const MOCK_DATA = {
     { name: "Salary", value: 423782, color: "#3b82f6" },
     { name: "Dividend", value: 11287, color: "#22c55e" },
     { name: "Interest", value: 25743, color: "#a78bfa", hasOptimization: true },
+    { name: "Fund Transfer", value: 8500, color: "#06b6d4" },
     { name: "Refunds", value: 1889, color: "#f59e0b" },
-    { name: "Others", value: 20341, color: "#60a5fa" },
+    { name: "Misc. Credit", value: 11841, color: "#60a5fa" },
   ],
   // Incoming transactions with categorization
   incomingTransactions: [
@@ -81,11 +82,18 @@ const MOCK_DATA = {
     { id: "inc_037", date: "2025-07-15", description: "Online Course Payment", amount: 6500, category: "Others", source: "Bank Transfer", canRetag: true },
   ],
   categorySplit: [
-    { name: "Food", value: 5080, color: "#f87171" },
-    { name: "Groceries", value: 97000, color: "#34d399" },
-    { name: "Shopping", value: 11273, color: "#60a5fa" },
-    { name: "Travel", value: 449653, color: "#f59e0b" },
-    { name: "Utilities", value: 63853, color: "#a78bfa" },
+    { name: "Credit Card Bill", value: 45000, color: "#ef4444" },
+    { name: "Entertainment", value: 8500, color: "#ec4899" },
+    { name: "Food", value: 12080, color: "#f87171" },
+    { name: "Fuel", value: 6500, color: "#fb923c" },
+    { name: "Groceries", value: 18000, color: "#34d399" },
+    { name: "Investment", value: 50000, color: "#22c55e" },
+    { name: "Loan EMI", value: 45000, color: "#dc2626" },
+    { name: "P2A Transfers", value: 15000, color: "#8b5cf6" },
+    { name: "Shopping", value: 22500, color: "#60a5fa" },
+    { name: "Travel", value: 35000, color: "#f59e0b" },
+    { name: "Utilities", value: 12000, color: "#a78bfa" },
+    { name: "Others", value: 6402, color: "#6b7280" },
   ],
   // User Profile for Card Recommendations
   userProfile: {
@@ -913,11 +921,14 @@ const MOCK_DATA = {
     ],
   },
   spendsByInstrument: [
-    { name: "UPI", value: 456291, color: "#f59e0b" },
-    { name: "Credit Card", value: 985465, color: "#3b82f6" },
-    { name: "IMPS/NEFT", value: 275000, color: "#a78bfa" },
-    { name: "P2A Transfer", value: 125000, color: "#22c55e" },
-    { name: "Others", value: 417958, color: "#ef4444" },
+    { name: "UPI", value: 65000, color: "#f59e0b" },
+    { name: "Debit Card / Account", value: 45000, color: "#22c55e" },
+    { name: "Credit Card", value: 95000, color: "#3b82f6" },
+    { name: "IMPS", value: 18000, color: "#ec4899" },
+    { name: "NEFT", value: 35000, color: "#a78bfa" },
+    { name: "RTGS", value: 12000, color: "#8b5cf6" },
+    { name: "ATM Withdrawal", value: 5000, color: "#ef4444" },
+    { name: "Others", value: 982, color: "#6b7280" },
   ],
   cards: [
     {
