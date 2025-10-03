@@ -29,6 +29,40 @@ const MOCK_DATA = {
     { name: "Travel", value: 449653, color: "#f59e0b" },
     { name: "Utilities", value: 63853, color: "#a78bfa" },
   ],
+  categoryTransactions: {
+    "Travel": [
+      { id: "t1", date: "2025-09-03", merchant: "Booking.com", merchantLogo: "https://logo.clearbit.com/booking.com", amount: 125000, method: "Credit Card", category: "Travel" },
+      { id: "t2", date: "2025-09-15", merchant: "MakeMyTrip", merchantLogo: "https://logo.clearbit.com/makemytrip.com", amount: 85000, method: "Credit Card", category: "Travel" },
+      { id: "t3", date: "2025-09-20", merchant: "IndiGo Airlines", merchantLogo: "https://logo.clearbit.com/goindigo.in", amount: 45000, method: "UPI", category: "Travel", isP2M: true, missedRewards: 4500 },
+      { id: "t4", date: "2025-09-12", merchant: "Uber", merchantLogo: "https://logo.clearbit.com/uber.com", amount: 2800, method: "Credit Card", category: "Travel" },
+      { id: "t5", date: "2025-09-18", merchant: "Airbnb", merchantLogo: "https://logo.clearbit.com/airbnb.com", amount: 95000, method: "Credit Card", category: "Travel" },
+      { id: "t6", date: "2025-09-25", merchant: "Ola Cabs", merchantLogo: "https://logo.clearbit.com/olacabs.com", amount: 1500, method: "UPI", category: "Travel", isP2M: true, missedRewards: 150 },
+      { id: "t7", date: "2025-09-08", merchant: "IRCTC", merchantLogo: "https://logo.clearbit.com/irctc.co.in", amount: 8500, method: "Debit Card", category: "Travel" },
+      { id: "t8", date: "2025-09-22", merchant: "Goibibo", merchantLogo: "https://logo.clearbit.com/goibibo.com", amount: 65000, method: "Credit Card", category: "Travel" },
+    ],
+    "Food": [
+      { id: "f1", date: "2025-09-01", merchant: "Swiggy", merchantLogo: "https://logo.clearbit.com/swiggy.com", amount: 450, method: "UPI", category: "Food", isP2M: true, missedRewards: 45 },
+      { id: "f2", date: "2025-09-05", merchant: "Zomato", merchantLogo: "https://logo.clearbit.com/zomato.com", amount: 680, method: "UPI", category: "Food", isP2M: true, missedRewards: 68 },
+      { id: "f3", date: "2025-09-12", merchant: "Olive Bar & Kitchen", merchantLogo: "https://logo.clearbit.com/olivebarandkitchen.com", amount: 4500, method: "Credit Card", category: "Food" },
+      { id: "f4", date: "2025-09-18", merchant: "Dominos", merchantLogo: "https://logo.clearbit.com/dominos.co.in", amount: 850, method: "UPI", category: "Food", isP2M: true, missedRewards: 85 },
+    ],
+    "Groceries": [
+      { id: "g1", date: "2025-09-02", merchant: "BigBasket", merchantLogo: "https://logo.clearbit.com/bigbasket.com", amount: 4200, method: "UPI", category: "Groceries", isP2M: true, missedRewards: 420 },
+      { id: "g2", date: "2025-09-10", merchant: "DMart", merchantLogo: "https://logo.clearbit.com/dmart.in", amount: 8500, method: "Debit Card", category: "Groceries" },
+      { id: "g3", date: "2025-09-15", merchant: "Zepto", merchantLogo: "https://logo.clearbit.com/zeptonow.com", amount: 1800, method: "UPI", category: "Groceries", isP2M: true, missedRewards: 180 },
+      { id: "g4", date: "2025-09-22", merchant: "Blinkit", merchantLogo: "https://logo.clearbit.com/blinkit.com", amount: 2400, method: "UPI", category: "Groceries", isP2M: true, missedRewards: 240 },
+    ],
+    "Shopping": [
+      { id: "s1", date: "2025-09-08", merchant: "Amazon", merchantLogo: "https://logo.clearbit.com/amazon.in", amount: 5600, method: "Credit Card", category: "Shopping" },
+      { id: "s2", date: "2025-09-14", merchant: "Flipkart", merchantLogo: "https://logo.clearbit.com/flipkart.com", amount: 3200, method: "UPI", category: "Shopping", isP2M: true, missedRewards: 320 },
+      { id: "s3", date: "2025-09-20", merchant: "Myntra", merchantLogo: "https://logo.clearbit.com/myntra.com", amount: 4800, method: "Credit Card", category: "Shopping" },
+    ],
+    "Utilities": [
+      { id: "u1", date: "2025-09-05", merchant: "Electricity Bill", amount: 2500, method: "UPI", category: "Utilities" },
+      { id: "u2", date: "2025-09-10", merchant: "Broadband Bill", amount: 1200, method: "Debit Card", category: "Utilities" },
+      { id: "u3", date: "2025-09-15", merchant: "Mobile Recharge", amount: 599, method: "UPI", category: "Utilities" },
+    ],
+  },
   spendsByInstrument: [
     { name: "UPI", value: 456291, color: "#f59e0b" },
     { name: "Credit Card", value: 985465, color: "#3b82f6" },
@@ -572,6 +606,7 @@ const Index = () => {
           onClose={() => setCategoryModal({ isOpen: false, category: "", color: "" })}
           category={categoryModal.category}
           color={categoryModal.color}
+          transactions={MOCK_DATA.categoryTransactions[categoryModal.category as keyof typeof MOCK_DATA.categoryTransactions] || []}
           monthlyData={[
             { month: "Jun", amount: 4200 },
             { month: "Jul", amount: 5100 },
