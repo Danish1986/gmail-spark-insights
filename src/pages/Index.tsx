@@ -1217,8 +1217,6 @@ const Index = () => {
                   ))}
                 </div>
               </div>
-                </div>
-              </div>
 
               {/* Fixed Expenses Prediction */}
               <button
