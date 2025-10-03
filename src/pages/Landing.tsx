@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Shield, Mail } from "lucide-react";
@@ -10,6 +10,19 @@ import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 const Landing = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const platform = Capacitor.getPlatform();
+    
+    if (platform === 'android' || platform === 'ios') {
+      // Initialize GoogleAuth for native platforms
+      GoogleAuth.initialize({
+        clientId: '775297343977-l6k6f1sah7q52f3t9oam1lvlognrt892.apps.googleusercontent.com',
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: true,
+      });
+    }
+  }, []);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
