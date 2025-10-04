@@ -4,6 +4,7 @@ import { BottomTabNav } from "@/components/BottomTabNav";
 import { Hero } from "@/components/Hero";
 import { ChartSection } from "@/components/ChartSection";
 import { SyncButton } from "@/components/SyncButton";
+import { GmailConnectionStatus } from "@/components/GmailConnectionStatus";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { Loader2 } from "lucide-react";
 
@@ -144,12 +145,15 @@ const Dashboard = () => {
   if (!financialData || financialData.length === 0) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="p-6 text-center">
-          <h2 className="text-2xl font-bold mb-4">No financial data yet</h2>
-          <p className="text-muted-foreground mb-6">
-            Sync your Gmail to start tracking your finances
-          </p>
-          <SyncButton />
+        <div className="p-6">
+          <GmailConnectionStatus />
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">No financial data yet</h2>
+            <p className="text-muted-foreground mb-6">
+              Sync your Gmail to start tracking your finances
+            </p>
+            <SyncButton />
+          </div>
         </div>
         <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
@@ -158,8 +162,11 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="p-3 flex justify-end">
-        <SyncButton />
+      <div className="p-3">
+        <GmailConnectionStatus />
+        <div className="flex justify-end">
+          <SyncButton />
+        </div>
       </div>
       <Hero data={financialData} currentIndex={currentIndex} onNavigate={handleNavigate} />
       <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />

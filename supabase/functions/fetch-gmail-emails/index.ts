@@ -52,6 +52,43 @@ serve(async (req) => {
       });
     }
 
+    // Check if access token needs refresh (Google tokens expire after 1 hour)
+    let accessToken = emailAccount.access_token;
+    const lastSynced = emailAccount.last_synced_at ? new Date(emailAccount.last_synced_at) : null;
+    const hoursSinceSync = lastSynced ? (Date.now() - lastSynced.getTime()) / (1000 * 60 * 60) : 999;
+
+    // Refresh token if it's been more than 50 minutes or if we get auth errors
+    if (hoursSinceSync > 0.8 && emailAccount.refresh_token) {
+      try {
+        const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            client_id: Deno.env.get('GOOGLE_CLIENT_ID') || '',
+            client_secret: Deno.env.get('GOOGLE_CLIENT_SECRET') || '',
+            refresh_token: emailAccount.refresh_token,
+            grant_type: 'refresh_token',
+          }),
+        });
+
+        if (refreshResponse.ok) {
+          const refreshData = await refreshResponse.json();
+          accessToken = refreshData.access_token;
+
+          // Update access token in database
+          await supabase
+            .from('email_accounts')
+            .update({ access_token: accessToken })
+            .eq('id', emailAccount.id);
+
+          console.log('Access token refreshed successfully');
+        }
+      } catch (refreshError) {
+        console.error('Error refreshing token:', refreshError);
+        // Continue with existing token and let Gmail API error if it's invalid
+      }
+    }
+
     // Update sync status
     await supabase
       .from('sync_status')
@@ -68,7 +105,7 @@ serve(async (req) => {
       `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(searchQuery)}&maxResults=50`,
       {
         headers: {
-          'Authorization': `Bearer ${emailAccount.access_token}`,
+          'Authorization': `Bearer ${accessToken}`,
         },
       }
     );
@@ -108,7 +145,7 @@ serve(async (req) => {
           `https://gmail.googleapis.com/gmail/v1/users/me/messages/${message.id}`,
           {
             headers: {
-              'Authorization': `Bearer ${emailAccount.access_token}`,
+              'Authorization': `Bearer ${accessToken}`,
             },
           }
         );
