@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      bank_accounts: {
+        Row: {
+          account_type: string | null
+          bank_name: string
+          created_at: string | null
+          detected_from_email: boolean | null
+          id: string
+          last_4_digits: string | null
+          logo_url: string | null
+          primary_account: boolean | null
+          user_id: string
+        }
+        Insert: {
+          account_type?: string | null
+          bank_name: string
+          created_at?: string | null
+          detected_from_email?: boolean | null
+          id?: string
+          last_4_digits?: string | null
+          logo_url?: string | null
+          primary_account?: boolean | null
+          user_id: string
+        }
+        Update: {
+          account_type?: string | null
+          bank_name?: string
+          created_at?: string | null
+          detected_from_email?: boolean | null
+          id?: string
+          last_4_digits?: string | null
+          logo_url?: string | null
+          primary_account?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_accounts: {
         Row: {
           access_token: string | null
@@ -86,6 +122,99 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_status: {
+        Row: {
+          created_at: string | null
+          emails_processed: number | null
+          error_message: string | null
+          id: string
+          last_sync_at: string | null
+          sync_in_progress: boolean | null
+          transactions_found: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emails_processed?: number | null
+          error_message?: string | null
+          id?: string
+          last_sync_at?: string | null
+          sync_in_progress?: boolean | null
+          transactions_found?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emails_processed?: number | null
+          error_message?: string | null
+          id?: string
+          last_sync_at?: string | null
+          sync_in_progress?: boolean | null
+          transactions_found?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          account_source: string | null
+          amount: number
+          category: Database["public"]["Enums"]["transaction_category"]
+          confidence_score: number | null
+          created_at: string | null
+          date: string
+          description: string | null
+          email_id: string
+          id: string
+          is_verified: boolean | null
+          merchant: string | null
+          raw_email_body: string | null
+          raw_email_subject: string | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_source?: string | null
+          amount: number
+          category?: Database["public"]["Enums"]["transaction_category"]
+          confidence_score?: number | null
+          created_at?: string | null
+          date: string
+          description?: string | null
+          email_id: string
+          id?: string
+          is_verified?: boolean | null
+          merchant?: string | null
+          raw_email_body?: string | null
+          raw_email_subject?: string | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_source?: string | null
+          amount?: number
+          category?: Database["public"]["Enums"]["transaction_category"]
+          confidence_score?: number | null
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          email_id?: string
+          id?: string
+          is_verified?: boolean | null
+          merchant?: string | null
+          raw_email_body?: string | null
+          raw_email_subject?: string | null
+          type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -94,7 +223,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      transaction_category:
+        | "salary"
+        | "food_dining"
+        | "shopping"
+        | "travel"
+        | "utilities"
+        | "entertainment"
+        | "investment"
+        | "refund"
+        | "emi"
+        | "transfer"
+        | "other"
+      transaction_type: "credit" | "debit" | "refund"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -221,6 +362,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      transaction_category: [
+        "salary",
+        "food_dining",
+        "shopping",
+        "travel",
+        "utilities",
+        "entertainment",
+        "investment",
+        "refund",
+        "emi",
+        "transfer",
+        "other",
+      ],
+      transaction_type: ["credit", "debit", "refund"],
+    },
   },
 } as const
