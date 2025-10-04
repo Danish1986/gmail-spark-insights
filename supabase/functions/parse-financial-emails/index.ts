@@ -33,7 +33,7 @@ serve(async (req) => {
 
     console.log('Parsing email:', emailId, 'for user:', user.id);
 
-    // Use Lovable AI to parse the financial transaction
+    // Use Lovable AI to parse the financial transaction with improved categorization
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -47,53 +47,78 @@ serve(async (req) => {
             role: 'system',
             content: `You are a financial transaction parser for Indian banking emails and SMS. Extract transaction details and return ONLY a JSON object.
 
-CRITICAL CATEGORIZATION RULES (check in this order):
+CRITICAL CATEGORIZATION RULES (check patterns in this exact order):
 
-1. UPI PATTERN DETECTION (highest priority):
-   - "UPI/P2A/" = Person-to-Account transfer → category: "p2a_transfer"
-   - "UPI/P2M/" = Person-to-Merchant payment → Extract merchant name after the ID and categorize based on merchant
-   - Extract merchant from pattern: UPI/P2M/<id>/<merchant_name>
+1. UPI PATTERN DETECTION (HIGHEST PRIORITY - check first!):
+   - Pattern "UPI/P2A/" or "IMPS/P2A/" = Person-to-Account transfer → category: "p2a_transfer", payment_method: "UPI-P2A"
+   - Pattern "UPI/P2M/" = Person-to-Merchant payment → Extract merchant name from: UPI/P2M/<transaction_id>/<MERCHANT_NAME>
+   - After extracting merchant from P2M, continue to step 2-6 to categorize the merchant
 
 2. INVESTMENT PLATFORMS (check before other categories):
-   - Zerodha, Upstox, Groww, Angel One, Dhan, Coin, Paytm Money, 5paisa
-   - Keywords: "SIP", "mutual fund", "stock", "equity", "dividend", "redemption"
-   - Category: "investment"
+   - Merchants: "Zerodha", "Upstox", "Groww", "Angel One", "Dhan", "Coin", "Paytm Money", "5paisa", "Kuvera"
+   - Keywords in body: "SIP", "mutual fund", "stock purchase", "equity", "dividend", "redemption", "NAV"
+   - → category: "investment", payment_method: extract from email
 
-3. CREDIT CARD PAYMENTS (via any method):
-   - Merchants: CRED, "SuperCard", "OneCard", any card name
-   - Keywords: "credit card payment", "CC bill", "card payment"
-   - Category: "credit_card_bill"
+3. CREDIT CARD PAYMENTS (via any method including UPI):
+   - Merchant names containing: "CRED", "SuperCard", "OneCard", "Card", "Credit"
+   - Keywords: "credit card payment", "CC bill", "card bill payment", "payment towards credit card"
+   - → category: "credit_card_bill"
 
 4. LOAN EMI:
-   - Keywords: "EMI", "loan payment", "installment"
-   - Category: "emi"
+   - Keywords: "EMI", "loan payment", "loan installment", "equated monthly installment"
+   - → category: "emi"
 
-5. MERCHANT CATEGORIES (only if not matched above):
-   - Food: Swiggy, Zomato, restaurants
-   - Shopping: Amazon, Flipkart, Myntra
-   - Travel: Uber, Ola, IRCTC (NOT P2A transfers)
-   - Utilities: Airtel, Jio, electricity
-   - Groceries: BigBasket, Blinkit, Zepto
+5. SALARY:
+   - Keywords: "salary", "sal credit", "payroll", "monthly salary"
+   - Usually large credits on 25th-5th of month
+   - → category: "salary"
 
-6. DEFAULT:
-   - If none match → "other"
+6. MERCHANT CATEGORIES (only if not matched above):
+   - food_dining: Swiggy, Zomato, restaurants, food delivery
+   - shopping: Amazon, Flipkart, Myntra, e-commerce
+   - travel: Uber, Ola, IRCTC, flights (NOT P2A transfers!)
+   - utilities: Airtel, Jio, Vodafone, electricity bill
+   - groceries: BigBasket, Blinkit, Zepto, Instamart
+   - entertainment: BookMyShow, Netflix, Prime Video
 
-REQUIRED FIELDS:
-- amount: number (extract INR amount)
-- date: ISO timestamp
-- merchant: string (extract from UPI reference or email body)
-- type: "credit" | "debit" | "refund"
-- category: "salary" | "food_dining" | "shopping" | "travel" | "utilities" | "entertainment" | "investment" | "refund" | "emi" | "p2a_transfer" | "p2m_payment" | "credit_card_bill" | "other"
-- account_last_4: string (last 4 digits of account/card)
-- description: string (brief summary)
-- confidence: number (0-1)
-- payment_method: "UPI-P2A" | "UPI-P2M" | "UPI" | "Credit Card" | "Debit Card" | "NEFT" | "IMPS" | "Other"
+7. DEFAULT:
+   - P2M payments not matching above → "p2m_payment"
+   - Others → "other"
 
-EXAMPLES:
-- "IMPS/P2A/527352542774/SUHAILA/" → category: "p2a_transfer", payment_method: "UPI-P2A"
-- "UPI/P2M/408359412488/Utkarsh SuperCard R" → category: "credit_card_bill", merchant: "SuperCard"
-- "UPI/P2M/171142254626/Angel One Limited" → category: "investment", merchant: "Angel One"
-- "Swiggy order delivered" → category: "food_dining"
+PAYMENT METHOD DETECTION:
+- "UPI/P2A" or "IMPS/P2A" → "UPI-P2A"
+- "UPI/P2M" → "UPI-P2M"
+- "UPI" (general) → "UPI"
+- "Credit Card" transaction → "Credit Card"
+- "Debit Card" or account debit → "Debit Card"
+- "NEFT", "RTGS", "IMPS" → respective value
+- Default → "Other"
+
+REQUIRED JSON FIELDS:
+{
+  "amount": number,
+  "date": "ISO timestamp",
+  "merchant": "extracted merchant name",
+  "type": "credit" | "debit" | "refund",
+  "category": "salary" | "food_dining" | "shopping" | "travel" | "utilities" | "entertainment" | "investment" | "refund" | "emi" | "p2a_transfer" | "p2m_payment" | "credit_card_bill" | "groceries" | "other",
+  "account_last_4": "last 4 digits",
+  "description": "brief summary",
+  "confidence": 0.0-1.0,
+  "payment_method": "UPI-P2A" | "UPI-P2M" | "UPI" | "Credit Card" | "Debit Card" | "NEFT" | "IMPS" | "RTGS" | "Other"
+}
+
+EXAMPLE PARSING:
+Input: "IMPS/P2A/527352542774/SUHAILA/"
+Output: {category: "p2a_transfer", merchant: "SUHAILA", payment_method: "UPI-P2A"}
+
+Input: "UPI/P2M/408359412488/Utkarsh SuperCard R"
+Output: {category: "credit_card_bill", merchant: "Utkarsh SuperCard", payment_method: "UPI-P2M"}
+
+Input: "UPI/P2M/171142254626/Angel One Limited"
+Output: {category: "investment", merchant: "Angel One", payment_method: "UPI-P2M"}
+
+Input: "UPI/P2M/12345/Swiggy"
+Output: {category: "food_dining", merchant: "Swiggy", payment_method: "UPI-P2M"}
 
 If not a financial transaction, return {"is_transaction": false}`
           },
@@ -148,8 +173,9 @@ If not a financial transaction, return {"is_transaction": false}`
         merchant: parsed.merchant,
         account_source: parsed.account_last_4,
         description: parsed.description,
+        payment_method: parsed.payment_method || 'Other',
         raw_email_subject: emailSubject,
-        raw_email_body: emailBody.substring(0, 1000), // Truncate to avoid huge storage
+        raw_email_body: emailBody.substring(0, 1000),
         confidence_score: parsed.confidence || 0.5,
       })
       .select()

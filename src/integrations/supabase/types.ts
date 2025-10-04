@@ -171,6 +171,7 @@ export type Database = {
           id: string
           is_verified: boolean | null
           merchant: string | null
+          payment_method: string | null
           raw_email_body: string | null
           raw_email_subject: string | null
           type: Database["public"]["Enums"]["transaction_type"]
@@ -189,6 +190,7 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           merchant?: string | null
+          payment_method?: string | null
           raw_email_body?: string | null
           raw_email_subject?: string | null
           type: Database["public"]["Enums"]["transaction_type"]
@@ -207,6 +209,7 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           merchant?: string | null
+          payment_method?: string | null
           raw_email_body?: string | null
           raw_email_subject?: string | null
           type?: Database["public"]["Enums"]["transaction_type"]
@@ -235,6 +238,9 @@ export type Database = {
         | "emi"
         | "transfer"
         | "other"
+        | "p2a_transfer"
+        | "p2m_payment"
+        | "credit_card_bill"
       transaction_type: "credit" | "debit" | "refund"
     }
     CompositeTypes: {
@@ -375,6 +381,9 @@ export const Constants = {
         "emi",
         "transfer",
         "other",
+        "p2a_transfer",
+        "p2m_payment",
+        "credit_card_bill",
       ],
       transaction_type: ["credit", "debit", "refund"],
     },
