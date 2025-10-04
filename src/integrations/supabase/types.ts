@@ -55,7 +55,7 @@ export type Database = {
           email_consent_at: string | null
           full_name: string | null
           id: string
-          phone: string
+          phone: string | null
           terms_accepted: boolean | null
           terms_accepted_at: string | null
           updated_at: string | null
@@ -67,7 +67,7 @@ export type Database = {
           email_consent_at?: string | null
           full_name?: string | null
           id: string
-          phone: string
+          phone?: string | null
           terms_accepted?: boolean | null
           terms_accepted_at?: string | null
           updated_at?: string | null
@@ -79,7 +79,7 @@ export type Database = {
           email_consent_at?: string | null
           full_name?: string | null
           id?: string
-          phone?: string
+          phone?: string | null
           terms_accepted?: boolean | null
           terms_accepted_at?: string | null
           updated_at?: string | null

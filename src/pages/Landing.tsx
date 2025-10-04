@@ -59,42 +59,23 @@ const Landing = () => {
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-between px-6 py-12 safe-top safe-bottom">
         {/* Hero Section */}
         <div className="w-full max-w-4xl flex-1 flex flex-col items-center justify-center space-y-12 animate-fade-in">
-          {/* Hero Illustration */}
-          <div className="relative">
-            {/* Main Circle with Glass Effect */}
-            <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-primary via-primary to-success shadow-2xl backdrop-blur-sm flex items-center justify-center animate-scale-in">
-              {/* Inner Circle */}
-              <div className="absolute inset-4 rounded-full bg-background/10 backdrop-blur-md border border-white/20" />
-              
-              {/* Center Icon */}
-              <div className="relative z-10 flex items-center justify-center">
-                <TrendingUp className="w-24 h-24 text-primary-foreground drop-shadow-lg" strokeWidth={2.5} />
-              </div>
-              
-              {/* Floating Icons */}
-              <div className="absolute -top-4 -right-4 w-16 h-16 rounded-2xl bg-success/90 backdrop-blur-sm flex items-center justify-center shadow-lg animate-[bounce_3s_ease-in-out_infinite]">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-14 h-14 rounded-2xl bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-lg animate-[bounce_3s_ease-in-out_infinite_0.5s]">
-                <PieChart className="w-7 h-7 text-white" />
-              </div>
-              <div className="absolute top-1/2 -left-8 w-12 h-12 rounded-xl bg-chart-2/90 backdrop-blur-sm flex items-center justify-center shadow-lg animate-[bounce_3s_ease-in-out_infinite_1s]">
-                <IndianRupee className="w-6 h-6 text-white" />
-              </div>
-            </div>
+          {/* Growi Logo */}
+          <div className="relative w-64 h-64 flex items-center justify-center">
+            <img 
+              src="/growi-logo.png" 
+              alt="Growi Logo" 
+              className="w-48 h-48 object-contain transition-transform duration-300 hover:scale-110 animate-fade-in drop-shadow-2xl"
+            />
           </div>
 
           {/* Branding */}
           <div className="text-center space-y-4">
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-primary to-success bg-clip-text text-transparent tracking-tight animate-fade-in">
-              FinanceTracker
+              Growi
             </h1>
-            <div className="flex items-center justify-center gap-2">
-              <IndianRupee className="w-6 h-6 text-primary animate-pulse" />
-              <p className="text-xl md:text-2xl text-muted-foreground font-medium">
-                Your money. Your expertise.
-              </p>
-            </div>
+            <p className="text-xl md:text-2xl text-muted-foreground font-medium">
+              Smart Money Management
+            </p>
             <p className="text-sm text-muted-foreground/80 flex items-center justify-center gap-1">
               <Sparkles className="w-4 h-4 text-primary" />
               AI-powered insights for Indian finances
