@@ -101,38 +101,6 @@ const Landing = () => {
             </p>
           </div>
 
-          {/* Feature Cards */}
-          <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-            <Card className="p-6 bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group">
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Receipt className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <h3 className="font-semibold text-foreground">Track Expenses</h3>
-                <p className="text-xs text-muted-foreground">Monitor every rupee with precision</p>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-card/50 backdrop-blur-sm border-success/20 hover:border-success/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group">
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success to-success/70 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Wallet className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-semibold text-foreground">Smart Insights</h3>
-                <p className="text-xs text-muted-foreground">AI-powered recommendations</p>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-card/50 backdrop-blur-sm border-chart-2/20 hover:border-chart-2/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group">
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-chart-2 to-chart-2/70 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <CreditCard className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-semibold text-foreground">Card Rewards</h3>
-                <p className="text-xs text-muted-foreground">Maximize cashback & benefits</p>
-              </div>
-            </Card>
-          </div>
         </div>
 
         {/* CTA Section */}
