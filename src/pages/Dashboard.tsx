@@ -108,6 +108,7 @@ const categoryIcons = {
 const Dashboard = () => {
   const { data: financialData, isLoading } = useFinancialData();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState("home");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -150,7 +151,7 @@ const Dashboard = () => {
           </p>
           <SyncButton />
         </div>
-        <BottomTabNav />
+        <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
     );
   }
@@ -161,8 +162,7 @@ const Dashboard = () => {
         <SyncButton />
       </div>
       <Hero data={financialData} currentIndex={currentIndex} onNavigate={handleNavigate} />
-      <ChartSection currentMonthData={financialData[currentIndex]} />
-      <BottomTabNav />
+      <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };
