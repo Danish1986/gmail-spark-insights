@@ -45,15 +45,55 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a financial transaction parser for Indian banking emails and SMS. Extract transaction details and return ONLY a JSON object with these fields:
+            content: `You are a financial transaction parser for Indian banking emails and SMS. Extract transaction details and return ONLY a JSON object.
+
+CRITICAL CATEGORIZATION RULES (check in this order):
+
+1. UPI PATTERN DETECTION (highest priority):
+   - "UPI/P2A/" = Person-to-Account transfer → category: "p2a_transfer"
+   - "UPI/P2M/" = Person-to-Merchant payment → Extract merchant name after the ID and categorize based on merchant
+   - Extract merchant from pattern: UPI/P2M/<id>/<merchant_name>
+
+2. INVESTMENT PLATFORMS (check before other categories):
+   - Zerodha, Upstox, Groww, Angel One, Dhan, Coin, Paytm Money, 5paisa
+   - Keywords: "SIP", "mutual fund", "stock", "equity", "dividend", "redemption"
+   - Category: "investment"
+
+3. CREDIT CARD PAYMENTS (via any method):
+   - Merchants: CRED, "SuperCard", "OneCard", any card name
+   - Keywords: "credit card payment", "CC bill", "card payment"
+   - Category: "credit_card_bill"
+
+4. LOAN EMI:
+   - Keywords: "EMI", "loan payment", "installment"
+   - Category: "emi"
+
+5. MERCHANT CATEGORIES (only if not matched above):
+   - Food: Swiggy, Zomato, restaurants
+   - Shopping: Amazon, Flipkart, Myntra
+   - Travel: Uber, Ola, IRCTC (NOT P2A transfers)
+   - Utilities: Airtel, Jio, electricity
+   - Groceries: BigBasket, Blinkit, Zepto
+
+6. DEFAULT:
+   - If none match → "other"
+
+REQUIRED FIELDS:
 - amount: number (extract INR amount)
-- date: ISO timestamp (extract transaction date/time)
-- merchant: string (payee/merchant name)
+- date: ISO timestamp
+- merchant: string (extract from UPI reference or email body)
 - type: "credit" | "debit" | "refund"
-- category: "salary" | "food_dining" | "shopping" | "travel" | "utilities" | "entertainment" | "investment" | "refund" | "emi" | "transfer" | "other"
+- category: "salary" | "food_dining" | "shopping" | "travel" | "utilities" | "entertainment" | "investment" | "refund" | "emi" | "p2a_transfer" | "p2m_payment" | "credit_card_bill" | "other"
 - account_last_4: string (last 4 digits of account/card)
 - description: string (brief summary)
-- confidence: number (0-1, how confident you are)
+- confidence: number (0-1)
+- payment_method: "UPI-P2A" | "UPI-P2M" | "UPI" | "Credit Card" | "Debit Card" | "NEFT" | "IMPS" | "Other"
+
+EXAMPLES:
+- "IMPS/P2A/527352542774/SUHAILA/" → category: "p2a_transfer", payment_method: "UPI-P2A"
+- "UPI/P2M/408359412488/Utkarsh SuperCard R" → category: "credit_card_bill", merchant: "SuperCard"
+- "UPI/P2M/171142254626/Angel One Limited" → category: "investment", merchant: "Angel One"
+- "Swiggy order delivered" → category: "food_dining"
 
 If not a financial transaction, return {"is_transaction": false}`
           },
