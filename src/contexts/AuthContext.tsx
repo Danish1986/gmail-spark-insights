@@ -19,6 +19,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  initialized: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -30,6 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   const navigate = useNavigate();
 
   const fetchProfile = async (userId: string) => {
@@ -103,11 +105,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await fetchProfile(session.user.id);
           }
           setLoading(false);
+          setInitialized(true);
         }
       } catch (error) {
         console.error("❌ Session check error:", error);
         if (isMounted) {
           setLoading(false);
+          setInitialized(true);
         }
       }
     };
@@ -151,7 +155,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, initialized, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
