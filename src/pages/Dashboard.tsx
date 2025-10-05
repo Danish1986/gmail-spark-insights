@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BottomTabNav } from "@/components/BottomTabNav";
 import { Hero } from "@/components/Hero";
-import { SyncButton } from "@/components/SyncButton";
 import { GmailConnectionStatus } from "@/components/GmailConnectionStatus";
+import { supabase } from "@/integrations/supabase/client";
 import { FinancialInsightsCarousel } from "@/components/FinancialInsightsCarousel";
 import { ProfileDrawer } from "@/components/ProfileDrawer";
 import { OptimizeTab } from "@/components/tabs/OptimizeTab";
@@ -17,6 +17,18 @@ const Dashboard = () => {
   const { data: financialData, isLoading } = useFinancialData();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("home");
+
+  // Auto-sync on mount (one-time on signup/login)
+  useEffect(() => {
+    const triggerAutoSync = async () => {
+      try {
+        await supabase.functions.invoke('fetch-gmail-emails');
+      } catch (error) {
+        console.error('Auto-sync failed:', error);
+      }
+    };
+    triggerAutoSync();
+  }, []);
 
   const handleNavigate = (direction: "prev" | "next") => {
     if (!financialData) return;
@@ -74,9 +86,8 @@ const Dashboard = () => {
               <Sparkles className="h-8 w-8 text-primary" />
             </div>
             <p className="text-muted-foreground text-lg mb-6">
-              Sync your Gmail to unlock personalized financial insights and start your journey to smarter money management
+              Connect your Gmail to unlock personalized financial insights and start your journey to smarter money management
             </p>
-            <SyncButton />
           </div>
 
           <div className="mt-12">
@@ -109,12 +120,8 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="p-3">
         <GmailConnectionStatus />
-        <div className="flex justify-between items-center">
-          <div className="flex-1" />
-          <div className="flex items-center gap-2">
-            <SyncButton />
-            <ProfileDrawer />
-          </div>
+        <div className="flex justify-end items-center">
+          <ProfileDrawer />
         </div>
       </div>
       {renderTabContent()}

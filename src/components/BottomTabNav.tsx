@@ -32,8 +32,8 @@ export const BottomTabNav = ({ activeTab, onTabChange }: BottomTabNavProps) => {
   };
 
   return (
-    <div className="sticky bottom-0 p-2 bg-white/50 backdrop-blur-lg safe-bottom">
-      <div className="grid grid-cols-5 border border-border bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl">
+    <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent safe-bottom">
+      <div className="grid grid-cols-4 bg-card border-2 border-border rounded-3xl shadow-2xl overflow-hidden">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = isTabActive(item);
@@ -41,12 +41,20 @@ export const BottomTabNav = ({ activeTab, onTabChange }: BottomTabNavProps) => {
             <button
               key={item.id}
               onClick={() => handleTabClick(item)}
-              className={`p-3 font-semibold flex flex-col text-xs items-center justify-center gap-1 rounded-xl transition-all duration-200 min-h-[60px] ${
-                isActive ? "bg-gray-900 text-white scale-105" : "text-gray-600 hover:bg-gray-100"
+              className={`relative p-4 font-semibold flex flex-col text-xs items-center justify-center gap-2 transition-all duration-300 min-h-[72px] ${
+                isActive 
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Icon className="h-6 w-6" />
-              {item.label}
+              {isActive && (
+                <div className="absolute inset-0 bg-primary/10 backdrop-blur-sm" />
+              )}
+              <Icon className={`h-6 w-6 relative z-10 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
+              <span className="relative z-10">{item.label}</span>
+              {isActive && (
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary rounded-t-full" />
+              )}
             </button>
           );
         })}

@@ -9,7 +9,7 @@ export const FinancialInsightsCarousel = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % financialInsights.length);
-    }, 5000);
+    }, 12000); // 12 seconds per slide
 
     return () => clearInterval(interval);
   }, []);
@@ -28,6 +28,9 @@ export const FinancialInsightsCarousel = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
+      <p className="text-xs text-center text-muted-foreground mb-3 italic">
+        Insights based on data from Growi app users across India
+      </p>
       <Card className="relative overflow-hidden border-2">
         <div className={`absolute inset-0 bg-gradient-to-br ${insight.gradient} opacity-10`} />
         
