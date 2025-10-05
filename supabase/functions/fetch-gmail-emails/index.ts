@@ -6,6 +6,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Comprehensive Indian bank domains for email search
+const BANK_DOMAINS = [
+  "hdfcbank.com", "hdfcbank.net", "email.hdfcbank.com",
+  "icicibank.com", "email.icicibank.com", "kotak.com", "kotakmail.com",
+  "axisbank.com", "email.axisbank.com", "sbi.co.in", "sbicard.com",
+  "americanexpress.com", "aexp.com", "hsbc.co.in", "hsbc.com",
+  "citi.com", "citibank.com", "indusind.com", "yesbank.in",
+  "dcbbank.com", "jupiter.money", "dbs.com", "paytm.com", "phonepe.com"
+];
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -98,11 +108,13 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       });
 
-    // Search for financial emails from Indian banks and payment apps
-    const searchQuery = 'from:(hdfc OR icici OR axis OR sbi OR paytm OR phonepe OR googlepay OR amazon OR swiggy OR zomato OR uber OR ola OR flipkart) newer_than:90d';
+    // Search for financial emails from the last 18 months (540 days)
+    const searchQuery = `(${BANK_DOMAINS.map(d => `from:${d}`).join(' OR ')}) ` +
+      `(transaction alert OR debited OR spent OR credited OR received OR payment) ` +
+      `newer_than:540d`;
     
     const gmailResponse = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(searchQuery)}&maxResults=50`,
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(searchQuery)}&maxResults=500`,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -132,13 +144,55 @@ serve(async (req) => {
     const gmailData = await gmailResponse.json();
     const messages = gmailData.messages || [];
 
-    console.log(`Found ${messages.length} messages to process`);
+    console.log(`Found ${messages.length} messages to process (will process up to 200)`);
 
     let processedCount = 0;
     let transactionsFound = 0;
 
-    // Process each message
-    for (const message of messages.slice(0, 20)) { // Limit to 20 emails per sync
+    // Recursive email body parser with HTML stripping and entity decoding
+    function getFullTextFromPayload(payload: any): string {
+      function findTextParts(p: any): string[] {
+        if (!p) return [];
+        const parts: string[] = [];
+        
+        if (p.parts && Array.isArray(p.parts)) {
+          for (const part of p.parts) {
+            parts.push(...findTextParts(part));
+          }
+        } else if (p.body?.data) {
+          try {
+            const decoded = atob(p.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+            parts.push(decoded);
+          } catch (e) {
+            console.error('Failed to decode part:', e);
+          }
+        }
+        
+        return parts;
+      }
+      
+      let fullText = findTextParts(payload).join('\n');
+      
+      // Strip HTML tags
+      fullText = fullText.replace(/<[^<]+?>/g, ' ');
+      
+      // Decode HTML entities
+      fullText = fullText
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/&apos;/g, "'");
+      
+      // Normalize whitespace
+      return fullText.split(/\s+/).join(' ').trim();
+    }
+
+    // Process messages (limit to 200 to avoid timeouts)
+    for (const message of messages.slice(0, 200)) {
       try {
         // Fetch full message details
         const messageResponse = await fetch(
@@ -154,19 +208,10 @@ serve(async (req) => {
 
         const messageData = await messageResponse.json();
         
-        // Extract subject and body
+        // Extract subject and body using recursive parser
         const headers = messageData.payload.headers;
         const subject = headers.find((h: any) => h.name === 'Subject')?.value || '';
-        
-        let body = '';
-        if (messageData.payload.body?.data) {
-          body = atob(messageData.payload.body.data.replace(/-/g, '+').replace(/_/g, '/'));
-        } else if (messageData.payload.parts) {
-          const textPart = messageData.payload.parts.find((p: any) => p.mimeType === 'text/plain');
-          if (textPart?.body?.data) {
-            body = atob(textPart.body.data.replace(/-/g, '+').replace(/_/g, '/'));
-          }
-        }
+        const body = getFullTextFromPayload(messageData.payload);
 
         // Call parse function
         const parseResponse = await fetch(`${supabaseUrl}/functions/v1/parse-financial-emails`, {
