@@ -38,7 +38,7 @@ serve(async (req) => {
       });
     }
 
-    console.log('Fetching Gmail emails for user:', user.id);
+    console.log('✅ Fetching Gmail emails for user:', user.id);
 
     // Get user's connected email account with access token
     const { data: emailAccount, error: accountError } = await supabase
@@ -46,21 +46,46 @@ serve(async (req) => {
       .select('*')
       .eq('user_id', user.id)
       .eq('provider', 'google')
-      .single();
+      .maybeSingle();
 
-    if (accountError || !emailAccount) {
-      return new Response(JSON.stringify({ error: 'No Gmail account connected' }), {
+    console.log('📧 Email account query result:', { emailAccount, accountError });
+
+    if (accountError) {
+      console.error('❌ Database error fetching email account:', accountError);
+      return new Response(JSON.stringify({ 
+        error: 'DATABASE_ERROR', 
+        message: 'Failed to fetch email account: ' + accountError.message 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!emailAccount) {
+      console.error('❌ No Gmail account connected for user:', user.id);
+      return new Response(JSON.stringify({ 
+        error: 'NO_GMAIL_CONNECTED', 
+        message: 'No Gmail account connected. Please complete the onboarding process to connect your Gmail account.' 
+      }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    console.log('✅ Found email account:', emailAccount.email);
 
     if (!emailAccount.access_token) {
-      return new Response(JSON.stringify({ error: 'No access token available' }), {
+      console.error('❌ No access token available for email account');
+      return new Response(JSON.stringify({ 
+        error: 'NO_ACCESS_TOKEN', 
+        message: 'No access token available. Please reconnect your Gmail account.' 
+      }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    console.log('✅ Access token found, checking if refresh needed...');
 
     // Check if access token needs refresh (Google tokens expire after 1 hour)
     let accessToken = emailAccount.access_token;
@@ -69,13 +94,28 @@ serve(async (req) => {
 
     // Refresh token if it's been more than 50 minutes or if we get auth errors
     if (hoursSinceSync > 0.8 && emailAccount.refresh_token) {
+      console.log('🔄 Token needs refresh (hours since sync:', hoursSinceSync, ')');
       try {
+        const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
+        const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
+        
+        if (!clientId || !clientSecret) {
+          console.error('❌ Missing Google OAuth credentials');
+          return new Response(JSON.stringify({ 
+            error: 'CONFIG_ERROR', 
+            message: 'Google OAuth credentials not configured properly' 
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
         const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({
-            client_id: Deno.env.get('GOOGLE_CLIENT_ID') || '',
-            client_secret: Deno.env.get('GOOGLE_CLIENT_SECRET') || '',
+            client_id: clientId,
+            client_secret: clientSecret,
             refresh_token: emailAccount.refresh_token,
             grant_type: 'refresh_token',
           }),
@@ -91,12 +131,17 @@ serve(async (req) => {
             .update({ access_token: accessToken })
             .eq('id', emailAccount.id);
 
-          console.log('Access token refreshed successfully');
+          console.log('✅ Access token refreshed successfully');
+        } else {
+          const errorText = await refreshResponse.text();
+          console.error('❌ Token refresh failed:', refreshResponse.status, errorText);
         }
       } catch (refreshError) {
-        console.error('Error refreshing token:', refreshError);
+        console.error('❌ Error refreshing token:', refreshError);
         // Continue with existing token and let Gmail API error if it's invalid
       }
+    } else {
+      console.log('✅ Token is fresh, no refresh needed');
     }
 
     // Update sync status

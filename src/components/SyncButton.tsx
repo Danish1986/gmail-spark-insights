@@ -14,14 +14,32 @@ export const SyncButton = () => {
     try {
       const { data, error } = await supabase.functions.invoke('fetch-gmail-emails');
       
+      console.log('Sync response:', { data, error });
+      
       if (error) {
-        toast.error("Sync failed: " + error.message);
+        console.error('Sync error details:', error);
+        
+        // Show user-friendly error messages based on error type
+        if (error.message?.includes('NO_GMAIL_CONNECTED')) {
+          toast.error("Please connect your Gmail account first by completing the onboarding process.");
+        } else if (error.message?.includes('UNAUTHORIZED')) {
+          toast.error("Session expired. Please sign in again.");
+        } else {
+          toast.error("Sync failed: " + (error.message || 'Unknown error'));
+        }
         return;
       }
 
-      toast.success(`Synced ${data.transactions_found} new transactions from ${data.processed} emails`);
+      if (data?.error) {
+        console.error('Sync returned error:', data);
+        toast.error(data.message || "Sync failed");
+        return;
+      }
+
+      toast.success(`Synced ${data?.transactions_found || 0} new transactions from ${data?.processed || 0} emails`);
     } catch (error: any) {
-      toast.error("Sync failed: " + error.message);
+      console.error('Sync exception:', error);
+      toast.error("Sync failed: " + (error.message || 'Unknown error'));
     } finally {
       setSyncing(false);
     }
