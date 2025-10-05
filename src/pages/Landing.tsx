@@ -1,13 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Shield, Sparkles } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  // If user is already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   const handleGetStarted = () => {
     navigate("/auth");
   };
+
+  // Show loading while checking auth state
+  if (loading) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-background">

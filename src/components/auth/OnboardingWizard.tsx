@@ -54,7 +54,22 @@ export const OnboardingWizard = () => {
 
       if (error) throw error;
 
-      setStep("email-consent");
+      // Check if Gmail is already connected
+      const { data: existingEmail } = await supabase
+        .from("email_accounts")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("provider", "google")
+        .maybeSingle();
+
+      if (existingEmail) {
+        // Gmail already connected, skip to dashboard
+        console.log("✅ Gmail already connected, skipping to dashboard");
+        navigate("/dashboard");
+      } else {
+        // Show email consent screen
+        setStep("email-consent");
+      }
     } catch (error: any) {
       console.error("Profile update error:", error);
       toast.error(error.message || "Failed to update profile");

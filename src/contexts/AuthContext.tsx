@@ -47,32 +47,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const saveGmailConnection = async (userId: string, email: string, accessToken: string, refreshToken: string) => {
-    try {
-      const { error } = await supabase
-        .from('email_accounts')
-        .upsert({
-          user_id: userId,
-          provider: 'google',
-          email: email,
-          access_token: accessToken,
-          refresh_token: refreshToken,
-          connected_at: new Date().toISOString(),
-        }, {
-          onConflict: 'user_id,provider',
-        });
-
-      if (error) throw error;
-      console.log('Gmail connection saved successfully');
-    } catch (error) {
-      console.error('Error saving Gmail connection:', error);
-    }
-  };
-
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -80,16 +58,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setTimeout(() => {
             fetchProfile(session.user.id);
           }, 0);
-
-          // Save Gmail tokens if OAuth just completed
-          if (event === 'SIGNED_IN' && session.provider_token && session.provider_refresh_token) {
-            await saveGmailConnection(
-              session.user.id,
-              session.user.email || '',
-              session.provider_token,
-              session.provider_refresh_token
-            );
-          }
         } else {
           setProfile(null);
         }
@@ -97,22 +65,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
         fetchProfile(session.user.id);
-        
-        // Save Gmail tokens if they exist and not already saved
-        if (session.provider_token && session.provider_refresh_token) {
-          await saveGmailConnection(
-            session.user.id,
-            session.user.email || '',
-            session.provider_token,
-            session.provider_refresh_token
-          );
-        }
       }
       setLoading(false);
     });

@@ -153,9 +153,9 @@ const AuthCallback = () => {
 
         toast.success("Gmail connected successfully!");
         
-        // Redirect to dashboard
+        // Redirect to dashboard with replace to prevent back button issues
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate("/dashboard", { replace: true });
         }, 1500);
 
       } catch (error: any) {
