@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 interface Profile {
@@ -32,7 +31,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
-  const navigate = useNavigate();
 
   const fetchProfile = async (userId: string) => {
     const startTime = Date.now();
@@ -138,7 +136,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "You have been logged out",
       });
       
-      navigate("/");
+      window.location.href = "/";
     } catch (error: any) {
       toast({
         title: "Error signing out",
