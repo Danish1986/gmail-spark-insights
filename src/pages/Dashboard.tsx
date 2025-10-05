@@ -30,6 +30,7 @@ const Dashboard = () => {
   };
 
   if (isLoading) {
+    console.log("Dashboard: Loading state - fetching financial data...");
     return (
       <div className="min-h-screen bg-background pb-20">
         <div className="p-6 space-y-8">
@@ -63,18 +64,19 @@ const Dashboard = () => {
   }
 
   if (!financialData || financialData.length === 0) {
+    console.log("Dashboard: Empty state - no financial data available");
     return (
       <div className="min-h-screen bg-background pb-20">
         <div className="p-6 space-y-8">
           <GmailConnectionStatus />
           
-          <div className="text-center space-y-4 mt-12">
+          <div className="text-center space-y-4 mt-8">
             <div className="flex items-center justify-center gap-3 mb-4">
               <Sparkles className="h-8 w-8 text-primary" />
-              <h2 className="text-3xl font-bold">Curating Your Personal Insights</h2>
+              <h2 className="text-3xl font-bold">Your Financial Journey Starts Here</h2>
               <Sparkles className="h-8 w-8 text-primary" />
             </div>
-            <p className="text-muted-foreground text-lg mb-6">
+            <p className="text-muted-foreground text-lg mb-6 max-w-2xl mx-auto">
               Connect your Gmail to unlock personalized financial insights and start your journey to smarter money management
             </p>
           </div>

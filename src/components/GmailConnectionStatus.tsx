@@ -61,12 +61,23 @@ export const GmailConnectionStatus = () => {
 
   if (!connected) {
     return (
-      <Alert className="mb-4 border-yellow-500/50 bg-yellow-500/10">
-        <XCircle className="h-4 w-4 text-yellow-500" />
-        <AlertDescription className="text-yellow-700 dark:text-yellow-400">
-          Gmail connection in progress. Please sign in again if you see this message.
-        </AlertDescription>
-      </Alert>
+      <div className="mb-6">
+        <Alert className="border-primary/50 bg-primary/5">
+          <Mail className="h-5 w-5 text-primary" />
+          <AlertDescription className="flex flex-col gap-4">
+            <div>
+              <p className="font-semibold text-foreground mb-1">Connect Your Gmail</p>
+              <p className="text-sm text-muted-foreground">
+                We'll automatically track your transactions and provide personalized insights
+              </p>
+            </div>
+            <Button onClick={handleConnect} className="w-full sm:w-auto gap-2">
+              <Mail className="h-4 w-4" />
+              Connect Gmail Account
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
