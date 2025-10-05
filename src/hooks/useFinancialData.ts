@@ -18,9 +18,13 @@ export const useFinancialData = () => {
       
       if (error) throw error;
       
-      return data.data as MonthData[];
+      // Handle both nested data.data and direct data responses
+      const result = data?.data || data || [];
+      return result as MonthData[];
     },
     refetchInterval: 60000, // Refetch every minute
+    retry: 1, // Only retry once on failure
+    staleTime: 30000, // Consider data fresh for 30 seconds
   });
 };
 
