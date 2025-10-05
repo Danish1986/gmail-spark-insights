@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, XCircle, Mail } from "lucide-react";
+import { SyncButton } from "./SyncButton";
 
 export const GmailConnectionStatus = () => {
   const { user } = useAuth();
@@ -84,8 +85,11 @@ export const GmailConnectionStatus = () => {
   return (
     <Alert className="mb-4 border-green-500/50 bg-green-500/10">
       <CheckCircle className="h-4 w-4 text-green-500" />
-      <AlertDescription className="text-green-700 dark:text-green-400">
-        Gmail connected and ready to sync
+      <AlertDescription className="flex items-center justify-between gap-4">
+        <span className="text-green-700 dark:text-green-400">
+          Gmail connected and ready to sync
+        </span>
+        <SyncButton />
       </AlertDescription>
     </Alert>
   );

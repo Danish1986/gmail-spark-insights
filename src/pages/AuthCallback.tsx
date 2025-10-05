@@ -35,7 +35,13 @@ const AuthCallback = () => {
         const refreshToken = params.get('refresh_token');
         const providerToken = params.get('provider_token');
         
-        if (!accessToken) {
+        console.log('🔑 OAuth tokens received:', { 
+          hasAccessToken: !!accessToken, 
+          hasRefreshToken: !!refreshToken, 
+          hasProviderToken: !!providerToken 
+        });
+        
+        if (!accessToken && !providerToken) {
           throw new Error("No access token found in OAuth callback");
         }
 
@@ -67,19 +73,26 @@ const AuthCallback = () => {
           supabase.from('sync_status').select('*').eq('user_id', user.id).maybeSingle()
         ]);
 
-        // Update or insert email account
+        // Update or insert email account - Use providerToken (Gmail API token) if available
+        const gmailAccessToken = providerToken || accessToken;
+        console.log('💾 Saving email account with token type:', providerToken ? 'provider_token' : 'access_token');
+        
         if (existingAccountResult.data) {
           const { error: updateError } = await supabase
             .from('email_accounts')
             .update({
-              access_token: providerToken || accessToken,
+              access_token: gmailAccessToken,
               refresh_token: refreshToken || existingAccountResult.data.refresh_token,
               email: userEmail,
-              last_synced_at: new Date().toISOString()
+              last_synced_at: null // Reset to trigger fresh sync
             })
             .eq('id', existingAccountResult.data.id);
 
-          if (updateError) throw updateError;
+          if (updateError) {
+            console.error('❌ Failed to update email account:', updateError);
+            throw updateError;
+          }
+          console.log('✅ Email account updated');
         } else {
           const { error: insertError } = await supabase
             .from('email_accounts')
@@ -87,12 +100,16 @@ const AuthCallback = () => {
               user_id: user.id,
               email: userEmail,
               provider: 'google',
-              access_token: providerToken || accessToken,
+              access_token: gmailAccessToken,
               refresh_token: refreshToken,
               connected_at: new Date().toISOString()
             });
 
-          if (insertError) throw insertError;
+          if (insertError) {
+            console.error('❌ Failed to insert email account:', insertError);
+            throw insertError;
+          }
+          console.log('✅ Email account created');
         }
 
         // Update or insert sync status
@@ -120,20 +137,25 @@ const AuthCallback = () => {
         console.log("✅ Setup completed in", Date.now() - startTime, "ms");
         clearTimeout(timeoutId);
         
-        // Trigger background sync (non-blocking)
-        setTimeout(() => {
-          supabase.functions.invoke('fetch-gmail-emails').catch(console.error);
-        }, 500);
+        setStatus("Starting sync...");
+        // Trigger sync immediately and wait for it
+        console.log('🔄 Triggering Gmail sync...');
+        try {
+          const syncResult = await supabase.functions.invoke('fetch-gmail-emails');
+          console.log('✅ Sync triggered:', syncResult);
+        } catch (syncError) {
+          console.error('⚠️ Sync trigger failed (will retry on dashboard):', syncError);
+        }
 
         setStatus("All set! Redirecting...");
-        toast.success("Gmail connected successfully!");
+        toast.success("Gmail connected! Syncing your transactions...");
         
         // Quick redirect
         setTimeout(() => {
           if (isActive) {
             navigate("/dashboard", { replace: true });
           }
-        }, 800);
+        }, 1000);
 
       } catch (error: any) {
         clearTimeout(timeoutId);

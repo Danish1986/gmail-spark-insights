@@ -153,10 +153,13 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       });
 
-    // Search for financial emails from the last 18 months (540 days)
+    // Start with last 30 days for faster initial sync
+    const daysToSearch = lastSynced ? 540 : 30; // 30 days for first sync, 18 months for subsequent
+    console.log(`🔍 Searching emails from last ${daysToSearch} days`);
+    
     const searchQuery = `(${BANK_DOMAINS.map(d => `from:${d}`).join(' OR ')}) ` +
       `(transaction alert OR debited OR spent OR credited OR received OR payment) ` +
-      `newer_than:540d`;
+      `newer_than:${daysToSearch}d`;
     
     const gmailResponse = await fetch(
       `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(searchQuery)}&maxResults=500`,
