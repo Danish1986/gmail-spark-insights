@@ -18,17 +18,6 @@ const Dashboard = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("home");
 
-  // Auto-sync on mount (one-time on signup/login)
-  useEffect(() => {
-    const triggerAutoSync = async () => {
-      try {
-        await supabase.functions.invoke('fetch-gmail-emails');
-      } catch (error) {
-        console.error('Auto-sync failed:', error);
-      }
-    };
-    triggerAutoSync();
-  }, []);
 
   const handleNavigate = (direction: "prev" | "next") => {
     if (!financialData) return;

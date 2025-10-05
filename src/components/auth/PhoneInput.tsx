@@ -6,10 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface PhoneInputProps {
-  onOTPSent: (phone: string) => void;
+  onSuccess: (phone: string) => Promise<void>;
 }
 
-export const PhoneInput = ({ onOTPSent }: PhoneInputProps) => {
+export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(true); // Pre-checked
@@ -36,7 +36,7 @@ export const PhoneInput = ({ onOTPSent }: PhoneInputProps) => {
       if (error) throw error;
 
       toast.success("OTP sent successfully!");
-      onOTPSent(formattedPhone);
+      await onSuccess(formattedPhone);
     } catch (error: any) {
       toast.error(error.message || "Failed to send OTP");
     } finally {

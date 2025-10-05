@@ -6,11 +6,10 @@ import { toast } from "sonner";
 
 interface OTPInputProps {
   phone: string;
-  onVerified: () => void;
-  onResend: () => void;
+  onSuccess: () => void;
 }
 
-export const OTPInput = ({ phone, onVerified, onResend }: OTPInputProps) => {
+export const OTPInput = ({ phone, onSuccess }: OTPInputProps) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(30);
@@ -73,7 +72,7 @@ export const OTPInput = ({ phone, onVerified, onResend }: OTPInputProps) => {
       if (error) throw error;
 
       toast.success("Phone verified successfully!");
-      onVerified();
+      onSuccess();
     } catch (error: any) {
       toast.error(error.message || "Verification failed");
       // Clear OTP on error
@@ -96,7 +95,6 @@ export const OTPInput = ({ phone, onVerified, onResend }: OTPInputProps) => {
       setResendTimer(30);
       inputRefs.current[0]?.focus();
       toast.success("OTP sent successfully!");
-      onResend();
     } catch (error: any) {
       toast.error(error.message || "Failed to resend OTP");
     }
