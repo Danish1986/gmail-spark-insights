@@ -33,30 +33,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const fetchProfile = async (userId: string) => {
+    const startTime = Date.now();
     try {
-      const { data, error } = await supabase
+      // Add 5-second timeout for profile fetch
+      const profilePromise = supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
 
+      const result = await Promise.race([
+        profilePromise,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Profile fetch timeout")), 5000)
+        )
+      ]) as Awaited<typeof profilePromise>;
+
+      const { data, error } = result;
+      
       if (error) throw error;
       setProfile(data);
+      console.log("✅ Profile fetched in", Date.now() - startTime, "ms");
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("❌ Profile fetch error:", error);
     }
   };
 
   useEffect(() => {
+    let isMounted = true;
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        if (!isMounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           setTimeout(() => {
-            fetchProfile(session.user.id);
+            if (isMounted) {
+              fetchProfile(session.user.id);
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -64,18 +82,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
+    // Check for existing session with timeout
+    const checkSession = async () => {
+      try {
+        const sessionPromise = supabase.auth.getSession();
+        const result = await Promise.race([
+          sessionPromise,
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Session check timeout")), 8000)
+          )
+        ]) as Awaited<typeof sessionPromise>;
 
-    return () => subscription.unsubscribe();
+        const { data: { session } } = result;
+        
+        if (isMounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          }
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("❌ Session check error:", error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    checkSession();
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {

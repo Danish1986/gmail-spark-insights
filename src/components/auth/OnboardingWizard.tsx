@@ -36,8 +36,28 @@ export const OnboardingWizard = () => {
     }
 
     setLoading(true);
+    const timeoutId = setTimeout(() => {
+      toast.error("Taking too long - please try again");
+      setLoading(false);
+    }, 10000);
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Parallel fetches for speed
+      const [userResult, emailCheckResult] = await Promise.all([
+        supabase.auth.getUser(),
+        (async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return { data: null };
+          return supabase
+            .from("email_accounts")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("provider", "google")
+            .maybeSingle();
+        })()
+      ]);
+
+      const { data: { user } } = userResult;
       
       if (!user) {
         throw new Error("No authenticated user found");
@@ -54,23 +74,17 @@ export const OnboardingWizard = () => {
 
       if (error) throw error;
 
-      // Check if Gmail is already connected
-      const { data: existingEmail } = await supabase
-        .from("email_accounts")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("provider", "google")
-        .maybeSingle();
+      clearTimeout(timeoutId);
 
-      if (existingEmail) {
+      if (emailCheckResult.data) {
         // Gmail already connected, skip to dashboard
-        console.log("✅ Gmail already connected, skipping to dashboard");
         navigate("/dashboard");
       } else {
         // Show email consent screen
         setStep("email-consent");
       }
     } catch (error: any) {
+      clearTimeout(timeoutId);
       console.error("Profile update error:", error);
       toast.error(error.message || "Failed to update profile");
     } finally {
@@ -80,6 +94,12 @@ export const OnboardingWizard = () => {
 
   const handleEmailConsent = async (consentGiven: boolean) => {
     setLoading(true);
+    const timeoutId = setTimeout(() => {
+      toast.error("Connection timeout - please try again");
+      setLoading(false);
+      setStep("email-consent");
+    }, 12000);
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -99,6 +119,7 @@ export const OnboardingWizard = () => {
 
         if (profileError) throw profileError;
 
+        clearTimeout(timeoutId);
         setStep("completing");
 
         // Initiate Google OAuth with Gmail scopes
@@ -118,10 +139,12 @@ export const OnboardingWizard = () => {
 
         if (oauthError) throw oauthError;
       } else {
+        clearTimeout(timeoutId);
         // User skipped Gmail connection
         navigate("/dashboard");
       }
     } catch (error: any) {
+      clearTimeout(timeoutId);
       console.error("Email consent error:", error);
       toast.error(error.message || "Failed to process consent");
       setLoading(false);
