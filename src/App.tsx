@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { DevModeBanner } from "./components/DevModeBanner";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
@@ -17,6 +18,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <DevModeBanner />
       <Toaster />
       <Sonner />
       <BrowserRouter>

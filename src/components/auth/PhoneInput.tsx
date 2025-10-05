@@ -30,7 +30,10 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
       const formattedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
       
       // Development mode bypass - skip real OTP
-      const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
+      const isDev = import.meta.env.DEV || 
+                    window.location.hostname === 'localhost' ||
+                    window.location.hostname.includes('lovableproject.com') ||
+                    window.location.hostname.includes('lovable.app');
       
       if (isDev) {
         // Dev mode: Accept any phone number, no actual OTP sent
@@ -55,7 +58,10 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
     }
   };
 
-  const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
+  const isDev = import.meta.env.DEV || 
+                window.location.hostname === 'localhost' ||
+                window.location.hostname.includes('lovableproject.com') ||
+                window.location.hostname.includes('lovable.app');
 
   return (
     <div className="space-y-8">

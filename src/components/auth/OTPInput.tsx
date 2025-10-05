@@ -64,7 +64,10 @@ export const OTPInput = ({ phone, onSuccess }: OTPInputProps) => {
     setLoading(true);
     try {
       // Development mode bypass - accept hardcoded OTP
-      const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
+      const isDev = import.meta.env.DEV || 
+                    window.location.hostname === 'localhost' ||
+                    window.location.hostname.includes('lovableproject.com') ||
+                    window.location.hostname.includes('lovable.app');
       
       if (isDev) {
         // Dev mode: Check for hardcoded OTP
