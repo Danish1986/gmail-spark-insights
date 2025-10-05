@@ -11,7 +11,6 @@ const navItems = [
   { id: "optimize", label: "Optimize", icon: TrendingUp, path: null },
   { id: "loans", label: "Loans", icon: FileText, path: null },
   { id: "goals", label: "Goals", icon: Target, path: null },
-  { id: "profile", label: "Profile", icon: User, path: "/profile" },
 ];
 
 export const BottomTabNav = ({ activeTab, onTabChange }: BottomTabNavProps) => {

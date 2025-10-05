@@ -4,6 +4,7 @@ import { Hero } from "@/components/Hero";
 import { SyncButton } from "@/components/SyncButton";
 import { GmailConnectionStatus } from "@/components/GmailConnectionStatus";
 import { FinancialInsightsCarousel } from "@/components/FinancialInsightsCarousel";
+import { ProfileDrawer } from "@/components/ProfileDrawer";
 import { OptimizeTab } from "@/components/tabs/OptimizeTab";
 import { LoansTab } from "@/components/tabs/LoansTab";
 import { GoalsTab } from "@/components/tabs/GoalsTab";
@@ -108,8 +109,12 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background pb-20">
       <div className="p-3">
         <GmailConnectionStatus />
-        <div className="flex justify-end">
-          <SyncButton />
+        <div className="flex justify-between items-center">
+          <div className="flex-1" />
+          <div className="flex items-center gap-2">
+            <SyncButton />
+            <ProfileDrawer />
+          </div>
         </div>
       </div>
       {renderTabContent()}
