@@ -25,6 +25,11 @@ const Landing = () => {
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
+          scopes: "email profile https://www.googleapis.com/auth/gmail.readonly",
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
 

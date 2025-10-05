@@ -61,14 +61,10 @@ export const GmailConnectionStatus = () => {
 
   if (!connected) {
     return (
-      <Alert className="mb-4">
-        <XCircle className="h-4 w-4" />
-        <AlertDescription className="flex items-center justify-between">
-          <span>Gmail not connected. Connect to sync your financial emails.</span>
-          <Button onClick={handleConnect} size="sm" variant="outline" className="ml-4">
-            <Mail className="h-4 w-4 mr-2" />
-            Connect Gmail
-          </Button>
+      <Alert className="mb-4 border-yellow-500/50 bg-yellow-500/10">
+        <XCircle className="h-4 w-4 text-yellow-500" />
+        <AlertDescription className="text-yellow-700 dark:text-yellow-400">
+          Gmail connection in progress. Please sign in again if you see this message.
         </AlertDescription>
       </Alert>
     );
