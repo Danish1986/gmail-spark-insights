@@ -63,16 +63,56 @@ export const OTPInput = ({ phone, onSuccess }: OTPInputProps) => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone,
-        token: code,
-        type: "sms",
-      });
+      // Development mode bypass - accept hardcoded OTP
+      const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
+      
+      if (isDev) {
+        // Dev mode: Check for hardcoded OTP
+        if (code === "198608") {
+          console.log("🔧 Dev mode: OTP verified");
+          
+          // Create a dev session by signing in with email/password
+          const { error } = await supabase.auth.signInWithPassword({
+            email: 'dev@growi.app',
+            password: 'dev123456',
+          });
 
-      if (error) throw error;
+          if (error) {
+            // If dev account doesn't exist, create it
+            const { error: signUpError } = await supabase.auth.signUp({
+              email: 'dev@growi.app',
+              password: 'dev123456',
+              options: {
+                data: {
+                  full_name: 'Dev User',
+                  phone: phone,
+                }
+              }
+            });
+            
+            if (signUpError) throw signUpError;
+          }
 
-      toast.success("Phone verified successfully!");
-      onSuccess();
+          toast.success("Phone verified successfully! (Dev mode)");
+          onSuccess();
+        } else {
+          toast.error("Invalid OTP. Use 198608 for development");
+          setOtp(["", "", "", "", "", ""]);
+          inputRefs.current[0]?.focus();
+        }
+      } else {
+        // Production mode: Real Supabase OTP verification
+        const { error } = await supabase.auth.verifyOtp({
+          phone,
+          token: code,
+          type: "sms",
+        });
+
+        if (error) throw error;
+
+        toast.success("Phone verified successfully!");
+        onSuccess();
+      }
     } catch (error: any) {
       toast.error(error.message || "Verification failed");
       // Clear OTP on error

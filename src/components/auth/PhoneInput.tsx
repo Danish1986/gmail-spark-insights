@@ -29,14 +29,25 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
     try {
       const formattedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
       
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-      });
+      // Development mode bypass - skip real OTP
+      const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
+      
+      if (isDev) {
+        // Dev mode: Accept any phone number, no actual OTP sent
+        console.log("🔧 Dev mode: Skipping real OTP, use 198608");
+        toast.success("OTP sent successfully! (Dev mode - use 198608)");
+        await onSuccess(formattedPhone);
+      } else {
+        // Production mode: Real Supabase OTP
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: formattedPhone,
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast.success("OTP sent successfully!");
-      await onSuccess(formattedPhone);
+        toast.success("OTP sent successfully!");
+        await onSuccess(formattedPhone);
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to send OTP");
     } finally {
@@ -44,8 +55,19 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
     }
   };
 
+  const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
+
   return (
     <div className="space-y-8">
+      {/* Dev Mode Indicator */}
+      {isDev && (
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
+          <span className="text-yellow-600 dark:text-yellow-400 text-xs font-medium">
+            🔧 Development Mode - Use OTP: 198608
+          </span>
+        </div>
+      )}
+      
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-foreground">
@@ -93,7 +115,7 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
             htmlFor="terms"
             className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none"
           >
-            I agree to FinanceTracker's{" "}
+            I agree to Growi's{" "}
             <span className="text-primary underline">Terms & Conditions</span> and{" "}
             <span className="text-primary underline">Privacy Policy</span>. I also agree to
             receive important updates and assistance via WhatsApp, SMS or call.
