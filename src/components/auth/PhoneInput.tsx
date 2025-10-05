@@ -65,15 +65,6 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
 
   return (
     <div className="space-y-8">
-      {/* Dev Mode Indicator */}
-      {isDev && (
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
-          <span className="text-yellow-600 dark:text-yellow-400 text-xs font-medium">
-            🔧 Development Mode - Use OTP: 198608
-          </span>
-        </div>
-      )}
-      
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-foreground">
