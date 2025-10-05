@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BottomTabNav } from "@/components/BottomTabNav";
 import { Hero } from "@/components/Hero";
 import { GmailConnectionStatus } from "@/components/GmailConnectionStatus";
-import { supabase } from "@/integrations/supabase/client";
 import { FinancialInsightsCarousel } from "@/components/FinancialInsightsCarousel";
 import { ProfileDrawer } from "@/components/ProfileDrawer";
 import { OptimizeTab } from "@/components/tabs/OptimizeTab";
 import { LoansTab } from "@/components/tabs/LoansTab";
 import { GoalsTab } from "@/components/tabs/GoalsTab";
 import { useFinancialData } from "@/hooks/useFinancialData";
+import { SyncStatusBanner } from "@/components/SyncStatusBanner";
 import { Loader2, Sparkles } from "lucide-react";
 
 
@@ -112,6 +112,7 @@ const Dashboard = () => {
         <div className="flex justify-end items-center">
           <ProfileDrawer />
         </div>
+        <SyncStatusBanner />
       </div>
       {renderTabContent()}
       <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />

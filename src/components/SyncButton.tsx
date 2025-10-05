@@ -14,16 +14,20 @@ export const SyncButton = () => {
     try {
       const { data, error } = await supabase.functions.invoke('fetch-gmail-emails');
       
-      console.log('Sync response:', { data, error });
+      console.log('🔄 Sync response:', { data, error });
       
       if (error) {
-        console.error('Sync error details:', error);
+        console.error('❌ Sync error details:', error);
         
         // Show user-friendly error messages based on error type
         if (error.message?.includes('NO_GMAIL_CONNECTED')) {
-          toast.error("Please connect your Gmail account first by completing the onboarding process.");
+          toast.error("Gmail not connected. Please complete onboarding to connect your email.");
+        } else if (error.message?.includes('NO_ACCESS_TOKEN')) {
+          toast.error("Gmail authorization expired. Please reconnect your email in settings.");
         } else if (error.message?.includes('UNAUTHORIZED')) {
           toast.error("Session expired. Please sign in again.");
+        } else if (error.message?.includes('TOKEN_REFRESH_FAILED')) {
+          toast.error("Failed to refresh Gmail access. Please reconnect your email.");
         } else {
           toast.error("Sync failed: " + (error.message || 'Unknown error'));
         }
@@ -31,14 +35,21 @@ export const SyncButton = () => {
       }
 
       if (data?.error) {
-        console.error('Sync returned error:', data);
+        console.error('❌ Sync returned error:', data);
         toast.error(data.message || "Sync failed");
         return;
       }
 
-      toast.success(`Synced ${data?.transactions_found || 0} new transactions from ${data?.processed || 0} emails`);
+      const txCount = data?.transactions_found || 0;
+      const emailCount = data?.processed || 0;
+      
+      if (txCount === 0 && emailCount === 0) {
+        toast.info("No new transactions found");
+      } else {
+        toast.success(`✓ Synced ${txCount} transaction${txCount !== 1 ? 's' : ''} from ${emailCount} email${emailCount !== 1 ? 's' : ''}`);
+      }
     } catch (error: any) {
-      console.error('Sync exception:', error);
+      console.error('❌ Sync exception:', error);
       toast.error("Sync failed: " + (error.message || 'Unknown error'));
     } finally {
       setSyncing(false);

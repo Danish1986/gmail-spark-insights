@@ -87,7 +87,7 @@ export const OnboardingWizard = () => {
         setStep("completing");
 
         // Initiate Google OAuth with Gmail scopes
-        const redirectUrl = `${window.location.origin}/dashboard`;
+        const redirectUrl = `${window.location.origin}/auth/callback`;
         
         const { error: oauthError } = await supabase.auth.signInWithOAuth({
           provider: "google",
