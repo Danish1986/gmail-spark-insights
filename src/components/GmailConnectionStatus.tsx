@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, XCircle, Mail } from "lucide-react";
 import { SyncButton } from "./SyncButton";
-import { Browser } from '@capacitor/browser';
-import { Capacitor } from '@capacitor/core';
 
 export const GmailConnectionStatus = () => {
   const { user } = useAuth();
@@ -41,17 +39,10 @@ export const GmailConnectionStatus = () => {
   };
 
   const handleConnect = async () => {
-    // Determine redirect URL based on platform
-    const redirectUrl = Capacitor.isNativePlatform() 
-      ? 'growi://auth-callback'
-      : `${window.location.origin}/auth-callback`;
-    
-    console.log('🔐 Initiating OAuth with redirect:', redirectUrl);
-    
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: redirectUrl,
+        redirectTo: `${window.location.origin}/auth-callback`,
         scopes: "email profile https://www.googleapis.com/auth/gmail.readonly",
         queryParams: {
           access_type: "offline",
@@ -62,16 +53,6 @@ export const GmailConnectionStatus = () => {
 
     if (error) {
       console.error('Error connecting Gmail:', error);
-      return;
-    }
-
-    // On mobile, open OAuth URL in system browser
-    if (Capacitor.isNativePlatform() && data?.url) {
-      console.log('📱 Opening OAuth in system browser');
-      await Browser.open({ 
-        url: data.url,
-        windowName: '_self'
-      });
     }
   };
 
