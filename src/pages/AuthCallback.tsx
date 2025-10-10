@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ const AuthCallback = () => {
       
       try {
         console.log("🔐 OAuth callback initiated");
+        console.log("Platform:", Capacitor.isNativePlatform() ? 'Mobile' : 'Web');
         
         // Set 15-second timeout for entire process
         timeoutId = setTimeout(() => {
@@ -27,13 +30,33 @@ const AuthCallback = () => {
           }
         }, 15000);
 
-        // Extract tokens from URL hash
-        const hash = window.location.hash.substring(1);
-        const params = new URLSearchParams(hash);
-        
-        const accessToken = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
-        const providerToken = params.get('provider_token');
+        // Extract tokens from URL - handle both web and deep link formats
+        let accessToken: string | null = null;
+        let refreshToken: string | null = null;
+        let providerToken: string | null = null;
+
+        if (Capacitor.isNativePlatform()) {
+          // Mobile: Parse deep link (growi://auth-callback#access_token=...)
+          const urlString = window.location.href;
+          console.log('📱 Deep link URL:', urlString);
+          
+          // Extract hash from deep link
+          const hashIndex = urlString.indexOf('#');
+          if (hashIndex !== -1) {
+            const hash = urlString.substring(hashIndex + 1);
+            const params = new URLSearchParams(hash);
+            accessToken = params.get('access_token');
+            refreshToken = params.get('refresh_token');
+            providerToken = params.get('provider_token');
+          }
+        } else {
+          // Web: Parse regular hash
+          const hash = window.location.hash.substring(1);
+          const params = new URLSearchParams(hash);
+          accessToken = params.get('access_token');
+          refreshToken = params.get('refresh_token');
+          providerToken = params.get('provider_token');
+        }
         
         console.log('🔑 OAuth tokens received:', { 
           hasAccessToken: !!accessToken, 

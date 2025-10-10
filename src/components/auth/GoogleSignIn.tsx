@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Mail } from "lucide-react";
+import { Browser } from '@capacitor/browser';
+import { Capacitor } from '@capacitor/core';
 
 interface GoogleSignInProps {
   phone: string;
@@ -16,9 +18,14 @@ export const GoogleSignIn = ({ phone, fullName, skipConsent }: GoogleSignInProps
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      // Determine redirect URL based on platform
+      const redirectUrl = Capacitor.isNativePlatform() 
+        ? 'growi://auth-callback'
+        : `${window.location.origin}/auth-callback`;
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('🔐 Initiating OAuth with redirect:', redirectUrl);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl,
@@ -33,6 +40,15 @@ export const GoogleSignIn = ({ phone, fullName, skipConsent }: GoogleSignInProps
       });
 
       if (error) throw error;
+
+      // On mobile, open OAuth URL in system browser
+      if (Capacitor.isNativePlatform() && data?.url) {
+        console.log('📱 Opening OAuth in system browser');
+        await Browser.open({ 
+          url: data.url,
+          windowName: '_self'
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error signing in",
