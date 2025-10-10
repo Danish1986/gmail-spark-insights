@@ -19,7 +19,7 @@ export const GoogleSignIn = ({ phone, fullName, skipConsent }: GoogleSignInProps
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth-callback`,
+          redirectTo: `${window.location.origin}/auth/callback`,
           scopes: skipConsent 
             ? "email profile" 
             : "email profile https://www.googleapis.com/auth/gmail.readonly",
