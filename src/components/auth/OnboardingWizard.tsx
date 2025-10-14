@@ -13,8 +13,9 @@ import { Mail, Sparkles, Shield, CheckCircle2 } from "lucide-react";
 type WizardStep = "phone" | "otp" | "profile" | "email-consent" | "completing";
 
 export const OnboardingWizard = () => {
-  console.log('🚀 OnboardingWizard mounted');
-  console.log('Environment:', {
+  // Colored console logs for easy debugging
+  console.log('%c🚀 WIZARD MOUNTED', 'background: #222; color: #bada55; font-size: 20px;');
+  console.log('%c🔍 Environment Check', 'background: #222; color: #00bfff; font-size: 16px;', {
     dev: import.meta.env.DEV,
     hostname: window.location.hostname,
     href: window.location.href
@@ -33,13 +34,13 @@ export const OnboardingWizard = () => {
   };
 
   const handleOTPVerified = async () => {
-    // Ultra-robust dev mode detection with logging
+    // Ultra-robust dev mode detection
     const isDev = import.meta.env.DEV || 
                   window.location.hostname === 'localhost' ||
                   window.location.hostname.includes('lovable.app') ||
                   window.location.hostname.includes('127.0.0.1');
     
-    console.log('🔍 Dev mode check:', {
+    console.log('%c🔍 OTP VERIFIED - Dev Check', 'background: #222; color: #00ff00; font-size: 18px;', {
       isDev,
       mode: import.meta.env.DEV,
       hostname: window.location.hostname,
@@ -47,23 +48,30 @@ export const OnboardingWizard = () => {
     });
     
     if (isDev) {
-      console.log('🔧 Dev mode: Bypassing auth, going directly to dashboard');
-      // Set a flag so we know this is a dev session
+      console.log('%c✅ DEV MODE CONFIRMED - GOING TO DASHBOARD', 'background: #00ff00; color: #000; font-size: 20px; padding: 10px;');
       sessionStorage.setItem('dev_mode_active', 'true');
-      navigate("/dashboard", { replace: true });
+      
+      // Use setTimeout to ensure this runs AFTER any other navigation attempts
+      setTimeout(() => {
+        console.log('%c🚀 NAVIGATING TO DASHBOARD NOW', 'background: #222; color: #00ff00; font-size: 18px;');
+        navigate("/dashboard", { replace: true });
+      }, 100);
       return;
     }
     
     // Production flow
-    console.log('📝 Production mode: Continuing to profile setup');
+    console.log('%c📝 Production mode - going to profile', 'background: #222; color: #ffaa00; font-size: 16px;');
     setStep("profile");
   };
 
   const handleProfileSubmit = async () => {
-    const isDev = sessionStorage.getItem('dev_mode_active') === 'true';
+    // Block profile submission in dev mode
+    const isDev = sessionStorage.getItem('dev_mode_active') === 'true' ||
+                  import.meta.env.DEV ||
+                  window.location.hostname.includes('lovable.app');
     
     if (isDev) {
-      console.log('🔧 Dev mode profile bypass');
+      console.log('%c🛑 BLOCKED Profile in dev mode', 'background: #ff0000; color: #fff; font-size: 18px;');
       navigate("/dashboard", { replace: true });
       return;
     }
@@ -131,10 +139,14 @@ export const OnboardingWizard = () => {
   };
 
   const handleEmailConsent = async (consentGiven: boolean) => {
-    const isDev = sessionStorage.getItem('dev_mode_active') === 'true';
+    // FIRST CHECK: Block OAuth completely in dev mode
+    const isDev = sessionStorage.getItem('dev_mode_active') === 'true' ||
+                  import.meta.env.DEV ||
+                  window.location.hostname.includes('lovable.app') ||
+                  window.location.hostname.includes('127.0.0.1');
     
     if (isDev) {
-      console.log('🔧 Dev mode: Skipping OAuth entirely');
+      console.log('%c🛑 BLOCKED OAuth in dev mode', 'background: #ff0000; color: #fff; font-size: 20px; padding: 10px;');
       navigate("/dashboard", { replace: true });
       return;
     }
