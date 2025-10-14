@@ -13,6 +13,13 @@ import { Mail, Sparkles, Shield, CheckCircle2 } from "lucide-react";
 type WizardStep = "phone" | "otp" | "profile" | "email-consent" | "completing";
 
 export const OnboardingWizard = () => {
+  console.log('🚀 OnboardingWizard mounted');
+  console.log('Environment:', {
+    dev: import.meta.env.DEV,
+    hostname: window.location.hostname,
+    href: window.location.href
+  });
+  
   const navigate = useNavigate();
   const [step, setStep] = useState<WizardStep>("phone");
   const [phone, setPhone] = useState("");
