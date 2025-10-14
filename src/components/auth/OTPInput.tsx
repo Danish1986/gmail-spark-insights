@@ -71,27 +71,18 @@ export const OTPInput = ({ phone, onSuccess }: OTPInputProps) => {
       if (isDev) {
         // Dev mode: Check for hardcoded OTP
         if (code === "198608") {
-          // Create a dev session by signing in with email/password
-          const { error } = await supabase.auth.signInWithPassword({
-            email: 'dev@growi.app',
-            password: 'dev123456',
+          // Fast: Create instant anonymous session (no network delay)
+          const { error } = await supabase.auth.signInAnonymously({
+            options: {
+              data: {
+                phone: phone,
+                full_name: 'Dev User',
+                dev_mode: true,
+              }
+            }
           });
 
-          if (error) {
-            // If dev account doesn't exist, create it
-            const { error: signUpError } = await supabase.auth.signUp({
-              email: 'dev@growi.app',
-              password: 'dev123456',
-              options: {
-                data: {
-                  full_name: 'Dev User',
-                  phone: phone,
-                }
-              }
-            });
-            
-            if (signUpError) throw signUpError;
-          }
+          if (error) throw error;
 
           toast.success("Phone verified successfully! (Dev mode)");
           onSuccess();
