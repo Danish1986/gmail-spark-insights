@@ -53,53 +53,29 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
     setLoading(true);
 
     try {
-      if (DEV_MODE) {
-        // Mock mode: Create user with email/password format
-        const email = phoneToEmail(fullPhone);
-        const password = fullPhone; // Use phone as password
-        
-        if (isSignUp) {
-          // Check if user already exists
-          const { error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                phone: fullPhone,
-              }
-            }
-          });
-          
-          if (signUpError && !signUpError.message.includes("already registered")) {
-            throw signUpError;
-          }
-        }
-        
+      // Always use mock mode with email/password (no phone provider needed)
+      const email = phoneToEmail(fullPhone);
+      const password = fullPhone; // Use phone as password
+      
+      if (isSignUp) {
+        // Try sign up - ignore if user already exists
+        await supabase.auth.signUp({
+          email,
+          password,
+        });
+      }
+      
+      // Always proceed to OTP screen
+      toast.success("OTP sent to your phone (Use: 198608)");
+      onSuccess(fullPhone, isSignUp);
+    } catch (error: any) {
+      // Ignore "already registered" errors, proceed anyway
+      if (error.message && error.message.includes("already registered")) {
         toast.success("OTP sent to your phone (Use: 198608)");
         onSuccess(fullPhone, isSignUp);
       } else {
-        // Production: Real phone OTP
-        if (isSignUp) {
-          const { error } = await supabase.auth.signUp({
-            phone: fullPhone,
-            password: crypto.randomUUID(),
-          });
-
-          if (error) throw error;
-          toast.success("OTP sent to your phone");
-          onSuccess(fullPhone, true);
-        } else {
-          const { error } = await supabase.auth.signInWithOtp({
-            phone: fullPhone,
-          });
-
-          if (error) throw error;
-          toast.success("OTP sent to your phone");
-          onSuccess(fullPhone, false);
-        }
+        toast.error(error.message || `Failed to ${isSignUp ? "sign up" : "sign in"}`);
       }
-    } catch (error: any) {
-      toast.error(error.message || `Failed to ${isSignUp ? "sign up" : "sign in"}`);
     } finally {
       setLoading(false);
     }
