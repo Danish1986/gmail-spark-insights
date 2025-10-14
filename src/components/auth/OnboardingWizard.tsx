@@ -26,26 +26,33 @@ export const OnboardingWizard = () => {
   };
 
   const handleOTPVerified = async () => {
-    // Dev mode: Skip directly to dashboard
+    // Dev mode: Always skip to dashboard, no questions asked
     const isDev = import.meta.env.DEV || 
                   window.location.hostname === 'localhost' ||
                   window.location.hostname.includes('lovable.app');
     
     if (isDev) {
-      // Create a dev user session
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        // No real user, navigate directly to dashboard (will show placeholder data)
-        navigate("/dashboard");
-        return;
-      }
+      console.log('🔧 Dev mode: Skipping profile setup, going to dashboard');
+      navigate("/dashboard");
+      return; // CRITICAL: Stop here, don't continue
     }
     
+    // Production: Continue to profile setup
     setStep("profile");
   };
 
   const handleProfileSubmit = async () => {
+    // Dev mode safety net
+    const isDev = import.meta.env.DEV || 
+                  window.location.hostname === 'localhost' ||
+                  window.location.hostname.includes('lovable.app');
+    
+    if (isDev) {
+      console.log('🔧 Dev mode: Skipping profile submission, going to dashboard');
+      navigate("/dashboard");
+      return;
+    }
+
     if (!fullName.trim()) {
       toast.error("Please enter your full name");
       return;
