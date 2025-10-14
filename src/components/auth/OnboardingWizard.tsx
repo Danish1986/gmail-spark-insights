@@ -25,7 +25,23 @@ export const OnboardingWizard = () => {
     setStep("otp");
   };
 
-  const handleOTPVerified = () => {
+  const handleOTPVerified = async () => {
+    // Dev mode: Skip directly to dashboard
+    const isDev = import.meta.env.DEV || 
+                  window.location.hostname === 'localhost' ||
+                  window.location.hostname.includes('lovable.app');
+    
+    if (isDev) {
+      // Create a dev user session
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // No real user, navigate directly to dashboard (will show placeholder data)
+        navigate("/dashboard");
+        return;
+      }
+    }
+    
     setStep("profile");
   };
 
