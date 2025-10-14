@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, initialized } = useAuth();
+  const { user, profile, loading, initialized } = useAuth();
   const [showRecovery, setShowRecovery] = useState(false);
 
   useEffect(() => {
@@ -69,6 +69,11 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  // Check if profile is incomplete
+  if (user && profile && !profile.full_name) {
+    return <Navigate to="/auth" state={{ profileIncomplete: true }} replace />;
   }
 
   return <>{children}</>;

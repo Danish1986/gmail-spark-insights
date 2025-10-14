@@ -5,9 +5,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
+import { useAuth } from "@/contexts/AuthContext";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
+  const { refreshProfile } = useAuth();
   const [status, setStatus] = useState<string>("Processing authentication...");
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -181,6 +183,9 @@ const AuthCallback = () => {
 
         setStatus("All set! Redirecting...");
         toast.success("Gmail connected! Syncing your transactions...");
+        
+        // Refresh profile to ensure it's up to date
+        await refreshProfile();
         
         // Quick redirect
         setTimeout(() => {
