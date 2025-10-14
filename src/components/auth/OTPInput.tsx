@@ -63,47 +63,16 @@ export const OTPInput = ({ phone, onSuccess }: OTPInputProps) => {
 
     setLoading(true);
     try {
-      // Development mode bypass - accept hardcoded OTP (localhost + preview)
-      const isDev = import.meta.env.DEV || 
-                    window.location.hostname === 'localhost' ||
-                    window.location.hostname.includes('lovable.app');
-      
-      if (isDev) {
-        // Dev mode: Check for hardcoded OTP
-        if (code === "198608") {
-          // Fast: Create instant anonymous session (no network delay)
-          const { error } = await supabase.auth.signInAnonymously({
-            options: {
-              data: {
-                phone: phone,
-                full_name: 'Dev User',
-                dev_mode: true,
-              }
-            }
-          });
+      const { error } = await supabase.auth.verifyOtp({
+        phone,
+        token: code,
+        type: "sms",
+      });
 
-          if (error) throw error;
+      if (error) throw error;
 
-          toast.success("Phone verified successfully! (Dev mode)");
-          onSuccess();
-        } else {
-          toast.error("Invalid OTP. Use 198608 for development");
-          setOtp(["", "", "", "", "", ""]);
-          inputRefs.current[0]?.focus();
-        }
-      } else {
-        // Production mode: Real Supabase OTP verification
-        const { error } = await supabase.auth.verifyOtp({
-          phone,
-          token: code,
-          type: "sms",
-        });
-
-        if (error) throw error;
-
-        toast.success("Phone verified successfully!");
-        onSuccess();
-      }
+      toast.success("Phone verified successfully!");
+      onSuccess();
     } catch (error: any) {
       toast.error(error.message || "Verification failed");
       // Clear OTP on error

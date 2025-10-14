@@ -29,36 +29,20 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
     try {
       const formattedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
       
-      // Development mode bypass - skip real OTP (localhost + preview)
-      const isDev = import.meta.env.DEV || 
-                    window.location.hostname === 'localhost' ||
-                    window.location.hostname.includes('lovable.app');
-      
-      if (isDev) {
-        // Dev mode: Accept any phone number, no actual OTP sent
-        toast.success("OTP sent successfully! (Dev mode - use 198608)");
-        await onSuccess(formattedPhone);
-      } else {
-        // Production mode: Real Supabase OTP
-        const { error } = await supabase.auth.signInWithOtp({
-          phone: formattedPhone,
-        });
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: formattedPhone,
+      });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        toast.success("OTP sent successfully!");
-        await onSuccess(formattedPhone);
-      }
+      toast.success("OTP sent successfully!");
+      await onSuccess(formattedPhone);
     } catch (error: any) {
       toast.error(error.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
   };
-
-  const isDev = import.meta.env.DEV || 
-                window.location.hostname === 'localhost' ||
-                window.location.hostname.includes('lovable.app');
 
   return (
     <div className="space-y-8">
