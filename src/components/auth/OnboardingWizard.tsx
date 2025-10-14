@@ -122,13 +122,9 @@ export const OnboardingWizard = () => {
 
       clearTimeout(timeoutId);
 
-      if (emailCheckResult.data) {
-        // Gmail already connected, skip to dashboard
-        navigate("/dashboard");
-      } else {
-        // Show email consent screen
-        setStep("email-consent");
-      }
+      // Skip email consent entirely - go straight to dashboard
+      console.log('✅ Profile saved - going to dashboard');
+      navigate("/dashboard");
     } catch (error: any) {
       clearTimeout(timeoutId);
       console.error("Profile update error:", error);
