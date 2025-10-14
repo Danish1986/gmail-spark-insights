@@ -63,6 +63,19 @@ export const OTPInput = ({ phone, onSuccess }: OTPInputProps) => {
 
     setLoading(true);
     try {
+      // Development mode bypass - accept hardcoded OTP
+      const isDev = import.meta.env.DEV || 
+                    window.location.hostname === 'localhost' ||
+                    window.location.hostname.includes('lovable.app');
+      
+      if (isDev && code === "198608") {
+        // Dev mode: Accept dummy OTP and proceed
+        toast.success("Phone verified successfully! (Dev mode)");
+        onSuccess();
+        return;
+      }
+
+      // Production mode: Real Supabase OTP verification
       const { error } = await supabase.auth.verifyOtp({
         phone,
         token: code,

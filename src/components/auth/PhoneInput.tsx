@@ -29,6 +29,19 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
     try {
       const formattedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
       
+      // Development mode bypass
+      const isDev = import.meta.env.DEV || 
+                    window.location.hostname === 'localhost' ||
+                    window.location.hostname.includes('lovable.app');
+      
+      if (isDev) {
+        // Dev mode: Skip real OTP, proceed directly
+        toast.success("OTP sent successfully! Use 198608 to verify.");
+        await onSuccess(formattedPhone);
+        return;
+      }
+
+      // Production mode: Real Supabase OTP
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
       });
