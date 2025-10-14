@@ -64,8 +64,11 @@ const AuthCallback = () => {
           hasProviderToken: !!providerToken 
         });
         
+        // If no OAuth tokens, just redirect to dashboard
         if (!accessToken && !providerToken) {
-          throw new Error("No access token found in OAuth callback");
+          console.log('⚠️ No OAuth tokens found - redirecting to dashboard');
+          navigate("/dashboard", { replace: true });
+          return;
         }
 
         // Get current user with timeout
