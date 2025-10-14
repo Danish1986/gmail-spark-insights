@@ -26,30 +26,38 @@ export const OnboardingWizard = () => {
   };
 
   const handleOTPVerified = async () => {
-    // Dev mode: Always skip to dashboard, no questions asked
+    // Ultra-robust dev mode detection with logging
     const isDev = import.meta.env.DEV || 
                   window.location.hostname === 'localhost' ||
-                  window.location.hostname.includes('lovable.app');
+                  window.location.hostname.includes('lovable.app') ||
+                  window.location.hostname.includes('127.0.0.1');
+    
+    console.log('🔍 Dev mode check:', {
+      isDev,
+      mode: import.meta.env.DEV,
+      hostname: window.location.hostname,
+      url: window.location.href
+    });
     
     if (isDev) {
-      console.log('🔧 Dev mode: Skipping profile setup, going to dashboard');
-      navigate("/dashboard");
-      return; // CRITICAL: Stop here, don't continue
+      console.log('🔧 Dev mode: Bypassing auth, going directly to dashboard');
+      // Set a flag so we know this is a dev session
+      sessionStorage.setItem('dev_mode_active', 'true');
+      navigate("/dashboard", { replace: true });
+      return;
     }
     
-    // Production: Continue to profile setup
+    // Production flow
+    console.log('📝 Production mode: Continuing to profile setup');
     setStep("profile");
   };
 
   const handleProfileSubmit = async () => {
-    // Dev mode safety net
-    const isDev = import.meta.env.DEV || 
-                  window.location.hostname === 'localhost' ||
-                  window.location.hostname.includes('lovable.app');
+    const isDev = sessionStorage.getItem('dev_mode_active') === 'true';
     
     if (isDev) {
-      console.log('🔧 Dev mode: Skipping profile submission, going to dashboard');
-      navigate("/dashboard");
+      console.log('🔧 Dev mode profile bypass');
+      navigate("/dashboard", { replace: true });
       return;
     }
 
@@ -116,6 +124,14 @@ export const OnboardingWizard = () => {
   };
 
   const handleEmailConsent = async (consentGiven: boolean) => {
+    const isDev = sessionStorage.getItem('dev_mode_active') === 'true';
+    
+    if (isDev) {
+      console.log('🔧 Dev mode: Skipping OAuth entirely');
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+
     setLoading(true);
     const timeoutId = setTimeout(() => {
       toast.error("Connection timeout - please try again");
