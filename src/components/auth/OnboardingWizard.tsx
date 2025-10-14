@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PhoneInput } from "./PhoneInput";
 import { OTPInput } from "./OTPInput";
@@ -20,6 +20,37 @@ export const OnboardingWizard = () => {
   const [fullName, setFullName] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [checkingProfile, setCheckingProfile] = useState(true);
+
+  // Check if user already exists with incomplete profile
+  useEffect(() => {
+    const checkExistingProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          // User is authenticated, check if profile is complete
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+          
+          if (profile && !profile.full_name) {
+            // Profile exists but incomplete - go directly to profile step
+            console.log("Incomplete profile detected, showing profile completion");
+            setStep("profile");
+          }
+        }
+      } catch (error) {
+        console.error("Profile check error:", error);
+      } finally {
+        setCheckingProfile(false);
+      }
+    };
+
+    checkExistingProfile();
+  }, []);
 
   const handlePhoneSubmit = (phoneNumber: string, signUp: boolean) => {
     setPhone(phoneNumber);
@@ -71,6 +102,15 @@ export const OnboardingWizard = () => {
     }
   };
 
+
+  if (checkingProfile) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+        <p className="text-sm text-muted-foreground">Checking your account...</p>
+      </div>
+    );
+  }
 
   if (step === "phone") {
     return <PhoneInput onSuccess={handlePhoneSubmit} />;
