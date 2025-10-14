@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { TransactionSchema, sanitizeText, sanitizeMerchant } from "../_shared/validation.ts";
+import { safeLog } from "../_shared/logger.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -341,45 +343,61 @@ If not a financial transaction, return {"is_transaction": false}`
     }
 
     // Log parsing result
-    console.log(`Transaction parsed via ${parsingMethod}, confidence: ${parsed.confidence || 0.5}`);
+    safeLog.info(`Transaction parsed via ${parsingMethod}`, { confidence: parsed.confidence || 0.5 });
 
-    // Insert transaction into database
-    const { data: transaction, error: insertError } = await supabase
-      .from('transactions')
-      .insert({
-        user_id: user.id,
-        email_id: emailId,
-        date: parsed.date || new Date().toISOString(),
+    // Validate and sanitize parsed data
+    try {
+      const validatedTransaction = TransactionSchema.parse({
         amount: parsed.amount,
+        date: parsed.date || new Date().toISOString(),
         type: parsed.type,
         category: parsed.category || 'other',
-        merchant: parsed.merchant,
-        account_source: parsed.account_last_4,
-        description: `[${parsingMethod}] ${parsed.description || ''}`,
+        merchant: sanitizeMerchant(parsed.merchant),
+        description: sanitizeText(`[${parsingMethod}] ${parsed.description || ''}`),
         payment_method: parsed.payment_method || 'Other',
-        raw_email_subject: emailSubject,
-        raw_email_body: emailBody.substring(0, 1000),
         confidence_score: parsed.confidence || 0.5,
-      })
-      .select()
-      .single();
+        account_source: sanitizeText(parsed.account_last_4),
+      });
 
-    if (insertError) {
-      console.error('Insert error:', insertError);
-      return new Response(JSON.stringify({ error: insertError.message }), {
-        status: 500,
+      // Insert transaction into database
+      const { data: transaction, error: insertError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          email_id: emailId,
+          ...validatedTransaction,
+          raw_email_subject: sanitizeText(emailSubject)?.substring(0, 500),
+          raw_email_body: sanitizeText(emailBody)?.substring(0, 1000),
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        safeLog.error('Insert error', insertError);
+        return new Response(JSON.stringify({ error: insertError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      safeLog.info('Transaction created', { id: transaction.id });
+
+      return new Response(JSON.stringify({ success: true, transaction }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (validationError) {
+      safeLog.error('Validation error - invalid transaction data', validationError);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid transaction data',
+        details: validationError instanceof Error ? validationError.message : 'Validation failed'
+      }), {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    console.log('Transaction created:', transaction.id);
-
-    return new Response(JSON.stringify({ success: true, transaction }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-
   } catch (error) {
-    console.error('Error:', error);
+    safeLog.error('Parse function error', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: message }), {
       status: 500,

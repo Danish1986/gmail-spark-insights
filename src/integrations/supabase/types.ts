@@ -125,33 +125,60 @@ export type Database = {
       sync_status: {
         Row: {
           created_at: string | null
+          current_status: string | null
           emails_processed: number | null
           error_message: string | null
+          estimated_completion_time: string | null
           id: string
           last_sync_at: string | null
+          phase_1_complete: boolean | null
+          phase_2_complete: boolean | null
+          phase_3_complete: boolean | null
+          phase_4_complete: boolean | null
+          progress_percentage: number | null
           sync_in_progress: boolean | null
+          sync_phase: string | null
+          total_emails_found: number | null
           transactions_found: number | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          current_status?: string | null
           emails_processed?: number | null
           error_message?: string | null
+          estimated_completion_time?: string | null
           id?: string
           last_sync_at?: string | null
+          phase_1_complete?: boolean | null
+          phase_2_complete?: boolean | null
+          phase_3_complete?: boolean | null
+          phase_4_complete?: boolean | null
+          progress_percentage?: number | null
           sync_in_progress?: boolean | null
+          sync_phase?: string | null
+          total_emails_found?: number | null
           transactions_found?: number | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
+          current_status?: string | null
           emails_processed?: number | null
           error_message?: string | null
+          estimated_completion_time?: string | null
           id?: string
           last_sync_at?: string | null
+          phase_1_complete?: boolean | null
+          phase_2_complete?: boolean | null
+          phase_3_complete?: boolean | null
+          phase_4_complete?: boolean | null
+          progress_percentage?: number | null
           sync_in_progress?: boolean | null
+          sync_phase?: string | null
+          total_emails_found?: number | null
           transactions_found?: number | null
           updated_at?: string | null
           user_id?: string

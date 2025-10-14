@@ -32,15 +32,19 @@ export const useSyncStatus = () => {
   return useQuery({
     queryKey: ['sync-status'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
       const { data, error } = await supabase
         .from('sync_status')
         .select('*')
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') throw error; // Ignore "not found" errors
+      if (error && error.code !== 'PGRST116') throw error;
       
       return data;
     },
-    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchInterval: 3000, // Refetch every 3 seconds during sync
   });
 };

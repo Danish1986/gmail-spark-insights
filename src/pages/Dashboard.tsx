@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BottomTabNav } from "@/components/BottomTabNav";
 import { Hero } from "@/components/Hero";
 import { GmailConnectionStatus } from "@/components/GmailConnectionStatus";
@@ -7,17 +7,27 @@ import { ProfileDrawer } from "@/components/ProfileDrawer";
 import { OptimizeTab } from "@/components/tabs/OptimizeTab";
 import { LoansTab } from "@/components/tabs/LoansTab";
 import { GoalsTab } from "@/components/tabs/GoalsTab";
-import { useFinancialData } from "@/hooks/useFinancialData";
+import { useFinancialData, useSyncStatus } from "@/hooks/useFinancialData";
 import { SyncStatusBanner } from "@/components/SyncStatusBanner";
+import { SyncProgressBar } from "@/components/SyncProgressBar";
 import { Loader2, Sparkles } from "lucide-react";
 
 
 
 const Dashboard = () => {
-  const { data: financialData, isLoading } = useFinancialData();
+  const { data: financialData, isLoading, refetch } = useFinancialData();
+  const { data: syncStatus } = useSyncStatus();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("home");
+  const prevPhase1Complete = useRef(false);
 
+  // Auto-refetch financial data when Phase 1 completes
+  useEffect(() => {
+    if (syncStatus?.phase_1_complete && !prevPhase1Complete.current) {
+      prevPhase1Complete.current = true;
+      refetch(); // Show recent data immediately
+    }
+  }, [syncStatus?.phase_1_complete, refetch]);
 
   const handleNavigate = (direction: "prev" | "next") => {
     if (!financialData) return;
@@ -114,6 +124,7 @@ const Dashboard = () => {
         <div className="flex justify-end items-center">
           <ProfileDrawer />
         </div>
+        <SyncProgressBar />
         <SyncStatusBanner />
       </div>
       {renderTabContent()}

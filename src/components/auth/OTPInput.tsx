@@ -63,17 +63,12 @@ export const OTPInput = ({ phone, onSuccess }: OTPInputProps) => {
 
     setLoading(true);
     try {
-      // Development mode bypass - accept hardcoded OTP
-      const isDev = import.meta.env.DEV || 
-                    window.location.hostname === 'localhost' ||
-                    window.location.hostname.includes('lovableproject.com') ||
-                    window.location.hostname.includes('lovable.app');
+      // Development mode bypass - accept hardcoded OTP (localhost only)
+      const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
       
       if (isDev) {
         // Dev mode: Check for hardcoded OTP
         if (code === "198608") {
-          console.log("🔧 Dev mode: OTP verified");
-          
           // Create a dev session by signing in with email/password
           const { error } = await supabase.auth.signInWithPassword({
             email: 'dev@growi.app',
