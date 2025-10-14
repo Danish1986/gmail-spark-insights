@@ -63,13 +63,6 @@ const AuthCallback = () => {
           hasRefreshToken: !!refreshToken, 
           hasProviderToken: !!providerToken 
         });
-        
-        // No OAuth tokens - redirect silently (not a real OAuth callback)
-        if (!accessToken && !providerToken) {
-          console.log('⚠️ No OAuth tokens - not a real OAuth callback, redirecting silently');
-          navigate("/dashboard", { replace: true });
-          return;
-        }
 
         // Get current user with timeout
         setStatus("Verifying your account...");
@@ -84,7 +77,20 @@ const AuthCallback = () => {
         const { data: { user }, error: userError } = userResult;
         
         if (userError || !user) {
+          // No OAuth tokens and no user - just redirect silently
+          if (!accessToken && !providerToken) {
+            console.log('⚠️ No OAuth tokens and no user - redirecting silently');
+            navigate("/dashboard", { replace: true });
+            return;
+          }
           throw new Error("Failed to get authenticated user");
+        }
+        
+        // If we have a user but no OAuth tokens, this isn't a real OAuth callback
+        if (!accessToken && !providerToken) {
+          console.log('⚠️ User exists but no OAuth tokens - not an OAuth callback, redirecting');
+          navigate("/dashboard", { replace: true });
+          return;
         }
 
         console.log("✅ User authenticated in", Date.now() - startTime, "ms");

@@ -47,7 +47,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-background pb-20">
         <div className="p-6 space-y-8">
-          <GmailConnectionStatus hasExistingData={false} />
+          <GmailConnectionStatus hasExistingData={hasExistingData} />
           
           <div className="text-center space-y-4 mt-12">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -81,7 +81,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-background pb-20">
         <div className="p-6 space-y-8">
-          <GmailConnectionStatus hasExistingData={false} />
+          <GmailConnectionStatus hasExistingData={hasExistingData} />
           
           <div className="text-center space-y-4 mt-8">
             <div className="flex items-center justify-center gap-3 mb-4">
