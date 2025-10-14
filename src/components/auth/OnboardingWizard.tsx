@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PhoneInput } from "./PhoneInput";
-import { OTPInput } from "./OTPInput";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,22 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Sparkles, Shield, CheckCircle2 } from "lucide-react";
 
-type WizardStep = "phone" | "otp" | "profile" | "email-consent" | "completing";
+type WizardStep = "auth" | "profile" | "email-consent" | "completing";
 
 export const OnboardingWizard = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<WizardStep>("phone");
-  const [phone, setPhone] = useState("");
+  const [step, setStep] = useState<WizardStep>("auth");
   const [fullName, setFullName] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const handlePhoneSubmit = async (phoneNumber: string) => {
-    setPhone(phoneNumber);
-    setStep("otp");
-  };
-
-  const handleOTPVerified = () => {
+  const handleAuthSuccess = async (email: string, password: string) => {
     setStep("profile");
   };
 
@@ -151,32 +144,8 @@ export const OnboardingWizard = () => {
     }
   };
 
-  if (step === "phone") {
-    return (
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-bold">Welcome to Growi</h2>
-          <p className="text-muted-foreground">
-            Let's get you started with smart money management
-          </p>
-        </div>
-        <PhoneInput onSuccess={handlePhoneSubmit} />
-      </div>
-    );
-  }
-
-  if (step === "otp") {
-    return (
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-semibold">Verify your number</h2>
-          <p className="text-muted-foreground">
-            Enter the 6-digit code sent to {phone}
-          </p>
-        </div>
-        <OTPInput phone={phone} onSuccess={handleOTPVerified} />
-      </div>
-    );
+  if (step === "auth") {
+    return <PhoneInput onSuccess={handleAuthSuccess} />;
   }
 
   if (step === "profile") {

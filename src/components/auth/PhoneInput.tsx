@@ -6,125 +6,141 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface PhoneInputProps {
-  onSuccess: (phone: string) => Promise<void>;
+  onSuccess: (email: string, password: string) => Promise<void>;
 }
 
 export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(true); // Pre-checked
+  const [termsAccepted, setTermsAccepted] = useState(true);
+  const [isSignUp, setIsSignUp] = useState(true);
 
-  const handleSendOTP = async () => {
-    if (!phone || phone.length !== 10) {
-      toast.error("Please enter a valid 10-digit mobile number");
+  const handleSubmit = async () => {
+    if (!email || !email.includes("@")) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
-    if (!termsAccepted) {
+    if (!password || password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    if (!termsAccepted && isSignUp) {
       toast.error("Please accept the terms and conditions");
       return;
     }
 
     setLoading(true);
     try {
-      const formattedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
-      
-      // Development mode bypass - skip real OTP (localhost + preview)
-      const isDev = import.meta.env.DEV || 
-                    window.location.hostname === 'localhost' ||
-                    window.location.hostname.includes('lovable.app');
-      
-      if (isDev) {
-        // Dev mode: Accept any phone number, no actual OTP sent
-        toast.success("OTP sent successfully! (Dev mode - use 198608)");
-        await onSuccess(formattedPhone);
-      } else {
-        // Production mode: Real Supabase OTP
-        const { error } = await supabase.auth.signInWithOtp({
-          phone: formattedPhone,
+      if (isSignUp) {
+        const redirectUrl = `${window.location.origin}/`;
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectUrl,
+          },
         });
 
         if (error) throw error;
+        toast.success("Account created! Signing you in...");
+        await onSuccess(email, password);
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-        toast.success("OTP sent successfully!");
-        await onSuccess(formattedPhone);
+        if (error) throw error;
+        toast.success("Signed in successfully!");
+        await onSuccess(email, password);
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to send OTP");
+      toast.error(error.message || `Failed to ${isSignUp ? "sign up" : "sign in"}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const isDev = import.meta.env.DEV || 
-                window.location.hostname === 'localhost' ||
-                window.location.hostname.includes('lovable.app');
-
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-foreground">
-          What's your mobile number?
+          {isSignUp ? "Create your account" : "Welcome back"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Use your PAN linked mobile number
+          {isSignUp ? "Get started with smart money management" : "Sign in to continue"}
         </p>
       </div>
 
-      {/* Phone Input */}
-      <div className="space-y-6">
-        <div className="relative">
-          <div className="flex gap-3">
-            <div className="flex items-center justify-center w-16 h-12 bg-secondary rounded-lg border border-border">
-              <span className="text-sm font-medium text-foreground">+91</span>
-            </div>
-            <Input
-              type="tel"
-              placeholder="Mobile Number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-              maxLength={10}
-              className="flex-1 h-12 text-base"
-              disabled={loading}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && phone.length === 10 && termsAccepted) {
-                  handleSendOTP();
-                }
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Terms & Conditions */}
-        <div className="flex items-start gap-3">
-          <Checkbox
-            id="terms"
-            checked={termsAccepted}
-            onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-            className="mt-0.5"
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-12"
+            disabled={loading}
+            autoFocus
           />
-          <label
-            htmlFor="terms"
-            className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none"
-          >
-            I agree to Growi's{" "}
-            <span className="text-primary underline">Terms & Conditions</span> and{" "}
-            <span className="text-primary underline">Privacy Policy</span>. I also agree to
-            receive important updates and assistance via WhatsApp, SMS or call.
-          </label>
         </div>
 
-        {/* Send OTP Button */}
+        <div className="space-y-2">
+          <Input
+            type="password"
+            placeholder="Password (min 6 characters)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="h-12"
+            disabled={loading}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && email && password.length >= 6) {
+                handleSubmit();
+              }
+            }}
+          />
+        </div>
+
+        {isSignUp && (
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="terms"
+              checked={termsAccepted}
+              onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+              className="mt-0.5"
+            />
+            <label
+              htmlFor="terms"
+              className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none"
+            >
+              I agree to Growi's{" "}
+              <span className="text-primary underline">Terms & Conditions</span> and{" "}
+              <span className="text-primary underline">Privacy Policy</span>
+            </label>
+          </div>
+        )}
+
         <Button
-          onClick={handleSendOTP}
-          disabled={phone.length !== 10 || !termsAccepted || loading}
+          onClick={handleSubmit}
+          disabled={!email || password.length < 6 || (isSignUp && !termsAccepted) || loading}
           className="w-full h-12 text-base font-semibold"
           size="lg"
         >
-          {loading ? "Sending OTP..." : "Send OTP"}
+          {loading ? (isSignUp ? "Creating account..." : "Signing in...") : (isSignUp ? "Sign Up" : "Sign In")}
         </Button>
+
+        <div className="text-center">
+          <button
+            onClick={() => setIsSignUp(!isSignUp)}
+            disabled={loading}
+            className="text-sm text-primary hover:underline"
+          >
+            {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
+          </button>
+        </div>
       </div>
     </div>
   );
