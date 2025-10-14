@@ -64,7 +64,19 @@ const AuthCallback = () => {
           hasProviderToken: !!providerToken 
         });
         
+        // Check if user is already authenticated but no OAuth tokens present
         if (!accessToken && !providerToken) {
+          console.log('⚠️ No OAuth tokens found, checking if user is already authenticated...');
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (user) {
+            // User is already logged in, just navigate to dashboard
+            console.log('✅ User already authenticated, skipping OAuth connection');
+            toast.info("Already logged in! Redirecting to dashboard...");
+            setTimeout(() => navigate("/dashboard", { replace: true }), 500);
+            return;
+          }
+          
           throw new Error("No access token found in OAuth callback");
         }
 

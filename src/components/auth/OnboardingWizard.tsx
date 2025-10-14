@@ -131,19 +131,31 @@ export const OnboardingWizard = () => {
         // Initiate Google OAuth with Gmail scopes
         const redirectUrl = `${window.location.origin}/auth/callback`;
         
-        const { error: oauthError } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: redirectUrl,
-            scopes: "email profile https://www.googleapis.com/auth/gmail.readonly",
-            queryParams: {
-              access_type: "offline",
-              prompt: "consent",
+        try {
+          const { error: oauthError } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+              redirectTo: redirectUrl,
+              scopes: "email profile https://www.googleapis.com/auth/gmail.readonly",
+              queryParams: {
+                access_type: "offline",
+                prompt: "consent",
+              },
             },
-          },
-        });
+          });
 
-        if (oauthError) throw oauthError;
+          if (oauthError) throw oauthError;
+          
+          // Add fallback timeout in case OAuth doesn't redirect
+          setTimeout(() => {
+            console.log('⚠️ OAuth redirect timeout, navigating to dashboard');
+            navigate("/dashboard", { replace: true });
+          }, 10000);
+        } catch (oauthError) {
+          console.error('OAuth initiation failed:', oauthError);
+          toast.error("Couldn't connect Gmail. You can try again from settings.");
+          navigate("/dashboard", { replace: true });
+        }
       } else {
         clearTimeout(timeoutId);
         // User skipped Gmail connection
