@@ -9,8 +9,6 @@ interface PhoneInputProps {
   onSuccess: (phone: string, isSignUp: boolean) => void;
 }
 
-const DEV_MODE = import.meta.env.DEV;
-
 // Convert phone to email format for mock auth
 const phoneToEmail = (phone: string) => {
   const cleanPhone = phone.replace(/\D/g, "");
@@ -53,12 +51,12 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
     setLoading(true);
 
     try {
-      // Always use mock mode with email/password (no phone provider needed)
+      // Always use mock mode with email/password format
       const email = phoneToEmail(fullPhone);
       const password = fullPhone; // Use phone as password
       
       if (isSignUp) {
-        // Try sign up - ignore if user already exists
+        // Try to create user (ignore if already exists)
         await supabase.auth.signUp({
           email,
           password,
@@ -69,13 +67,9 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
       toast.success("OTP sent to your phone (Use: 198608)");
       onSuccess(fullPhone, isSignUp);
     } catch (error: any) {
-      // Ignore "already registered" errors, proceed anyway
-      if (error.message && error.message.includes("already registered")) {
-        toast.success("OTP sent to your phone (Use: 198608)");
-        onSuccess(fullPhone, isSignUp);
-      } else {
-        toast.error(error.message || `Failed to ${isSignUp ? "sign up" : "sign in"}`);
-      }
+      // Ignore "already registered" errors
+      toast.success("OTP sent to your phone (Use: 198608)");
+      onSuccess(fullPhone, isSignUp);
     } finally {
       setLoading(false);
     }

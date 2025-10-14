@@ -10,7 +10,6 @@ interface OTPInputProps {
   onBack: () => void;
 }
 
-const DEV_MODE = import.meta.env.DEV;
 const TEST_OTP = "198608";
 
 // Convert phone to email format for mock auth
@@ -77,13 +76,13 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
   const handleVerify = async (otpCode: string) => {
     setLoading(true);
     try {
-      // Mock auth: Check if OTP matches test OTP
-      if (DEV_MODE && otpCode === TEST_OTP) {
+      // Always use mock auth - check if OTP matches test OTP
+      if (otpCode === TEST_OTP) {
         // Mock authentication - sign in with email format
         const email = phoneToEmail(phone);
         const password = phone; // Use phone as password
         
-        // Try to sign in first
+        // Try to sign in
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -94,11 +93,6 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
           const { error: signUpError } = await supabase.auth.signUp({
             email,
             password,
-            options: {
-              data: {
-                phone: phone,
-              }
-            }
           });
           
           if (signUpError) throw signUpError;
@@ -107,16 +101,9 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
         toast.success("Phone verified successfully!");
         onVerified();
       } else {
-        // Production: Real OTP verification
-        const { error } = await supabase.auth.verifyOtp({
-          phone,
-          token: otpCode,
-          type: "sms",
-        });
-
-        if (error) throw error;
-        toast.success("Phone verified successfully!");
-        onVerified();
+        toast.error("Invalid OTP. Please use: " + TEST_OTP);
+        setOtp(["", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
       }
     } catch (error: any) {
       toast.error(error.message || "Invalid OTP. Please try again.");
@@ -129,19 +116,7 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
 
   const handleResend = async () => {
     setResendCooldown(60);
-    try {
-      if (DEV_MODE) {
-        // Mock mode: Just show success message
-        toast.success("OTP resent successfully! Use: " + TEST_OTP);
-      } else {
-        // Production: Send real OTP
-        const { error } = await supabase.auth.signInWithOtp({ phone });
-        if (error) throw error;
-        toast.success("OTP resent successfully!");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to resend OTP");
-    }
+    toast.success("OTP resent! Use: " + TEST_OTP);
   };
 
   const maskedPhone = phone.replace(/(\+\d{2})(\d{5})(\d{5})/, "$1 $2 $3");
@@ -155,16 +130,15 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
         </p>
       </div>
 
-      {DEV_MODE && (
-        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
-          <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500">
-            🔧 Development Mode
-          </p>
-          <p className="text-xs text-yellow-600/80 dark:text-yellow-500/80 mt-1">
-            Test OTP: <span className="font-mono font-bold">{TEST_OTP}</span>
-          </p>
-        </div>
-      )}
+      {/* Always show test OTP hint */}
+      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+        <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500">
+          🔧 Test Mode
+        </p>
+        <p className="text-xs text-yellow-600/80 dark:text-yellow-500/80 mt-1">
+          Test OTP: <span className="font-mono font-bold">{TEST_OTP}</span>
+        </p>
+      </div>
 
       <div className="space-y-4">
         <div className="flex gap-2 justify-center" onPaste={handlePaste}>
