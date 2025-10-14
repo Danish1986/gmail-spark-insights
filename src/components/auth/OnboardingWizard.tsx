@@ -113,6 +113,9 @@ export const OnboardingWizard = () => {
         throw new Error("No authenticated user found");
       }
 
+      // Just navigate to dashboard - Gmail connection can be done from settings
+      clearTimeout(timeoutId);
+      
       if (consentGiven) {
         // Update consent in profile
         const { error: profileError } = await supabase
@@ -123,44 +126,13 @@ export const OnboardingWizard = () => {
           })
           .eq("id", user.id);
 
-        if (profileError) throw profileError;
-
-        clearTimeout(timeoutId);
-        setStep("completing");
-
-        // Initiate Google OAuth with Gmail scopes
-        const redirectUrl = `${window.location.origin}/auth/callback`;
+        if (profileError) console.error('Profile update error:', profileError);
         
-        try {
-          const { error: oauthError } = await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-              redirectTo: redirectUrl,
-              scopes: "email profile https://www.googleapis.com/auth/gmail.readonly",
-              queryParams: {
-                access_type: "offline",
-                prompt: "consent",
-              },
-            },
-          });
-
-          if (oauthError) throw oauthError;
-          
-          // Add fallback timeout in case OAuth doesn't redirect
-          setTimeout(() => {
-            console.log('⚠️ OAuth redirect timeout, navigating to dashboard');
-            navigate("/dashboard", { replace: true });
-          }, 10000);
-        } catch (oauthError) {
-          console.error('OAuth initiation failed:', oauthError);
-          toast.error("Couldn't connect Gmail. You can try again from settings.");
-          navigate("/dashboard", { replace: true });
-        }
-      } else {
-        clearTimeout(timeoutId);
-        // User skipped Gmail connection
-        navigate("/dashboard");
+        toast.info("Connect Gmail from the dashboard to start tracking your finances!");
       }
+      
+      // Always navigate to dashboard after onboarding
+      navigate("/dashboard", { replace: true });
     } catch (error: any) {
       clearTimeout(timeoutId);
       console.error("Email consent error:", error);
