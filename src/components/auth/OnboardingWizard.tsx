@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PhoneInput } from "./PhoneInput";
+import { OTPInput } from "./OTPInput";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,17 +10,29 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Sparkles, Shield, CheckCircle2 } from "lucide-react";
 
-type WizardStep = "auth" | "profile" | "email-consent" | "completing";
+type WizardStep = "phone" | "otp" | "profile" | "email-consent" | "completing";
 
 export const OnboardingWizard = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<WizardStep>("auth");
+  const [step, setStep] = useState<WizardStep>("phone");
+  const [phone, setPhone] = useState("");
+  const [isSignUp, setIsSignUp] = useState(true);
   const [fullName, setFullName] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const handleAuthSuccess = async (email: string, password: string) => {
-    setStep("profile");
+  const handlePhoneSubmit = (phoneNumber: string, signUp: boolean) => {
+    setPhone(phoneNumber);
+    setIsSignUp(signUp);
+    setStep("otp");
+  };
+
+  const handleOTPVerified = () => {
+    if (isSignUp) {
+      setStep("profile");
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   const handleProfileSubmit = async () => {
@@ -144,8 +157,19 @@ export const OnboardingWizard = () => {
     }
   };
 
-  if (step === "auth") {
-    return <PhoneInput onSuccess={handleAuthSuccess} />;
+  if (step === "phone") {
+    return <PhoneInput onSuccess={handlePhoneSubmit} />;
+  }
+
+  if (step === "otp") {
+    return (
+      <OTPInput 
+        phone={phone} 
+        isSignUp={isSignUp}
+        onVerified={handleOTPVerified}
+        onBack={() => setStep("phone")}
+      />
+    );
   }
 
   if (step === "profile") {

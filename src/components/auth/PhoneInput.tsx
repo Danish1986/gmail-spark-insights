@@ -6,24 +6,33 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface PhoneInputProps {
-  onSuccess: (email: string, password: string) => Promise<void>;
+  onSuccess: (phone: string, isSignUp: boolean) => void;
 }
 
 export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(true);
   const [isSignUp, setIsSignUp] = useState(true);
 
-  const handleSubmit = async () => {
-    if (!email || !email.includes("@")) {
-      toast.error("Please enter a valid email address");
-      return;
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 10) {
+      return numbers.replace(/(\d{5})(\d{0,5})/, "$1 $2").trim();
     }
+    return numbers.slice(0, 10).replace(/(\d{5})(\d{5})/, "$1 $2");
+  };
 
-    if (!password || password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhone(formatted);
+  };
+
+  const handleSubmit = async () => {
+    const phoneDigits = phone.replace(/\D/g, "");
+    
+    if (phoneDigits.length !== 10) {
+      toast.error("Please enter a valid 10-digit phone number");
       return;
     }
 
@@ -32,30 +41,27 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
       return;
     }
 
+    const fullPhone = `+91${phoneDigits}`;
     setLoading(true);
+
     try {
       if (isSignUp) {
-        const redirectUrl = `${window.location.origin}/`;
         const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
+          phone: fullPhone,
+          password: crypto.randomUUID(),
         });
 
         if (error) throw error;
-        toast.success("Account created! Signing you in...");
-        await onSuccess(email, password);
+        toast.success("OTP sent to your phone");
+        onSuccess(fullPhone, true);
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: fullPhone,
         });
 
         if (error) throw error;
-        toast.success("Signed in successfully!");
-        await onSuccess(email, password);
+        toast.success("OTP sent to your phone");
+        onSuccess(fullPhone, false);
       }
     } catch (error: any) {
       toast.error(error.message || `Failed to ${isSignUp ? "sign up" : "sign in"}`);
@@ -77,31 +83,27 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-12"
-            disabled={loading}
-            autoFocus
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Input
-            type="password"
-            placeholder="Password (min 6 characters)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="h-12"
-            disabled={loading}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && email && password.length >= 6) {
-                handleSubmit();
-              }
-            }}
-          />
+          <label className="text-sm text-muted-foreground">Phone Number</label>
+          <div className="flex gap-2">
+            <div className="flex items-center justify-center w-16 h-12 bg-secondary rounded-md border border-border">
+              <span className="text-sm font-medium">+91</span>
+            </div>
+            <Input
+              type="tel"
+              placeholder="98765 43210"
+              value={phone}
+              onChange={handlePhoneChange}
+              className="h-12 flex-1"
+              disabled={loading}
+              autoFocus
+              maxLength={11}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && phone.replace(/\D/g, "").length === 10) {
+                  handleSubmit();
+                }
+              }}
+            />
+          </div>
         </div>
 
         {isSignUp && (
@@ -125,11 +127,11 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
 
         <Button
           onClick={handleSubmit}
-          disabled={!email || password.length < 6 || (isSignUp && !termsAccepted) || loading}
+          disabled={phone.replace(/\D/g, "").length !== 10 || (isSignUp && !termsAccepted) || loading}
           className="w-full h-12 text-base font-semibold"
           size="lg"
         >
-          {loading ? (isSignUp ? "Creating account..." : "Signing in...") : (isSignUp ? "Sign Up" : "Sign In")}
+          {loading ? "Sending OTP..." : (isSignUp ? "Send OTP & Sign Up" : "Send OTP & Sign In")}
         </Button>
 
         <div className="text-center">
