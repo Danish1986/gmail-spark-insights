@@ -7,6 +7,8 @@ interface MonthData {
   spends: number;
   investments: number;
   categories: Record<string, number>;
+  payment_methods: Record<string, number>;
+  merchants: Record<string, number>;
   transactions: any[];
 }
 

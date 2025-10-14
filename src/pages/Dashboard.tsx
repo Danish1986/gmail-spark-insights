@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { BottomTabNav } from "@/components/BottomTabNav";
-import { Hero } from "@/components/Hero";
 import { GmailConnectionStatus } from "@/components/GmailConnectionStatus";
 import { FinancialInsightsCarousel } from "@/components/FinancialInsightsCarousel";
 import { ProfileDrawer } from "@/components/ProfileDrawer";
+import { HomeTab } from "@/components/tabs/HomeTab";
 import { OptimizeTab } from "@/components/tabs/OptimizeTab";
 import { LoansTab } from "@/components/tabs/LoansTab";
 import { GoalsTab } from "@/components/tabs/GoalsTab";
@@ -113,12 +113,12 @@ const Dashboard = () => {
         return <GoalsTab data={financialData} currentIndex={currentIndex} />;
       case "home":
       default:
-        return <Hero data={financialData} currentIndex={currentIndex} onNavigate={handleNavigate} />;
+        return <HomeTab data={financialData} currentIndex={currentIndex} onNavigate={handleNavigate} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 overflow-y-auto">
       <div className="p-3">
         <GmailConnectionStatus />
         <div className="flex justify-end items-center">
@@ -127,7 +127,9 @@ const Dashboard = () => {
         <SyncProgressBar />
         <SyncStatusBanner />
       </div>
-      {renderTabContent()}
+      <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
+        {renderTabContent()}
+      </div>
       <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
