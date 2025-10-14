@@ -9,6 +9,14 @@ interface PhoneInputProps {
   onSuccess: (phone: string, isSignUp: boolean) => void;
 }
 
+const DEV_MODE = import.meta.env.DEV;
+
+// Convert phone to email format for mock auth
+const phoneToEmail = (phone: string) => {
+  const cleanPhone = phone.replace(/\D/g, "");
+  return `${cleanPhone}@growi.app`;
+};
+
 export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,23 +53,50 @@ export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
     setLoading(true);
 
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          phone: fullPhone,
-          password: crypto.randomUUID(),
-        });
-
-        if (error) throw error;
-        toast.success("OTP sent to your phone");
-        onSuccess(fullPhone, true);
+      if (DEV_MODE) {
+        // Mock mode: Create user with email/password format
+        const email = phoneToEmail(fullPhone);
+        const password = fullPhone; // Use phone as password
+        
+        if (isSignUp) {
+          // Check if user already exists
+          const { error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                phone: fullPhone,
+              }
+            }
+          });
+          
+          if (signUpError && !signUpError.message.includes("already registered")) {
+            throw signUpError;
+          }
+        }
+        
+        toast.success("OTP sent to your phone (Use: 198608)");
+        onSuccess(fullPhone, isSignUp);
       } else {
-        const { error } = await supabase.auth.signInWithOtp({
-          phone: fullPhone,
-        });
+        // Production: Real phone OTP
+        if (isSignUp) {
+          const { error } = await supabase.auth.signUp({
+            phone: fullPhone,
+            password: crypto.randomUUID(),
+          });
 
-        if (error) throw error;
-        toast.success("OTP sent to your phone");
-        onSuccess(fullPhone, false);
+          if (error) throw error;
+          toast.success("OTP sent to your phone");
+          onSuccess(fullPhone, true);
+        } else {
+          const { error } = await supabase.auth.signInWithOtp({
+            phone: fullPhone,
+          });
+
+          if (error) throw error;
+          toast.success("OTP sent to your phone");
+          onSuccess(fullPhone, false);
+        }
       }
     } catch (error: any) {
       toast.error(error.message || `Failed to ${isSignUp ? "sign up" : "sign in"}`);

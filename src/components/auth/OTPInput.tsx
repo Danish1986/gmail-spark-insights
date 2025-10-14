@@ -11,7 +11,13 @@ interface OTPInputProps {
 }
 
 const DEV_MODE = import.meta.env.DEV;
-const TEST_OTP = "123456";
+const TEST_OTP = "198608";
+
+// Convert phone to email format for mock auth
+const phoneToEmail = (phone: string) => {
+  const cleanPhone = phone.replace(/\D/g, "");
+  return `${cleanPhone}@growi.app`;
+};
 
 export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -71,15 +77,47 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
   const handleVerify = async (otpCode: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone,
-        token: otpCode,
-        type: "sms",
-      });
+      // Mock auth: Check if OTP matches test OTP
+      if (DEV_MODE && otpCode === TEST_OTP) {
+        // Mock authentication - sign in with email format
+        const email = phoneToEmail(phone);
+        const password = phone; // Use phone as password
+        
+        // Try to sign in first
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      if (error) throw error;
-      toast.success("Phone verified successfully!");
-      onVerified();
+        if (signInError) {
+          // If sign in fails, user doesn't exist, sign them up
+          const { error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                phone: phone,
+              }
+            }
+          });
+          
+          if (signUpError) throw signUpError;
+        }
+        
+        toast.success("Phone verified successfully!");
+        onVerified();
+      } else {
+        // Production: Real OTP verification
+        const { error } = await supabase.auth.verifyOtp({
+          phone,
+          token: otpCode,
+          type: "sms",
+        });
+
+        if (error) throw error;
+        toast.success("Phone verified successfully!");
+        onVerified();
+      }
     } catch (error: any) {
       toast.error(error.message || "Invalid OTP. Please try again.");
       setOtp(["", "", "", "", "", ""]);
@@ -92,9 +130,15 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
   const handleResend = async () => {
     setResendCooldown(60);
     try {
-      const { error } = await supabase.auth.signInWithOtp({ phone });
-      if (error) throw error;
-      toast.success("OTP resent successfully!");
+      if (DEV_MODE) {
+        // Mock mode: Just show success message
+        toast.success("OTP resent successfully! Use: " + TEST_OTP);
+      } else {
+        // Production: Send real OTP
+        const { error } = await supabase.auth.signInWithOtp({ phone });
+        if (error) throw error;
+        toast.success("OTP resent successfully!");
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to resend OTP");
     }
