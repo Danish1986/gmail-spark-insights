@@ -3,10 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, XCircle, Mail } from "lucide-react";
+import { CheckCircle, Mail } from "lucide-react";
 import { SyncButton } from "./SyncButton";
 
-export const GmailConnectionStatus = () => {
+export const GmailConnectionStatus = ({ hasExistingData }: { hasExistingData: boolean }) => {
   const { user } = useAuth();
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -58,6 +58,12 @@ export const GmailConnectionStatus = () => {
 
   if (loading) return null;
 
+  // Type A: Existing user with data - don't show connect prompt
+  if (hasExistingData && !connected) {
+    return null;
+  }
+
+  // Type B: Fresh user without Gmail - show connect option
   if (!connected) {
     return (
       <div className="mb-6">

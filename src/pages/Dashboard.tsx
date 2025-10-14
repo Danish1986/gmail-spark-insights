@@ -20,6 +20,9 @@ const Dashboard = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("home");
   const prevPhase1Complete = useRef(false);
+  
+  // Check if user has existing financial data (Type A user)
+  const hasExistingData = financialData && financialData.length > 0;
 
   // Auto-refetch financial data when Phase 1 completes
   useEffect(() => {
@@ -44,7 +47,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-background pb-20">
         <div className="p-6 space-y-8">
-          <GmailConnectionStatus />
+          <GmailConnectionStatus hasExistingData={false} />
           
           <div className="text-center space-y-4 mt-12">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -78,7 +81,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-background pb-20">
         <div className="p-6 space-y-8">
-          <GmailConnectionStatus />
+          <GmailConnectionStatus hasExistingData={false} />
           
           <div className="text-center space-y-4 mt-8">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -120,7 +123,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background pb-20 overflow-y-auto">
       <div className="p-3">
-        <GmailConnectionStatus />
+        <GmailConnectionStatus hasExistingData={hasExistingData || false} />
         <div className="flex justify-end items-center">
           <ProfileDrawer />
         </div>
