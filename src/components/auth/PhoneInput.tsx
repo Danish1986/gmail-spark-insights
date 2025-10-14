@@ -6,148 +6,125 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface PhoneInputProps {
-  onSuccess: (phone: string, isSignUp: boolean) => void;
+  onSuccess: (phone: string) => Promise<void>;
 }
-
-// Convert phone to email format for mock auth
-const phoneToEmail = (phone: string) => {
-  const cleanPhone = phone.replace(/\D/g, "");
-  return `${cleanPhone}@growi.app`;
-};
 
 export const PhoneInput = ({ onSuccess }: PhoneInputProps) => {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(true);
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [termsAccepted, setTermsAccepted] = useState(true); // Pre-checked
 
-  const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, "");
-    if (numbers.length <= 10) {
-      return numbers.replace(/(\d{5})(\d{0,5})/, "$1 $2").trim();
-    }
-    return numbers.slice(0, 10).replace(/(\d{5})(\d{5})/, "$1 $2");
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setPhone(formatted);
-  };
-
-  const handleSubmit = async () => {
-    const phoneDigits = phone.replace(/\D/g, "");
-    
-    if (phoneDigits.length !== 10) {
-      toast.error("Please enter a valid 10-digit phone number");
+  const handleSendOTP = async () => {
+    if (!phone || phone.length !== 10) {
+      toast.error("Please enter a valid 10-digit mobile number");
       return;
     }
 
-    if (!termsAccepted && isSignUp) {
+    if (!termsAccepted) {
       toast.error("Please accept the terms and conditions");
       return;
     }
 
-    const fullPhone = `+91${phoneDigits}`;
     setLoading(true);
-
     try {
-      // Always use mock mode with email/password format
-      const email = phoneToEmail(fullPhone);
-      const password = fullPhone; // Use phone as password
+      const formattedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
       
-      if (isSignUp) {
-        // Try to create user (ignore if already exists)
-        await supabase.auth.signUp({
-          email,
-          password,
+      // Development mode bypass - skip real OTP (localhost + preview)
+      const isDev = import.meta.env.DEV || 
+                    window.location.hostname === 'localhost' ||
+                    window.location.hostname.includes('lovable.app');
+      
+      if (isDev) {
+        // Dev mode: Accept any phone number, no actual OTP sent
+        toast.success("OTP sent successfully! (Dev mode - use 198608)");
+        await onSuccess(formattedPhone);
+      } else {
+        // Production mode: Real Supabase OTP
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: formattedPhone,
         });
+
+        if (error) throw error;
+
+        toast.success("OTP sent successfully!");
+        await onSuccess(formattedPhone);
       }
-      
-      // Always proceed to OTP screen
-      toast.success("OTP sent to your phone (Use: 198608)");
-      onSuccess(fullPhone, isSignUp);
     } catch (error: any) {
-      // Ignore "already registered" errors
-      toast.success("OTP sent to your phone (Use: 198608)");
-      onSuccess(fullPhone, isSignUp);
+      toast.error(error.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
   };
 
+  const isDev = import.meta.env.DEV || 
+                window.location.hostname === 'localhost' ||
+                window.location.hostname.includes('lovable.app');
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-foreground">
-          {isSignUp ? "Create your account" : "Welcome back"}
+          What's your mobile number?
         </h1>
         <p className="text-sm text-muted-foreground">
-          {isSignUp ? "Get started with smart money management" : "Sign in to continue"}
+          Use your PAN linked mobile number
         </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm text-muted-foreground">Phone Number</label>
-          <div className="flex gap-2">
-            <div className="flex items-center justify-center w-16 h-12 bg-secondary rounded-md border border-border">
-              <span className="text-sm font-medium">+91</span>
+      {/* Phone Input */}
+      <div className="space-y-6">
+        <div className="relative">
+          <div className="flex gap-3">
+            <div className="flex items-center justify-center w-16 h-12 bg-secondary rounded-lg border border-border">
+              <span className="text-sm font-medium text-foreground">+91</span>
             </div>
             <Input
               type="tel"
-              placeholder="98765 43210"
+              placeholder="Mobile Number"
               value={phone}
-              onChange={handlePhoneChange}
-              className="h-12 flex-1"
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              maxLength={10}
+              className="flex-1 h-12 text-base"
               disabled={loading}
               autoFocus
-              maxLength={11}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && phone.replace(/\D/g, "").length === 10) {
-                  handleSubmit();
+                if (e.key === "Enter" && phone.length === 10 && termsAccepted) {
+                  handleSendOTP();
                 }
               }}
             />
           </div>
         </div>
 
-        {isSignUp && (
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id="terms"
-              checked={termsAccepted}
-              onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-              className="mt-0.5"
-            />
-            <label
-              htmlFor="terms"
-              className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none"
-            >
-              I agree to Growi's{" "}
-              <span className="text-primary underline">Terms & Conditions</span> and{" "}
-              <span className="text-primary underline">Privacy Policy</span>
-            </label>
-          </div>
-        )}
+        {/* Terms & Conditions */}
+        <div className="flex items-start gap-3">
+          <Checkbox
+            id="terms"
+            checked={termsAccepted}
+            onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+            className="mt-0.5"
+          />
+          <label
+            htmlFor="terms"
+            className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none"
+          >
+            I agree to Growi's{" "}
+            <span className="text-primary underline">Terms & Conditions</span> and{" "}
+            <span className="text-primary underline">Privacy Policy</span>. I also agree to
+            receive important updates and assistance via WhatsApp, SMS or call.
+          </label>
+        </div>
 
+        {/* Send OTP Button */}
         <Button
-          onClick={handleSubmit}
-          disabled={phone.replace(/\D/g, "").length !== 10 || (isSignUp && !termsAccepted) || loading}
+          onClick={handleSendOTP}
+          disabled={phone.length !== 10 || !termsAccepted || loading}
           className="w-full h-12 text-base font-semibold"
           size="lg"
         >
-          {loading ? "Sending OTP..." : (isSignUp ? "Send OTP & Sign Up" : "Send OTP & Sign In")}
+          {loading ? "Sending OTP..." : "Send OTP"}
         </Button>
-
-        <div className="text-center">
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            disabled={loading}
-            className="text-sm text-primary hover:underline"
-          >
-            {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
-          </button>
-        </div>
       </div>
     </div>
   );

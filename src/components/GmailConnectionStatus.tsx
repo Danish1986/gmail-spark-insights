@@ -3,18 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Mail } from "lucide-react";
+import { CheckCircle, XCircle, Mail } from "lucide-react";
 import { SyncButton } from "./SyncButton";
 
-export const GmailConnectionStatus = ({ hasExistingData }: { hasExistingData: boolean }) => {
+export const GmailConnectionStatus = () => {
   const { user } = useAuth();
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     checkConnection();
-    checkSyncStatus();
   }, [user]);
 
   const checkConnection = async () => {
@@ -32,28 +30,11 @@ export const GmailConnectionStatus = ({ hasExistingData }: { hasExistingData: bo
         .maybeSingle();
 
       setConnected(!!data && !error);
-      console.log('Gmail connection status:', { connected: !!data && !error });
     } catch (error) {
       console.error('Error checking Gmail connection:', error);
       setConnected(false);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const checkSyncStatus = async () => {
-    if (!user) return;
-
-    try {
-      const { data } = await supabase
-        .from('sync_status')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      setIsSyncing(data?.current_status === 'in_progress' || !data?.phase_1_complete || !data?.phase_2_complete);
-    } catch (error) {
-      console.error('Error checking sync status:', error);
     }
   };
 
@@ -77,42 +58,6 @@ export const GmailConnectionStatus = ({ hasExistingData }: { hasExistingData: bo
 
   if (loading) return null;
 
-  // Type A: Existing user with data - don't show anything
-  if (hasExistingData) {
-    return null;
-  }
-
-  // Type C: Connected but syncing - show sync in progress
-  if (connected && isSyncing) {
-    return (
-      <Alert className="mb-4 border-blue-500/50 bg-blue-500/10">
-        <CheckCircle className="h-4 w-4 text-blue-500" />
-        <AlertDescription className="flex items-center justify-between gap-4">
-          <span className="text-blue-700 dark:text-blue-400">
-            Gmail connected - syncing your transactions...
-          </span>
-          <SyncButton />
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  // Connected with sync button available
-  if (connected) {
-    return (
-      <Alert className="mb-4 border-green-500/50 bg-green-500/10">
-        <CheckCircle className="h-4 w-4 text-green-500" />
-        <AlertDescription className="flex items-center justify-between gap-4">
-          <span className="text-green-700 dark:text-green-400">
-            Gmail connected and ready to sync
-          </span>
-          <SyncButton />
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  // Type B: Fresh user without Gmail - show connect option
   if (!connected) {
     return (
       <div className="mb-6">
@@ -135,5 +80,15 @@ export const GmailConnectionStatus = ({ hasExistingData }: { hasExistingData: bo
     );
   }
 
-  return null;
+  return (
+    <Alert className="mb-4 border-green-500/50 bg-green-500/10">
+      <CheckCircle className="h-4 w-4 text-green-500" />
+      <AlertDescription className="flex items-center justify-between gap-4">
+        <span className="text-green-700 dark:text-green-400">
+          Gmail connected and ready to sync
+        </span>
+        <SyncButton />
+      </AlertDescription>
+    </Alert>
+  );
 };

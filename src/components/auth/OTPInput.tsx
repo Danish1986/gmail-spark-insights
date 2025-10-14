@@ -1,53 +1,50 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface OTPInputProps {
   phone: string;
-  isSignUp: boolean;
-  onVerified: () => void;
-  onBack: () => void;
+  onSuccess: () => void;
 }
 
-const TEST_OTP = "198608";
-
-// Convert phone to email format for mock auth
-const phoneToEmail = (phone: string) => {
-  const cleanPhone = phone.replace(/\D/g, "");
-  return `${cleanPhone}@growi.app`;
-};
-
-export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps) => {
+export const OTPInput = ({ phone, onSuccess }: OTPInputProps) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendTimer, setResendTimer] = useState(30);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
+    // Auto-focus first input on mount
     inputRefs.current[0]?.focus();
   }, []);
 
   useEffect(() => {
-    if (resendCooldown > 0) {
-      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
       return () => clearTimeout(timer);
     }
-  }, [resendCooldown]);
+  }, [resendTimer]);
 
   const handleChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-
+    if (value.length > 1) return;
+    
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
+    newOtp[index] = value;
     setOtp(newOtp);
 
+    // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newOtp.every((digit) => digit !== "")) {
-      handleVerify(newOtp.join(""));
+    // Auto-verify when all 6 digits entered
+    if (value && index === 5) {
+      const otpCode = [...newOtp.slice(0, 5), value].join("");
+      if (otpCode.length === 6) {
+        setTimeout(() => handleVerify(otpCode), 100);
+      }
     }
   };
 
@@ -57,56 +54,59 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 6);
-    if (!/^\d+$/.test(pastedData)) return;
-
-    const newOtp = [...otp];
-    pastedData.split("").forEach((char, idx) => {
-      if (idx < 6) newOtp[idx] = char;
-    });
-    setOtp(newOtp);
-
-    if (pastedData.length === 6) {
-      handleVerify(pastedData);
+  const handleVerify = async (otpCode?: string) => {
+    const code = otpCode || otp.join("");
+    if (code.length !== 6) {
+      toast.error("Please enter all 6 digits");
+      return;
     }
-  };
 
-  const handleVerify = async (otpCode: string) => {
     setLoading(true);
     try {
-      // Always use mock auth - check if OTP matches test OTP
-      if (otpCode === TEST_OTP) {
-        // Mock authentication - sign in with email format
-        const email = phoneToEmail(phone);
-        const password = phone; // Use phone as password
-        
-        // Try to sign in
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+      // Development mode bypass - accept hardcoded OTP (localhost + preview)
+      const isDev = import.meta.env.DEV || 
+                    window.location.hostname === 'localhost' ||
+                    window.location.hostname.includes('lovable.app');
+      
+      if (isDev) {
+        // Dev mode: Check for hardcoded OTP
+        if (code === "198608") {
+          // Fast: Create instant anonymous session (no network delay)
+          const { error } = await supabase.auth.signInAnonymously({
+            options: {
+              data: {
+                phone: phone,
+                full_name: 'Dev User',
+                dev_mode: true,
+              }
+            }
+          });
+
+          if (error) throw error;
+
+          toast.success("Phone verified successfully! (Dev mode)");
+          onSuccess();
+        } else {
+          toast.error("Invalid OTP. Use 198608 for development");
+          setOtp(["", "", "", "", "", ""]);
+          inputRefs.current[0]?.focus();
+        }
+      } else {
+        // Production mode: Real Supabase OTP verification
+        const { error } = await supabase.auth.verifyOtp({
+          phone,
+          token: code,
+          type: "sms",
         });
 
-        if (signInError) {
-          // If sign in fails, user doesn't exist, sign them up
-          const { error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-          });
-          
-          if (signUpError) throw signUpError;
-        }
-        
+        if (error) throw error;
+
         toast.success("Phone verified successfully!");
-        onVerified();
-      } else {
-        toast.error("Invalid OTP. Please use: " + TEST_OTP);
-        setOtp(["", "", "", "", "", ""]);
-        inputRefs.current[0]?.focus();
+        onSuccess();
       }
     } catch (error: any) {
-      toast.error(error.message || "Invalid OTP. Please try again.");
+      toast.error(error.message || "Verification failed");
+      // Clear OTP on error
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } finally {
@@ -115,81 +115,78 @@ export const OTPInput = ({ phone, isSignUp, onVerified, onBack }: OTPInputProps)
   };
 
   const handleResend = async () => {
-    setResendCooldown(60);
-    toast.success("OTP resent! Use: " + TEST_OTP);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone,
+      });
+
+      if (error) throw error;
+
+      setOtp(["", "", "", "", "", ""]);
+      setResendTimer(30);
+      inputRefs.current[0]?.focus();
+      toast.success("OTP sent successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to resend OTP");
+    }
   };
 
-  const maskedPhone = phone.replace(/(\+\d{2})(\d{5})(\d{5})/, "$1 $2 $3");
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-foreground">Enter verification code</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          Enter verification code
+        </h1>
         <p className="text-sm text-muted-foreground">
-          We sent a 6-digit code to {maskedPhone}
+          We've sent a 6-digit code to<br />
+          <span className="font-medium text-foreground">{phone}</span>
         </p>
       </div>
 
-      {/* Always show test OTP hint */}
-      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
-        <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500">
-          🔧 Test Mode
-        </p>
-        <p className="text-xs text-yellow-600/80 dark:text-yellow-500/80 mt-1">
-          Test OTP: <span className="font-mono font-bold">{TEST_OTP}</span>
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex gap-2 justify-center" onPaste={handlePaste}>
+      {/* OTP Input */}
+      <div className="space-y-6">
+        <div className="flex gap-2 justify-between">
           {otp.map((digit, index) => (
-            <input
+            <Input
               key={index}
               ref={(el) => (inputRefs.current[index] = el)}
-              type="text"
+              type="tel"
               inputMode="numeric"
               maxLength={1}
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
+              className="w-12 h-14 text-center text-xl font-bold"
               disabled={loading}
-              className="w-12 h-14 text-center text-2xl font-semibold bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50"
             />
           ))}
         </div>
 
-        <div className="flex flex-col gap-3">
-          <Button
-            onClick={() => handleVerify(otp.join(""))}
-            disabled={otp.some((d) => !d) || loading}
-            className="w-full h-12 text-base font-semibold"
-            size="lg"
-          >
-            {loading ? "Verifying..." : "Verify OTP"}
-          </Button>
+        {/* Verify Button */}
+        <Button 
+          onClick={() => handleVerify()} 
+          disabled={loading || otp.join("").length !== 6}
+          className="w-full h-12 text-base font-semibold"
+          size="lg"
+        >
+          {loading ? "Verifying..." : "Verify OTP"}
+        </Button>
 
-          <div className="text-center">
-            {resendCooldown > 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Resend OTP in {resendCooldown}s
-              </p>
-            ) : (
-              <button
-                onClick={handleResend}
-                className="text-sm text-primary hover:underline"
-              >
-                Didn't receive? Resend OTP
-              </button>
-            )}
-          </div>
-
-          <button
-            onClick={onBack}
-            disabled={loading}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            ← Back to phone number
-          </button>
+        {/* Resend OTP */}
+        <div className="text-center">
+          {resendTimer > 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Didn't receive code? Resend in <span className="font-medium text-foreground">{resendTimer}s</span>
+            </p>
+          ) : (
+            <button
+              onClick={handleResend}
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Resend OTP
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -5,11 +5,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
-import { useAuth } from "@/contexts/AuthContext";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
-  const { refreshProfile } = useAuth();
   const [status, setStatus] = useState<string>("Processing authentication...");
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -65,6 +63,10 @@ const AuthCallback = () => {
           hasRefreshToken: !!refreshToken, 
           hasProviderToken: !!providerToken 
         });
+        
+        if (!accessToken && !providerToken) {
+          throw new Error("No access token found in OAuth callback");
+        }
 
         // Get current user with timeout
         setStatus("Verifying your account...");
@@ -79,20 +81,7 @@ const AuthCallback = () => {
         const { data: { user }, error: userError } = userResult;
         
         if (userError || !user) {
-          // No OAuth tokens and no user - just redirect silently
-          if (!accessToken && !providerToken) {
-            console.log('⚠️ No OAuth tokens and no user - redirecting silently');
-            navigate("/dashboard", { replace: true });
-            return;
-          }
           throw new Error("Failed to get authenticated user");
-        }
-        
-        // If we have a user but no OAuth tokens, this isn't a real OAuth callback
-        if (!accessToken && !providerToken) {
-          console.log('⚠️ User exists but no OAuth tokens - not an OAuth callback, redirecting');
-          navigate("/dashboard", { replace: true });
-          return;
         }
 
         console.log("✅ User authenticated in", Date.now() - startTime, "ms");
@@ -183,9 +172,6 @@ const AuthCallback = () => {
 
         setStatus("All set! Redirecting...");
         toast.success("Gmail connected! Syncing your transactions...");
-        
-        // Refresh profile to ensure it's up to date
-        await refreshProfile();
         
         // Quick redirect
         setTimeout(() => {
