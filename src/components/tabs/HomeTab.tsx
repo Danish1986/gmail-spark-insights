@@ -21,6 +21,7 @@ interface HomeTabProps {
   data: MonthData[];
   currentIndex: number;
   onNavigate: (direction: "prev" | "next") => void;
+  hasData?: boolean;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -45,11 +46,20 @@ const PAYMENT_COLORS: Record<string, string> = {
   "Other": "#9ca3af",
 };
 
-export const HomeTab = ({ data, currentIndex, onNavigate }: HomeTabProps) => {
+export const HomeTab = ({ data, currentIndex, onNavigate, hasData = true }: HomeTabProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   
-  const currentMonth = data[currentIndex];
+  const currentMonth = hasData && data[currentIndex] ? data[currentIndex] : {
+    month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+    income: 0,
+    spends: 0,
+    investments: 0,
+    categories: {},
+    payment_methods: {},
+    merchants: {},
+    transactions: []
+  };
 
   // Transform category data for ChartSection
   const categoryData = Object.entries(currentMonth.categories || {})
@@ -89,46 +99,48 @@ export const HomeTab = ({ data, currentIndex, onNavigate }: HomeTabProps) => {
   return (
     <div className="space-y-4">
       {/* Hero Summary Card */}
-      <Hero data={data} currentIndex={currentIndex} onNavigate={onNavigate} />
+      <Hero data={data.length > 0 ? data : [currentMonth]} currentIndex={currentIndex} onNavigate={onNavigate} hasData={hasData} />
 
       {/* Bank Accounts */}
       <BankAccountsSection />
 
       {/* Category Breakdown */}
-      {categoryData.length > 0 && (
-        <ChartSection
-          title="Spending by Category"
-          data={categoryData}
-          type="bar"
-          onItemClick={(category) => setSelectedCategory(category)}
-        />
-      )}
+      <ChartSection
+        title="Spending by Category"
+        data={categoryData}
+        type="bar"
+        onItemClick={hasData ? (category) => setSelectedCategory(category) : undefined}
+        emptyMessage={!hasData ? "Connect Gmail to track your spending by category" : undefined}
+      />
 
       {/* Payment Method Breakdown */}
-      {paymentData.length > 0 && (
-        <ChartSection
-          title="Payment Methods"
-          data={paymentData}
-          type="bar"
-          onItemClick={(method) => setSelectedPaymentMethod(method)}
-        />
-      )}
+      <ChartSection
+        title="Payment Methods"
+        data={paymentData}
+        type="bar"
+        onItemClick={hasData ? (method) => setSelectedPaymentMethod(method) : undefined}
+        emptyMessage={!hasData ? "Connect Gmail to see your payment methods" : undefined}
+      />
 
       {/* Top Merchants */}
-      {merchantData.length > 0 && (
-        <ChartSection
-          title="Top Merchants"
-          data={merchantData}
-          type="progress"
-        />
-      )}
+      <ChartSection
+        title="Top Merchants"
+        data={merchantData}
+        type="progress"
+        emptyMessage={!hasData ? "Connect Gmail to see your top merchants" : undefined}
+      />
 
       {/* Recent Transactions */}
-      {recentTransactions.length > 0 && (
-        <div className="mx-3 mt-5">
-          <div className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-foreground" /> Recent Transactions
-          </div>
+      <div className="mx-3 mt-5">
+        <div className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-foreground" /> Recent Transactions
+        </div>
+        {!hasData || recentTransactions.length === 0 ? (
+          <Card className="p-8 text-center text-muted-foreground">
+            <p className="text-sm">No transactions yet</p>
+            {!hasData && <p className="text-xs mt-1">Connect Gmail to start tracking</p>}
+          </Card>
+        ) : (
           <Card className="p-4">
             <div className="space-y-3">
               {recentTransactions.map((tx: any, idx: number) => (
@@ -153,8 +165,8 @@ export const HomeTab = ({ data, currentIndex, onNavigate }: HomeTabProps) => {
               ))}
             </div>
           </Card>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Modals for drill-down */}
       {selectedCategory && (

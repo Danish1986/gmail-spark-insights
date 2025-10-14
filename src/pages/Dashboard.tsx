@@ -73,47 +73,20 @@ const Dashboard = () => {
     );
   }
 
-  if (!financialData || financialData.length === 0) {
-    console.log("Dashboard: Empty state - no financial data available");
-    return (
-      <div className="min-h-screen bg-background pb-20">
-        <div className="p-6 space-y-8">
-          <GmailConnectionStatus />
-          
-          <div className="text-center space-y-4 mt-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Sparkles className="h-8 w-8 text-primary" />
-              <h2 className="text-3xl font-bold">Your Financial Journey Starts Here</h2>
-              <Sparkles className="h-8 w-8 text-primary" />
-            </div>
-            <p className="text-muted-foreground text-lg mb-6 max-w-2xl mx-auto">
-              Connect your Gmail to unlock personalized financial insights and start your journey to smarter money management
-            </p>
-          </div>
-
-          <div className="mt-12">
-            <h3 className="text-center text-lg font-semibold mb-6 text-muted-foreground">
-              Discover how Indians are spending their money
-            </h3>
-            <FinancialInsightsCarousel />
-          </div>
-        </div>
-        <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />
-      </div>
-    );
-  }
+  // Always show full app - even with empty data
+  const hasData = financialData && financialData.length > 0;
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "optimize":
-        return <OptimizeTab data={financialData} currentIndex={currentIndex} />;
+        return <OptimizeTab data={financialData || []} currentIndex={currentIndex} />;
       case "loans":
-        return <LoansTab data={financialData} currentIndex={currentIndex} />;
+        return <LoansTab data={financialData || []} currentIndex={currentIndex} />;
       case "goals":
-        return <GoalsTab data={financialData} currentIndex={currentIndex} />;
+        return <GoalsTab data={financialData || []} currentIndex={currentIndex} />;
       case "home":
       default:
-        return <HomeTab data={financialData} currentIndex={currentIndex} onNavigate={handleNavigate} />;
+        return <HomeTab data={financialData || []} currentIndex={currentIndex} onNavigate={handleNavigate} hasData={hasData} />;
     }
   };
 

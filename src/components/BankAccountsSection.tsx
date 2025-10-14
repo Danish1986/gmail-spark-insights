@@ -37,7 +37,7 @@ export const BankAccountsSection = () => {
     }
   };
 
-  if (loading || accounts.length === 0) return null;
+  if (loading) return null;
 
   return (
     <div className="mx-3 mt-5">
@@ -45,7 +45,14 @@ export const BankAccountsSection = () => {
         <span className="w-2 h-2 rounded-full bg-foreground" /> Linked Accounts
       </div>
       <div className="space-y-2">
-        {accounts.map((account) => (
+        {accounts.length === 0 ? (
+          <Card className="p-4 text-center text-muted-foreground">
+            <Building2 className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No bank accounts detected yet</p>
+            <p className="text-xs mt-1">Connect Gmail to auto-detect your banks</p>
+          </Card>
+        ) : (
+          accounts.map((account) => (
           <Card key={account.id} className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
               {account.logo_url ? (
@@ -67,7 +74,8 @@ export const BankAccountsSection = () => {
               </span>
             )}
           </Card>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

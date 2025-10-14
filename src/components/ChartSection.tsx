@@ -12,6 +12,7 @@ interface ChartSectionProps {
   data: ChartData[];
   type?: "bar" | "progress";
   onItemClick?: (itemName: string) => void;
+  emptyMessage?: string;
 }
 
 const formatINR = (amount: number) => {
@@ -40,7 +41,7 @@ const Dot = ({ color }: { color: string }) => (
   <span className="inline-block w-2.5 h-2.5 rounded-full mr-2" style={{ background: color }} />
 );
 
-export const ChartSection = ({ title, data, type = "bar", onItemClick }: ChartSectionProps) => {
+export const ChartSection = ({ title, data, type = "bar", onItemClick, emptyMessage }: ChartSectionProps) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
@@ -49,7 +50,9 @@ export const ChartSection = ({ title, data, type = "bar", onItemClick }: ChartSe
         <span className="w-2 h-2 rounded-full bg-foreground" /> {title}
       </div>
       <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-        {type === "bar" ? (
+        {data.length === 0 && emptyMessage ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">{emptyMessage}</div>
+        ) : type === "bar" ? (
           <>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
