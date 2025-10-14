@@ -64,11 +64,10 @@ const AuthCallback = () => {
           hasProviderToken: !!providerToken 
         });
         
-        // No OAuth tokens - this is fine if user is already authenticated
+        // No OAuth tokens - redirect silently (not a real OAuth callback)
         if (!accessToken && !providerToken) {
-          console.log('⚠️ No OAuth tokens found, redirecting to dashboard...');
-          toast.info("Gmail connection skipped. You can connect from settings.");
-          setTimeout(() => navigate("/dashboard", { replace: true }), 500);
+          console.log('⚠️ No OAuth tokens - not a real OAuth callback, redirecting silently');
+          navigate("/dashboard", { replace: true });
           return;
         }
 

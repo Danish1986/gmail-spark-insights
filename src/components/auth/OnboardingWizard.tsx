@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Sparkles, Shield, CheckCircle2 } from "lucide-react";
 
-type WizardStep = "phone" | "otp" | "profile" | "email-consent" | "completing";
+type WizardStep = "phone" | "otp" | "profile";
 
 export const OnboardingWizard = () => {
   const navigate = useNavigate();
@@ -42,28 +42,9 @@ export const OnboardingWizard = () => {
     }
 
     setLoading(true);
-    const timeoutId = setTimeout(() => {
-      toast.error("Taking too long - please try again");
-      setLoading(false);
-    }, 10000);
 
     try {
-      // Parallel fetches for speed
-      const [userResult, emailCheckResult] = await Promise.all([
-        supabase.auth.getUser(),
-        (async () => {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) return { data: null };
-          return supabase
-            .from("email_accounts")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("provider", "google")
-            .maybeSingle();
-        })()
-      ]);
-
-      const { data: { user } } = userResult;
+      const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         throw new Error("No authenticated user found");
@@ -80,17 +61,9 @@ export const OnboardingWizard = () => {
 
       if (error) throw error;
 
-      clearTimeout(timeoutId);
-
-      if (emailCheckResult.data) {
-        // Gmail already connected, skip to dashboard
-        navigate("/dashboard");
-      } else {
-        // Show email consent screen
-        setStep("email-consent");
-      }
+      // Profile saved, go to dashboard
+      navigate("/dashboard", { replace: true });
     } catch (error: any) {
-      clearTimeout(timeoutId);
       console.error("Profile update error:", error);
       toast.error(error.message || "Failed to update profile");
     } finally {
@@ -98,48 +71,6 @@ export const OnboardingWizard = () => {
     }
   };
 
-  const handleEmailConsent = async (consentGiven: boolean) => {
-    setLoading(true);
-    const timeoutId = setTimeout(() => {
-      toast.error("Connection timeout - please try again");
-      setLoading(false);
-      setStep("email-consent");
-    }, 12000);
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error("No authenticated user found");
-      }
-
-      // Just navigate to dashboard - Gmail connection can be done from settings
-      clearTimeout(timeoutId);
-      
-      if (consentGiven) {
-        // Update consent in profile
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .update({
-            email_consent: true,
-            email_consent_at: new Date().toISOString(),
-          })
-          .eq("id", user.id);
-
-        if (profileError) console.error('Profile update error:', profileError);
-        
-        toast.info("Connect Gmail from the dashboard to start tracking your finances!");
-      }
-      
-      // Always navigate to dashboard after onboarding
-      navigate("/dashboard", { replace: true });
-    } catch (error: any) {
-      clearTimeout(timeoutId);
-      console.error("Email consent error:", error);
-      toast.error(error.message || "Failed to process consent");
-      setLoading(false);
-    }
-  };
 
   if (step === "phone") {
     return <PhoneInput onSuccess={handlePhoneSubmit} />;
@@ -199,100 +130,6 @@ export const OnboardingWizard = () => {
           >
             {loading ? "Saving..." : "Continue"}
           </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === "email-consent") {
-    return (
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <Mail className="w-8 h-8 text-primary" />
-            </div>
-          </div>
-          <h2 className="text-2xl font-semibold">Connect your email</h2>
-          <p className="text-muted-foreground">
-            Get automatic insights from your bank transaction emails
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <div className="bg-secondary/50 rounded-lg p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <h4 className="font-medium">Smart Transaction Detection</h4>
-                <p className="text-sm text-muted-foreground">
-                  We automatically read bank transaction emails to track your spending
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <h4 className="font-medium">Privacy Protected</h4>
-                <p className="text-sm text-muted-foreground">
-                  We only read financial transaction emails, not your personal conversations
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <h4 className="font-medium">Always in Control</h4>
-                <p className="text-sm text-muted-foreground">
-                  You can disconnect your email anytime from settings
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <Button
-            onClick={() => handleEmailConsent(true)}
-            disabled={loading}
-            size="lg"
-            className="w-full"
-          >
-            {loading ? "Connecting..." : (
-              <>
-                <Mail className="w-5 h-5 mr-2" />
-                Connect Email Account
-              </>
-            )}
-          </Button>
-
-          <Button
-            onClick={() => handleEmailConsent(false)}
-            disabled={loading}
-            variant="ghost"
-            size="lg"
-            className="w-full"
-          >
-            Skip for now
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === "completing") {
-    return (
-      <div className="space-y-6 text-center">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-            <Mail className="w-8 h-8 text-primary" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-2xl font-semibold">Connecting to Google...</h2>
-          <p className="text-muted-foreground">
-            You'll be redirected to complete the authorization
-          </p>
         </div>
       </div>
     );
