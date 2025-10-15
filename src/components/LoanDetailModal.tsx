@@ -170,20 +170,18 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                             <div className="text-[9px] text-muted-foreground">p.a.</div>
                           </div>
                         </div>
-                        <div className="space-y-1 text-[10px] text-muted-foreground">
-                          <div className="flex justify-between">
-                            <span>Amount:</span>
-                            <span className="font-semibold text-foreground">{formatINR(loan.amount)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>EMI:</span>
-                            <span className="font-semibold text-foreground">{formatINR(loan.emi)}/mo</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Tenure left:</span>
-                            <span className="font-semibold text-foreground">{loan.remainingTenure || loan.tenure - loan.paidTenure} of {loan.tenure} months</span>
-                          </div>
+                      <div className="space-y-1.5 mt-2">
+                        <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1.5 text-[11px]">
+                          <div className="text-muted-foreground">Amount:</div>
+                          <div className="font-semibold text-foreground">{formatINR(loan.amount)}</div>
+                          
+                          <div className="text-muted-foreground">EMI:</div>
+                          <div className="font-semibold text-foreground">{formatINR(loan.emi)}/mo</div>
+                          
+                          <div className="text-muted-foreground">Tenure left:</div>
+                          <div className="font-semibold text-foreground">{loan.remainingTenure || loan.tenure - loan.paidTenure} of {loan.tenure} months</div>
                         </div>
+                      </div>
                       </div>
 
                       {/* Show transfer indicator only for last loan with offer or single loan */}
@@ -225,26 +223,26 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                                 <div className="text-[9px] text-muted-foreground">p.a.</div>
                               </div>
                             </div>
-                            <div className="space-y-1 text-[10px]">
+                          <div className="mt-2">
+                            <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1.5 text-[11px]">
                               {loansWithOffers.length > 1 && (
-                                <div className="flex justify-between text-muted-foreground">
-                                  <span>Total amount:</span>
-                                  <span className="font-semibold text-green-600">{formatINR(totalLoanAmount)}</span>
-                                </div>
+                                <>
+                                  <div className="text-muted-foreground">Total amount:</div>
+                                  <div className="font-semibold text-green-600">{formatINR(totalLoanAmount)}</div>
+                                </>
                               )}
-                              <div className="flex justify-between font-medium text-green-600">
-                                <span>New EMI:</span>
-                                <span className="font-semibold">
-                                  {formatINR(loansWithOffers.length > 1 ? consolidatedEMI : loan.proposedEMI!)}/mo
-                                </span>
+                              
+                              <div className="font-medium text-green-600">New EMI:</div>
+                              <div className="font-semibold text-green-600">
+                                {formatINR(loansWithOffers.length > 1 ? consolidatedEMI : loan.proposedEMI!)}/mo
                               </div>
-                              <div className="flex justify-between font-medium text-green-600">
-                                <span>You save:</span>
-                                <span className="font-semibold">
-                                  +{formatINR(loansWithOffers.length > 1 ? totalMonthlySavings : loan.monthlySavings!)}/mo
-                                </span>
+                              
+                              <div className="font-medium text-green-600">You save:</div>
+                              <div className="font-semibold text-green-600">
+                                +{formatINR(loansWithOffers.length > 1 ? totalMonthlySavings : loan.monthlySavings!)}/mo
                               </div>
                             </div>
+                          </div>
                             <div className="mt-2 flex flex-wrap gap-1">
                               <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">
                                 ✓ Lower EMI
@@ -346,26 +344,22 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                         </div>
                       </div>
                       
-                      <div className="space-y-1.5 text-[11px]">
-                        <div className="flex justify-between py-1 border-b border-border">
-                          <span className="text-muted-foreground">Loan Amount:</span>
-                          <span className="font-semibold">{formatINR(loan.amount)}</span>
-                        </div>
-                        <div className="flex justify-between py-1 border-b border-border">
-                          <span className="text-muted-foreground">EMI:</span>
-                          <span className="font-semibold">{formatINR(loan.emi)}/mo</span>
-                        </div>
-                        <div className="flex justify-between py-1 border-b border-border">
-                          <span className="text-muted-foreground">Tenure:</span>
-                          <span className="font-semibold">{loan.tenure} months</span>
-                        </div>
-                        <div className="flex justify-between py-1 border-b border-border">
-                          <span className="text-muted-foreground">Tenure left:</span>
-                          <span className="font-semibold">{loan.remainingTenure || loan.tenure - loan.paidTenure} months</span>
-                        </div>
-                        <div className="flex justify-between py-1">
-                          <span className="text-muted-foreground">Progress:</span>
-                          <span className="font-semibold">{loan.paidTenure}/{loan.tenure} months</span>
+                      <div className="mt-2">
+                        <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1.5 text-[11px]">
+                          <div className="text-muted-foreground">Loan Amount:</div>
+                          <div className="font-semibold">{formatINR(loan.amount)}</div>
+                          
+                          <div className="text-muted-foreground">EMI:</div>
+                          <div className="font-semibold">{formatINR(loan.emi)}/mo</div>
+                          
+                          <div className="text-muted-foreground">Tenure:</div>
+                          <div className="font-semibold">{loan.tenure} months</div>
+                          
+                          <div className="text-muted-foreground">Tenure left:</div>
+                          <div className="font-semibold">{loan.remainingTenure || loan.tenure - loan.paidTenure} months</div>
+                          
+                          <div className="text-muted-foreground">Progress:</div>
+                          <div className="font-semibold">{loan.paidTenure}/{loan.tenure} months</div>
                         </div>
                       </div>
                     </div>
