@@ -2035,12 +2035,12 @@ const Index = () => {
               />
 
               {/* Loan Tabs Section */}
-              <div className="bg-card rounded-2xl p-3 shadow-sm border border-border mb-3">
+              <div className="mx-3 mb-3">
                 <Tabs defaultValue="personal" className="w-full">
-                  <TabsList className="w-full justify-start gap-1 h-auto p-1 bg-muted/50">
+                  <TabsList className="w-full justify-start gap-1 h-auto p-1 bg-background border border-border rounded-xl mb-3">
                     <TabsTrigger 
                       value="auto" 
-                      className="flex-1 text-xs px-2 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                       onClick={() => setSelectedLoanType("auto")}
                     >
                       <Car className="h-3 w-3 mr-1" />
@@ -2048,7 +2048,7 @@ const Index = () => {
                     </TabsTrigger>
                     <TabsTrigger 
                       value="home" 
-                      className="flex-1 text-xs px-2 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                       onClick={() => setSelectedLoanType("home")}
                     >
                       <Home className="h-3 w-3 mr-1" />
@@ -2056,7 +2056,7 @@ const Index = () => {
                     </TabsTrigger>
                     <TabsTrigger 
                       value="personal" 
-                      className="flex-1 text-xs px-2 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                       onClick={() => setSelectedLoanType("personal")}
                     >
                       <User className="h-3 w-3 mr-1" />
@@ -2064,7 +2064,7 @@ const Index = () => {
                     </TabsTrigger>
                     <TabsTrigger 
                       value="overdraft" 
-                      className="flex-1 text-xs px-2 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                       onClick={() => setSelectedLoanType("overdraft")}
                     >
                       <Briefcase className="h-3 w-3 mr-1" />
@@ -2072,31 +2072,39 @@ const Index = () => {
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="auto" className="mt-3">
+                  <TabsContent value="auto" className="mt-0">
                     <LoansOverview
                       loans={CREDIT_MOCK_DATA.loans.auto || []}
                       onClick={() => { setSelectedLoanType("auto"); setShowLoanModal(true); }}
+                      loanType="auto"
+                      allLoans={CREDIT_MOCK_DATA.loans}
                     />
                   </TabsContent>
 
-                  <TabsContent value="home" className="mt-3">
+                  <TabsContent value="home" className="mt-0">
                     <LoansOverview
                       loans={CREDIT_MOCK_DATA.loans.home || []}
                       onClick={() => { setSelectedLoanType("home"); setShowLoanModal(true); }}
+                      loanType="home"
+                      allLoans={CREDIT_MOCK_DATA.loans}
                     />
                   </TabsContent>
 
-                  <TabsContent value="personal" className="mt-3">
+                  <TabsContent value="personal" className="mt-0">
                     <LoansOverview
                       loans={CREDIT_MOCK_DATA.loans.personal}
                       onClick={() => { setSelectedLoanType("personal"); setShowLoanModal(true); }}
+                      loanType="personal"
+                      allLoans={CREDIT_MOCK_DATA.loans}
                     />
                   </TabsContent>
 
-                  <TabsContent value="overdraft" className="mt-3">
+                  <TabsContent value="overdraft" className="mt-0">
                     <LoansOverview
                       loans={[]}
                       onClick={() => { setSelectedLoanType("overdraft"); setShowLoanModal(true); }}
+                      loanType="overdraft"
+                      allLoans={{ ...CREDIT_MOCK_DATA.loans, overdraft: [] }}
                     />
                   </TabsContent>
                 </Tabs>
@@ -2115,11 +2123,13 @@ const Index = () => {
                 enquiries={CREDIT_MOCK_DATA.enquiries.details}
               />
 
-              <NewLoanOffer
-                maxAmount={CREDIT_MOCK_DATA.loanOffer.maxAmount}
-                roi={CREDIT_MOCK_DATA.loanOffer.roi}
-                eligibility={CREDIT_MOCK_DATA.loanOffer.eligibility}
-              />
+              <div className="mx-3">
+                <NewLoanOffer
+                  maxAmount={CREDIT_MOCK_DATA.loanOffer.maxAmount}
+                  roi={CREDIT_MOCK_DATA.loanOffer.roi}
+                  eligibility={CREDIT_MOCK_DATA.loanOffer.eligibility}
+                />
+              </div>
 
               <FinancialHealthReport
                 purchased={reportPurchased}
