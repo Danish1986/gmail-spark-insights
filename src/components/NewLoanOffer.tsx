@@ -1,14 +1,6 @@
 import { useState } from "react";
-import { Gift, Calculator, Sparkles } from "lucide-react";
+import { Gift, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 
 interface NewLoanOfferProps {
@@ -36,15 +28,17 @@ const calculateEMI = (principal: number, rate: number, months: number) => {
 };
 
 export const NewLoanOffer = ({ maxAmount, roi, eligibility }: NewLoanOfferProps) => {
-  const [loanAmount, setLoanAmount] = useState(maxAmount / 2);
-  const [tenure, setTenure] = useState("36");
-
-  const emi = calculateEMI(loanAmount, roi, parseInt(tenure));
+  const [isLoading] = useState(false);
+  
+  // Default values from backend
+  const recommendedAmount = maxAmount / 2;
+  const defaultTenure = 36;
+  const displayEMI = calculateEMI(recommendedAmount, roi, defaultTenure);
 
   const handleApply = () => {
     toast({
       title: "Loan Application Submitted!",
-      description: `We'll process your application for ${formatINR(loanAmount)} and contact you shortly.`,
+      description: `We'll process your pre-approved offer for ${formatINR(maxAmount)} and contact you shortly.`,
     });
   };
 
@@ -68,62 +62,32 @@ export const NewLoanOffer = ({ maxAmount, roi, eligibility }: NewLoanOfferProps)
         <div className="text-xs text-amber-600 font-semibold">ROI: {roi}% p.a.</div>
       </div>
 
-      {/* EMI Calculator */}
+      {/* Display EMI - Backend calculated */}
       <div className="bg-white/50 dark:bg-black/20 rounded-xl p-3 mb-3">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Calculator className="h-4 w-4 text-primary" />
-          <span className="text-xs font-semibold text-foreground">Calculate EMI</span>
-        </div>
-
-        {/* Loan Amount Slider */}
-        <div className="mb-3">
-          <div className="flex justify-between text-xs mb-1.5">
-            <span className="text-muted-foreground">Amount</span>
-            <span className="font-semibold text-foreground">{formatINR(loanAmount)}</span>
+        <div className="text-xs text-muted-foreground mb-2">Recommended Loan Details</div>
+        
+        <div className="grid grid-cols-2 gap-3 mb-2">
+          <div>
+            <div className="text-xs text-muted-foreground">Amount</div>
+            <div className="text-sm font-bold text-foreground">{formatINR(recommendedAmount)}</div>
           </div>
-          <Slider
-            value={[loanAmount]}
-            onValueChange={(value) => setLoanAmount(value[0])}
-            min={50000}
-            max={maxAmount}
-            step={10000}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>₹50k</span>
-            <span>{formatINR(maxAmount)}</span>
+          <div>
+            <div className="text-xs text-muted-foreground">Tenure</div>
+            <div className="text-sm font-bold text-foreground">{defaultTenure} months</div>
           </div>
         </div>
 
-        {/* Tenure Selector */}
-        <div className="mb-3">
-          <div className="text-xs text-muted-foreground mb-1.5">Tenure</div>
-          <Select value={tenure} onValueChange={setTenure}>
-            <SelectTrigger className="h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="12">12 months</SelectItem>
-              <SelectItem value="24">24 months</SelectItem>
-              <SelectItem value="36">36 months</SelectItem>
-              <SelectItem value="48">48 months</SelectItem>
-              <SelectItem value="60">60 months</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Calculated EMI */}
         <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg p-2.5 border border-green-500/20">
-          <div className="text-xs text-muted-foreground">Monthly EMI</div>
-          <div className="text-xl font-bold text-green-600">{formatINR(emi)}</div>
-          <div className="text-xs text-muted-foreground">Total: {formatINR(emi * parseInt(tenure))}</div>
+          <div className="text-xs text-muted-foreground">Estimated Monthly EMI</div>
+          <div className="text-xl font-bold text-green-600">{formatINR(displayEMI)}</div>
+          <div className="text-xs text-muted-foreground">Total: {formatINR(displayEMI * defaultTenure)}</div>
         </div>
       </div>
 
       {/* Eligibility Criteria */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-3">
-        <div className="text-xs font-semibold text-blue-700 mb-1">✓ You're Eligible!</div>
-        <div className="space-y-0.5 text-xs text-gray-600">
+      <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-2.5 mb-3">
+        <div className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">✓ You're Eligible!</div>
+        <div className="space-y-0.5 text-xs text-gray-600 dark:text-gray-400">
           <div>• Min Income: {formatINR(eligibility.minIncome)}/mo</div>
           <div>• Min Score: {eligibility.minCreditScore}</div>
           <div>• Type: {eligibility.employmentType}</div>
@@ -131,10 +95,18 @@ export const NewLoanOffer = ({ maxAmount, roi, eligibility }: NewLoanOfferProps)
       </div>
 
       {/* Apply Button */}
-      <Button onClick={handleApply} className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 py-2.5">
+      <Button 
+        onClick={handleApply} 
+        disabled={isLoading}
+        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 py-2.5"
+      >
         <Sparkles className="h-4 w-4 mr-1.5" />
-        Apply Now at {roi}% ROI
+        {isLoading ? "Processing..." : `Apply Now at ${roi}% ROI`}
       </Button>
+      
+      <div className="mt-2 text-center text-xs text-muted-foreground">
+        Actual terms may vary based on verification
+      </div>
     </div>
   );
 };

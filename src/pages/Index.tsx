@@ -29,7 +29,7 @@ import { PaymentModal } from "@/components/PaymentModal";
 import { OfferBanner } from "@/components/OfferBanner";
 import { BalanceTransferToggles } from "@/components/BalanceTransferToggles";
 import { LoansOverview } from "@/components/LoansOverview";
-import { LoanEligibilityCalculator } from "@/components/LoanEligibilityCalculator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 // Mock data
 const MOCK_DATA = {
@@ -2034,16 +2034,73 @@ const Index = () => {
                 totalUsed={CREDIT_MOCK_DATA.creditCards.totalUsed}
               />
 
-              <LoansOverview
-                loans={CREDIT_MOCK_DATA.loans.personal}
-                onClick={() => { setSelectedLoanType("personal"); setShowLoanModal(true); }}
-              />
+              {/* Loan Tabs Section */}
+              <div className="bg-card rounded-2xl p-3 shadow-sm border border-border mb-3">
+                <Tabs defaultValue="personal" className="w-full">
+                  <TabsList className="w-full justify-start gap-1 h-auto p-1 bg-muted/50">
+                    <TabsTrigger 
+                      value="auto" 
+                      className="flex-1 text-xs px-2 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      onClick={() => setSelectedLoanType("auto")}
+                    >
+                      <Car className="h-3 w-3 mr-1" />
+                      Auto
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="home" 
+                      className="flex-1 text-xs px-2 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      onClick={() => setSelectedLoanType("home")}
+                    >
+                      <Home className="h-3 w-3 mr-1" />
+                      Home
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="personal" 
+                      className="flex-1 text-xs px-2 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      onClick={() => setSelectedLoanType("personal")}
+                    >
+                      <User className="h-3 w-3 mr-1" />
+                      Personal
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="overdraft" 
+                      className="flex-1 text-xs px-2 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      onClick={() => setSelectedLoanType("overdraft")}
+                    >
+                      <Briefcase className="h-3 w-3 mr-1" />
+                      Overdraft
+                    </TabsTrigger>
+                  </TabsList>
 
-              <LoanEligibilityCalculator
-                existingEMI={CREDIT_MOCK_DATA.incomeToDebt.totalEMI}
-                balanceTransferEnabled={personalLoanEnabled}
-                transferredEMI={personalLoanEnabled ? CREDIT_MOCK_DATA.loans.personal.reduce((sum, loan) => sum + loan.emi, 0) : 0}
-              />
+                  <TabsContent value="auto" className="mt-3">
+                    <LoansOverview
+                      loans={CREDIT_MOCK_DATA.loans.auto || []}
+                      onClick={() => { setSelectedLoanType("auto"); setShowLoanModal(true); }}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="home" className="mt-3">
+                    <LoansOverview
+                      loans={CREDIT_MOCK_DATA.loans.home || []}
+                      onClick={() => { setSelectedLoanType("home"); setShowLoanModal(true); }}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="personal" className="mt-3">
+                    <LoansOverview
+                      loans={CREDIT_MOCK_DATA.loans.personal}
+                      onClick={() => { setSelectedLoanType("personal"); setShowLoanModal(true); }}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="overdraft" className="mt-3">
+                    <LoansOverview
+                      loans={[]}
+                      onClick={() => { setSelectedLoanType("overdraft"); setShowLoanModal(true); }}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </div>
 
               <IncomeToDebtRatio
                 monthlyIncome={CREDIT_MOCK_DATA.incomeToDebt.monthlyIncome}
