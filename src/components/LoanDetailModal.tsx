@@ -1,10 +1,4 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Building2, Lightbulb, ArrowDown, User, Car, Home, Briefcase, LucideIcon } from "lucide-react";
+import { Building2, Lightbulb, ArrowRight, User, Car, Home, Briefcase, LucideIcon, X } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -73,31 +67,42 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
     });
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent 
-        side="right" 
-        className="w-full h-full sm:w-[90%] sm:max-w-2xl p-0 flex flex-col"
-      >
-        <SheetHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b px-4 py-3">
-          <SheetTitle className="flex items-center gap-3 text-xl font-bold">
-            <Building2 className="h-6 w-6 text-primary" />
+    <>
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/50 z-50 animate-in fade-in" 
+        onClick={onClose} 
+      />
+      
+      {/* Bottom Drawer */}
+      <div className="fixed inset-x-0 bottom-0 z-50 bg-background rounded-t-xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom max-w-md mx-auto left-0 right-0">
+        {/* Header */}
+        <div className="sticky top-0 bg-background border-b px-3 py-2.5 flex items-center justify-between z-10 rounded-t-xl">
+          <h2 className="text-base font-bold flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-primary" />
             <span className="capitalize">{loanType} Loans</span>
             {loans.length > 0 && (
-              <Badge variant="secondary" className="ml-auto">
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">
                 {loans.length}
               </Badge>
             )}
-          </SheetTitle>
-        </SheetHeader>
+          </h2>
+          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full transition-colors">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3">
+        {/* Content */}
+        <div className="p-3 space-y-3">
           {loans.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground">
+            <div className="py-8 text-center text-muted-foreground text-xs">
               No active {loanType} loans
             </div>
           ) : (
-            <div className="space-y-4">
+            <>
             {loans.map((loan) => {
               const paymentProgress = (loan.paidTenure / loan.tenure) * 100;
               const totalSavings = loan.monthlySavings! * loan.remainingTenure!;
@@ -109,78 +114,83 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                     // Loans WITH offers - Interest Optimizer pattern
                     <>
                       {/* 1. Top Savings Banner */}
-                      <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
-                        <Lightbulb className="h-5 w-5 text-red-500 flex-shrink-0" />
-                        <div className="text-sm">
-                          <span className="font-semibold text-foreground">Switch to save </span>
-                          <span className="text-red-500 font-bold">{formatINR(totalSavings)}</span>
-                          <span className="font-semibold text-foreground"> over {loan.remainingTenure} months</span>
+                      <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2.5">
+                        <div className="flex items-center gap-2">
+                          <Lightbulb className="h-4 w-4 text-destructive flex-shrink-0" />
+                          <div className="text-xs font-semibold">
+                            Switch to save <span className="text-destructive">{formatINR(totalSavings)}</span> over {loan.remainingTenure} months
+                          </div>
                         </div>
                       </div>
 
                       {/* 2. CURRENT Loan Card */}
-                      <div className="bg-background rounded-2xl p-4 border border-border">
-                        <div className="flex justify-between items-start mb-3">
+                      <div className="bg-card border rounded-lg p-2.5">
+                        <div className="flex items-center justify-between mb-1.5">
                           <div>
-                            <div className="text-xs text-muted-foreground uppercase mb-1">CURRENT</div>
-                            <div className="font-bold text-lg text-foreground">{loan.lender}</div>
-                            <div className="text-sm text-muted-foreground capitalize">{loanType} Loan</div>
+                            <div className="text-[10px] text-muted-foreground">CURRENT</div>
+                            <div className="text-sm font-bold">{loan.lender}</div>
+                            <div className="text-[10px] text-muted-foreground capitalize">{loanType} Loan</div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-3xl font-bold text-red-500">{loan.roi}%</div>
-                            <div className="text-xs text-muted-foreground">p.a.</div>
+                          <div className="text-center px-2 py-1 bg-destructive/10 rounded">
+                            <div className="text-lg font-bold text-destructive">{loan.roi}%</div>
+                            <div className="text-[9px] text-muted-foreground">p.a.</div>
                           </div>
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-[10px] text-muted-foreground">
                           Amount: {formatINR(loan.amount)} • EMI: {formatINR(loan.emi)}/mo
                         </div>
                       </div>
 
                       {/* 3. Transfer Indicator */}
-                      <div className="flex items-center justify-center py-2">
-                        <div className="flex items-center gap-2 text-blue-500 font-semibold text-sm">
-                          <ArrowDown className="h-5 w-5" />
-                          <span>Transfer for Better Rate</span>
+                      <div className="flex items-center justify-center gap-2 py-1">
+                        <div className="flex-1 h-px bg-border" />
+                        <div className="flex items-center gap-1 text-xs font-medium text-primary">
+                          <ArrowRight className="h-3 w-3" />
+                          Transfer 100%
                         </div>
+                        <div className="flex-1 h-px bg-border" />
                       </div>
 
                       {/* 4. RECOMMENDED Offer Card */}
-                      <div className="bg-background rounded-2xl p-4 border border-green-500/30">
-                        <div className="flex justify-between items-start mb-3">
+                      <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-2 border-green-500/30 rounded-lg p-2.5">
+                        <div className="flex items-center justify-between mb-1.5">
                           <div>
-                            <div className="text-xs text-muted-foreground uppercase mb-1">RECOMMENDED</div>
-                            <div className="font-bold text-lg text-foreground">Better Finance</div>
-                            <div className="text-sm text-muted-foreground capitalize">{loanType} Loan</div>
+                            <div className="text-[10px] text-green-600 font-semibold">RECOMMENDED</div>
+                            <div className="text-sm font-bold">Better Finance</div>
+                            <div className="text-[10px] text-muted-foreground capitalize">{loanType} Loan</div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-3xl font-bold text-green-500">{loan.proposedROI}%</div>
-                            <div className="text-xs text-muted-foreground">p.a.</div>
+                          <div className="text-center px-2 py-1 bg-green-500/20 rounded">
+                            <div className="text-lg font-bold text-green-600">{loan.proposedROI}%</div>
+                            <div className="text-[9px] text-muted-foreground">p.a.</div>
                           </div>
                         </div>
-                        <div className="text-sm font-semibold text-foreground mb-2">
-                          Will pay: {formatINR(loan.proposedEMI!)}/mo • 
-                          <span className="text-green-500"> +{formatINR(loan.monthlySavings!)} saved/mo</span>
+                        <div className="text-[10px] font-medium text-green-600">
+                          Will pay: {formatINR(loan.proposedEMI!)}/mo • +{formatINR(loan.monthlySavings!)} saved/mo
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="secondary" className="text-xs">✓ Lower EMI</Badge>
-                          <Badge variant="secondary" className="text-xs">✓ Same tenure</Badge>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">
+                            ✓ Lower EMI
+                          </span>
+                          <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">
+                            ✓ Same tenure
+                          </span>
                         </div>
                       </div>
 
                       {/* 5. Impact Over Time Section */}
-                      <div className="bg-gray-100 rounded-2xl p-4">
-                        <h4 className="font-semibold text-foreground mb-3 text-sm">Impact Over Time</h4>
+                      <div className="bg-muted/50 rounded-lg p-2.5">
+                        <div className="text-xs font-semibold mb-2">Impact Over Time</div>
                         
                         {/* Period Selector */}
-                        <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="flex gap-1.5 mb-2">
                           {[3, 6, 12].map((months) => (
                             <button
                               key={months}
                               onClick={() => setSelectedPeriod({ ...selectedPeriod, [loan.id]: months })}
-                              className={`py-2 px-3 rounded-lg font-semibold text-sm transition-colors ${
+                              className={`flex-1 px-2 py-1 rounded text-[10px] font-medium transition-colors ${
                                 period === months
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-white text-foreground border border-border'
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-background text-muted-foreground hover:bg-muted'
                               }`}
                             >
                               {months}M
@@ -189,92 +199,68 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                         </div>
 
                         {/* Savings Projection */}
-                        <div className="space-y-2">
-                          <div className="flex justify-between py-2">
-                            <span className="text-sm text-muted-foreground">Current EMI total:</span>
-                            <span className="font-semibold text-foreground">{formatINR(loan.emi * period)}</span>
+                        <div className="space-y-1.5 text-[11px]">
+                          <div className="flex items-center justify-between py-1 border-b border-border">
+                            <div className="text-muted-foreground">Current EMI total:</div>
+                            <div className="font-semibold">{formatINR(loan.emi * period)}</div>
                           </div>
-                          <div className="flex justify-between py-2">
-                            <span className="text-sm text-muted-foreground">With balance transfer:</span>
-                            <span className="font-semibold text-foreground">{formatINR(loan.proposedEMI! * period)}</span>
+                          <div className="flex items-center justify-between py-1 border-b border-border">
+                            <div className="text-muted-foreground">With balance transfer:</div>
+                            <div className="font-semibold text-green-600">{formatINR(loan.proposedEMI! * period)}</div>
                           </div>
-                          <div className="flex justify-between py-3 bg-green-50 rounded-lg px-3 border border-green-200">
-                            <span className="text-sm font-semibold text-foreground">Extra you'll save:</span>
-                            <span className="font-bold text-green-600">+{formatINR(loan.monthlySavings! * period)}</span>
+                          <div className="flex items-center justify-between py-1.5 bg-green-500/10 rounded px-2 -mx-2">
+                            <div className="font-semibold">Extra you'll save:</div>
+                            <div className="font-bold text-green-600">+{formatINR(loan.monthlySavings! * period)}</div>
                           </div>
                         </div>
                       </div>
 
                       {/* Apply Button */}
-                      <Button onClick={handleApply} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                      <Button onClick={handleApply} className="w-full text-sm py-2">
                         Apply for Balance Transfer
                       </Button>
                     </>
                   ) : (
                     // Loans WITHOUT offers - Simple card view
-                    <div className="bg-background rounded-2xl p-4 border border-border shadow-sm">
-                      {/* Loan Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-12 w-12 rounded-xl ${iconInfo.bgColor} flex items-center justify-center`}>
-                            <iconInfo.Icon className="h-6 w-6 text-white" />
-                          </div>
-                          <div>
-                            <div className="font-bold text-lg text-foreground">{loan.lender}</div>
-                            <div className="text-xs text-muted-foreground">
-                              Started {new Date(loan.startDate).toLocaleDateString('en-IN', { 
-                                day: 'numeric', 
-                                month: 'short', 
-                                year: 'numeric' 
-                              })}
-                            </div>
-                          </div>
+                    <div className="bg-card border rounded-lg p-2.5">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div>
+                          <div className="text-sm font-bold">{loan.lender}</div>
+                          <div className="text-[10px] text-muted-foreground capitalize">{loanType} Loan</div>
+                        </div>
+                        <div className="text-center px-2 py-1 bg-primary/10 rounded">
+                          <div className="text-lg font-bold text-primary">{loan.roi}%</div>
+                          <div className="text-[9px] text-muted-foreground">p.a.</div>
                         </div>
                       </div>
-
-                      {/* Loan Details Grid */}
-                      <div className="space-y-3 mb-4">
-                        <div className="grid grid-cols-2 gap-6">
-                          <div>
-                            <div className="text-xs text-muted-foreground mb-1">Loan Amount</div>
-                            <div className="text-xl font-bold text-foreground">{formatINR(loan.amount)}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-muted-foreground mb-1">ROI</div>
-                            <div className="text-xl font-bold text-foreground">{loan.roi}% <span className="text-sm font-normal text-muted-foreground">p.a.</span></div>
-                          </div>
+                      
+                      <div className="space-y-1.5 text-[11px]">
+                        <div className="flex justify-between py-1 border-b border-border">
+                          <span className="text-muted-foreground">Loan Amount:</span>
+                          <span className="font-semibold">{formatINR(loan.amount)}</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-6">
-                          <div>
-                            <div className="text-xs text-muted-foreground mb-1">EMI Amount</div>
-                            <div className="text-xl font-bold text-foreground">{formatINR(loan.emi)}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-muted-foreground mb-1">Tenure</div>
-                            <div className="text-xl font-bold text-foreground">{loan.tenure} <span className="text-sm font-normal text-muted-foreground">months</span></div>
-                          </div>
+                        <div className="flex justify-between py-1 border-b border-border">
+                          <span className="text-muted-foreground">EMI:</span>
+                          <span className="font-semibold">{formatINR(loan.emi)}/mo</span>
                         </div>
-                      </div>
-
-                      {/* Payment Progress */}
-                      <div>
-                        <div className="flex justify-between items-baseline mb-2">
-                          <span className="text-sm text-muted-foreground">Repayment Progress</span>
-                          <span className="text-sm font-bold text-foreground">
-                            {loan.paidTenure}/{loan.tenure} months ({paymentProgress.toFixed(0)}%)
-                          </span>
+                        <div className="flex justify-between py-1 border-b border-border">
+                          <span className="text-muted-foreground">Tenure:</span>
+                          <span className="font-semibold">{loan.tenure} months</span>
                         </div>
-                        <Progress value={paymentProgress} className="h-2.5" />
+                        <div className="flex justify-between py-1">
+                          <span className="text-muted-foreground">Progress:</span>
+                          <span className="font-semibold">{loan.paidTenure}/{loan.tenure} months</span>
+                        </div>
                       </div>
                     </div>
                   )}
                 </div>
               );
             })}
-            </div>
+            </>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </>
   );
 };
