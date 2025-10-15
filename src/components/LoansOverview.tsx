@@ -133,7 +133,7 @@ export const LoansOverview = ({ loans, onClick, loanType = "personal", allLoans 
               <span className="text-xs font-semibold text-foreground">Others</span>
             </div>
             <div className="text-sm font-bold text-foreground">{formatINR(categoryTotals.overdraft)}</div>
-            <div className="text-xs text-muted-foreground">{allLoans?.overdraft.length || 0} items</div>
+            <div className="text-xs text-muted-foreground">{(allLoans?.overdraft || []).length} items</div>
           </div>
         </div>
       )}
