@@ -1,5 +1,4 @@
-import { Home, TrendingUp, FileText, Target, User } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Home, TrendingUp, FileText, Target } from "lucide-react";
 
 interface BottomTabNavProps {
   activeTab: string;
@@ -7,54 +6,29 @@ interface BottomTabNavProps {
 }
 
 const navItems = [
-  { id: "home", label: "Home", icon: Home, path: "/dashboard" },
-  { id: "optimize", label: "Optimize", icon: TrendingUp, path: null },
-  { id: "loans", label: "Loans", icon: FileText, path: null },
-  { id: "goals", label: "Goals", icon: Target, path: null },
+  { id: "home", label: "Home", icon: Home },
+  { id: "optimize", label: "Optimize", icon: TrendingUp },
+  { id: "loans", label: "Loans", icon: FileText },
+  { id: "goals", label: "Goals", icon: Target },
 ];
 
 export const BottomTabNav = ({ activeTab, onTabChange }: BottomTabNavProps) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const handleTabClick = (item: typeof navItems[0]) => {
-    if (item.path) {
-      navigate(item.path);
-    } else {
-      onTabChange(item.id);
-    }
-  };
-
-  const isTabActive = (item: typeof navItems[0]) => {
-    if (item.path) {
-      return location.pathname === item.path;
-    }
-    return activeTab === item.id;
-  };
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent safe-bottom">
-      <div className="grid grid-cols-4 bg-card border-2 border-border rounded-3xl shadow-2xl overflow-hidden">
+    <div className="sticky bottom-0 p-2 bg-white/50 backdrop-blur-lg safe-bottom">
+      <div className="grid grid-cols-4 border border-border bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = isTabActive(item);
+          const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
-              onClick={() => handleTabClick(item)}
-              className={`relative p-4 font-semibold flex flex-col text-xs items-center justify-center gap-2 transition-all duration-300 min-h-[72px] ${
-                isActive 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-foreground"
+              onClick={() => onTabChange(item.id)}
+              className={`p-3 font-semibold flex flex-col text-xs items-center justify-center gap-1 rounded-xl transition-all duration-200 min-h-[60px] ${
+                isActive ? "bg-gray-900 text-white scale-105" : "text-gray-600 hover:bg-gray-100"
               }`}
             >
-              {isActive && (
-                <div className="absolute inset-0 bg-primary/10 backdrop-blur-sm" />
-              )}
-              <Icon className={`h-6 w-6 relative z-10 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
-              <span className="relative z-10">{item.label}</span>
-              {isActive && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary rounded-t-full" />
-              )}
+              <Icon className="h-6 w-6" />
+              {item.label}
             </button>
           );
         })}

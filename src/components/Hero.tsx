@@ -11,7 +11,6 @@ interface HeroProps {
   data: MonthData[];
   currentIndex: number;
   onNavigate: (direction: "prev" | "next") => void;
-  hasData?: boolean;
 }
 
 const formatINR = (amount: number) => {
@@ -30,7 +29,7 @@ const KPICard = ({ title, value, delta }: { title: string; value: string; delta?
   </div>
 );
 
-export const Hero = ({ data, currentIndex, onNavigate, hasData = true }: HeroProps) => {
+export const Hero = ({ data, currentIndex, onNavigate }: HeroProps) => {
   const current = data[currentIndex];
   const previous = data[currentIndex - 1];
 
@@ -46,9 +45,6 @@ export const Hero = ({ data, currentIndex, onNavigate, hasData = true }: HeroPro
         {current.month.toUpperCase()} INCOMING
       </div>
       <div className="text-3xl font-black tracking-tight mt-1">{formatINR(current.income)}</div>
-      {!hasData && (
-        <div className="text-xs opacity-75 mt-1">Connect Gmail to see your data</div>
-      )}
 
       <div className="mt-4 flex gap-3 flex-wrap items-center">
         <button className="px-4 py-2 rounded-2xl bg-white/20 text-xs font-medium backdrop-blur-sm">
