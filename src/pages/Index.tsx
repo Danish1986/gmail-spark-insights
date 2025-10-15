@@ -16,12 +16,11 @@ import { InterestDetailModal } from "@/components/InterestDetailModal";
 import { InvestmentDetailModal } from "@/components/InvestmentDetailModal";
 import { IncomingTransactionModal } from "@/components/IncomingTransactionModal";
 import { RECOMMENDED_CARDS } from "@/data/recommendedCards";
-import { TrendingUp, Sparkles, Building2, User, Car, Home, Briefcase } from "lucide-react";
+import { TrendingUp, Sparkles, Building2, User, Car, Home, Briefcase, Repeat2 } from "lucide-react";
 import { CreditScoreGauge } from "@/components/CreditScoreGauge";
 import { CreditCardsSummary } from "@/components/CreditCardsSummary";
 import { LoanTypeCard } from "@/components/LoanTypeCard";
 import { LoanDetailModal } from "@/components/LoanDetailModal";
-import { IncomeToDebtRatio } from "@/components/IncomeToDebtRatio";
 import { CreditEnquiries } from "@/components/CreditEnquiries";
 import { NewLoanOffer } from "@/components/NewLoanOffer";
 import { FinancialHealthReport } from "@/components/FinancialHealthReport";
@@ -2056,11 +2055,14 @@ const Index = () => {
                     </TabsTrigger>
                     <TabsTrigger 
                       value="personal" 
-                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative"
                       onClick={() => setSelectedLoanType("personal")}
                     >
                       <User className="h-3 w-3 mr-1" />
                       Personal
+                      {CREDIT_MOCK_DATA.loans.personal.length > 0 && CREDIT_MOCK_DATA.loans.personal.some(loan => loan.emi > 0) && (
+                        <Repeat2 className="h-3 w-3 ml-1 text-green-500 animate-pulse" />
+                      )}
                     </TabsTrigger>
                     <TabsTrigger 
                       value="overdraft" 
@@ -2110,11 +2112,6 @@ const Index = () => {
                 </Tabs>
               </div>
 
-              <IncomeToDebtRatio
-                monthlyIncome={CREDIT_MOCK_DATA.incomeToDebt.monthlyIncome}
-                totalEMI={CREDIT_MOCK_DATA.incomeToDebt.totalEMI}
-                ccPayment={CREDIT_MOCK_DATA.incomeToDebt.creditCardPayment}
-              />
 
               <CreditEnquiries
                 last30Days={CREDIT_MOCK_DATA.enquiries.last30Days}
