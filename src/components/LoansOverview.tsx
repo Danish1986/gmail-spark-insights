@@ -71,72 +71,31 @@ export const LoansOverview = ({ loans, onClick, loanType = "personal", allLoans 
   const grandTotal = categoryTotals 
     ? categoryTotals.personal + categoryTotals.auto + categoryTotals.home + categoryTotals.overdraft
     : totalOutstanding;
+  
+  const totalLoansCount = allLoans 
+    ? allLoans.personal.length + allLoans.auto.length + allLoans.home.length + (allLoans.overdraft || []).length
+    : loans.length;
 
   return (
     <div>
-      <button
-        onClick={onClick}
-        className="w-full bg-card rounded-2xl p-3 shadow-sm border border-border hover:shadow-md transition-all active:scale-[0.98] text-left"
-      >
+      <div className="w-full bg-card rounded-2xl p-3 shadow-sm border border-border">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Wallet className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-bold text-foreground">Loans Overview</h2>
           </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </div>
 
-        <div className="flex items-baseline justify-between mb-3">
+        <div className="flex items-baseline justify-between mb-1">
           <div className="text-xs text-muted-foreground">Total Outstanding</div>
           <div className="text-xl font-bold text-foreground">{formatINR(grandTotal)}</div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
-          {getLoanIcon(loanType)}
-          <span className="capitalize">{loanType} Loans ({loans.length})</span>
+        <div className="text-xs text-muted-foreground">
+          Total of {totalLoansCount} active {totalLoansCount === 1 ? 'loan' : 'loans'}
         </div>
-      </button>
+      </div>
 
-      {/* 4-Block Category Summary */}
-      {categoryTotals && (
-        <div className="grid grid-cols-2 gap-2 mt-3">
-          <div className="bg-background rounded-xl p-2.5 border border-border">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-sm">{getLoanEmoji("personal")}</span>
-              <span className="text-xs font-semibold text-foreground">Personal</span>
-            </div>
-            <div className="text-sm font-bold text-foreground">{formatINR(categoryTotals.personal)}</div>
-            <div className="text-xs text-muted-foreground">{allLoans?.personal.length || 0} loans</div>
-          </div>
-
-          <div className="bg-background rounded-xl p-2.5 border border-border">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-sm">{getLoanEmoji("auto")}</span>
-              <span className="text-xs font-semibold text-foreground">Auto</span>
-            </div>
-            <div className="text-sm font-bold text-foreground">{formatINR(categoryTotals.auto)}</div>
-            <div className="text-xs text-muted-foreground">{allLoans?.auto.length || 0} loans</div>
-          </div>
-
-          <div className="bg-background rounded-xl p-2.5 border border-border">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-sm">{getLoanEmoji("home")}</span>
-              <span className="text-xs font-semibold text-foreground">Home</span>
-            </div>
-            <div className="text-sm font-bold text-foreground">{formatINR(categoryTotals.home)}</div>
-            <div className="text-xs text-muted-foreground">{allLoans?.home.length || 0} loans</div>
-          </div>
-
-          <div className="bg-background rounded-xl p-2.5 border border-border">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-sm">{getLoanEmoji("overdraft")}</span>
-              <span className="text-xs font-semibold text-foreground">Others</span>
-            </div>
-            <div className="text-sm font-bold text-foreground">{formatINR(categoryTotals.overdraft)}</div>
-            <div className="text-xs text-muted-foreground">{(allLoans?.overdraft || []).length} items</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -115,6 +115,11 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                 {loans.length}
               </Badge>
             )}
+            {loansWithOffers.length > 0 && (
+              <div className="relative group">
+                <Lightbulb className="h-4 w-4 text-amber-500 animate-pulse" />
+              </div>
+            )}
           </h2>
           <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-full transition-colors">
             <X className="h-4 w-4" />
@@ -156,7 +161,7 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
               </div>
             )}
 
-            {loans.map((loan) => {
+            {loans.map((loan, index) => {
               const paymentProgress = (loan.paidTenure / loan.tenure) * 100;
               const totalSavings = loansWithOffers.length > 1 
                 ? totalMonthlySavings * maxRemainingTenure
@@ -213,6 +218,15 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                         </div>
                       </div>
                       </div>
+
+                      {/* Visual "+" connector between loans */}
+                      {loan.hasOffer && loansWithOffers.length > 1 && index < loansWithOffers.length - 1 && (
+                        <div className="flex items-center justify-center py-1">
+                          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span className="text-lg font-medium text-primary">+</span>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Show transfer indicator only for last loan with offer or single loan */}
                       {(loansWithOffers.length === 1 || loans.indexOf(loan) === loansWithOffers.length - 1) && (

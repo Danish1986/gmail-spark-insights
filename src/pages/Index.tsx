@@ -16,7 +16,7 @@ import { InterestDetailModal } from "@/components/InterestDetailModal";
 import { InvestmentDetailModal } from "@/components/InvestmentDetailModal";
 import { IncomingTransactionModal } from "@/components/IncomingTransactionModal";
 import { RECOMMENDED_CARDS } from "@/data/recommendedCards";
-import { TrendingUp, Sparkles, Building2, User, Car, Home, Briefcase, Repeat2 } from "lucide-react";
+import { TrendingUp, Sparkles, Building2, User, Car, Home, Briefcase, Repeat2, Lightbulb } from "lucide-react";
 import { CreditScoreGauge } from "@/components/CreditScoreGauge";
 import { CreditCardsSummary } from "@/components/CreditCardsSummary";
 import { LoanTypeCard } from "@/components/LoanTypeCard";
@@ -2033,83 +2033,140 @@ const Index = () => {
                 totalUsed={CREDIT_MOCK_DATA.creditCards.totalUsed}
               />
 
-              {/* Loan Tabs Section */}
-              <div className="mx-3 mb-3">
-                <Tabs defaultValue="personal" className="w-full">
-                  <TabsList className="w-full justify-start gap-1 h-auto p-1 bg-background border border-border rounded-xl mb-3">
-                    <TabsTrigger 
-                      value="auto" 
-                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                      onClick={() => setSelectedLoanType("auto")}
-                    >
-                      <Car className="h-3 w-3 mr-1" />
-                      Auto
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="home" 
-                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                      onClick={() => setSelectedLoanType("home")}
-                    >
-                      <Home className="h-3 w-3 mr-1" />
-                      Home
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="personal" 
-                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative"
-                      onClick={() => setSelectedLoanType("personal")}
-                    >
-                      <User className="h-3 w-3 mr-1" />
-                      Personal
-                      {CREDIT_MOCK_DATA.loans.personal.length > 0 && CREDIT_MOCK_DATA.loans.personal.some(loan => loan.emi > 0) && (
-                        <Repeat2 className="h-3 w-3 ml-1 text-green-500 animate-pulse" />
-                      )}
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="overdraft" 
-                      className="flex-1 text-xs px-2 py-1.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                      onClick={() => setSelectedLoanType("overdraft")}
-                    >
-                      <Briefcase className="h-3 w-3 mr-1" />
-                      Overdraft
-                    </TabsTrigger>
-                  </TabsList>
+              {/* Loans Section */}
+              <div className="mx-3 mb-3 space-y-3">
+                {/* Loans Overview Card */}
+                <LoansOverview
+                  loans={CREDIT_MOCK_DATA.loans.personal}
+                  onClick={() => {}}
+                  loanType="all"
+                  allLoans={{
+                    personal: CREDIT_MOCK_DATA.loans.personal,
+                    auto: CREDIT_MOCK_DATA.loans.auto,
+                    home: CREDIT_MOCK_DATA.loans.home,
+                    overdraft: (CREDIT_MOCK_DATA.loans as any).overdraft,
+                  }}
+                />
 
-                  <TabsContent value="auto" className="mt-0">
-                    <LoansOverview
-                      loans={CREDIT_MOCK_DATA.loans.auto || []}
-                      onClick={() => { setSelectedLoanType("auto"); setShowLoanModal(true); }}
-                      loanType="auto"
-                      allLoans={CREDIT_MOCK_DATA.loans}
-                    />
-                  </TabsContent>
+                {/* Clickable Loan Category Cards */}
+                <div className="space-y-2">
+                  {/* Personal Loans */}
+                  <button
+                    onClick={() => {
+                      setSelectedLoanType("personal");
+                      setShowLoanModal(true);
+                    }}
+                    className="w-full bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md hover:border-primary/30 transition-all active:scale-[0.98] text-left"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                          <User className="h-5 w-5 text-blue-500" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-foreground flex items-center gap-2">
+                            Personal Loans
+                            {CREDIT_MOCK_DATA.loans.personal.some(loan => loan.hasOffer) && (
+                              <Lightbulb className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {CREDIT_MOCK_DATA.loans.personal.length} {CREDIT_MOCK_DATA.loans.personal.length === 1 ? 'loan' : 'loans'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-base font-bold text-foreground">
+                          {formatINR(CREDIT_MOCK_DATA.loans.personal.reduce((sum, loan) => sum + loan.amount, 0))}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
 
-                  <TabsContent value="home" className="mt-0">
-                    <LoansOverview
-                      loans={CREDIT_MOCK_DATA.loans.home || []}
-                      onClick={() => { setSelectedLoanType("home"); setShowLoanModal(true); }}
-                      loanType="home"
-                      allLoans={CREDIT_MOCK_DATA.loans}
-                    />
-                  </TabsContent>
+                  {/* Auto Loans */}
+                  <button
+                    onClick={() => {
+                      setSelectedLoanType("auto");
+                      setShowLoanModal(true);
+                    }}
+                    className="w-full bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md hover:border-primary/30 transition-all active:scale-[0.98] text-left"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                          <Car className="h-5 w-5 text-purple-500" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-foreground">Auto Loans</div>
+                          <div className="text-xs text-muted-foreground">
+                            {CREDIT_MOCK_DATA.loans.auto.length} {CREDIT_MOCK_DATA.loans.auto.length === 1 ? 'loan' : 'loans'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-base font-bold text-foreground">
+                          {formatINR(CREDIT_MOCK_DATA.loans.auto.reduce((sum, loan) => sum + loan.amount, 0))}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
 
-                  <TabsContent value="personal" className="mt-0">
-                    <LoansOverview
-                      loans={CREDIT_MOCK_DATA.loans.personal}
-                      onClick={() => { setSelectedLoanType("personal"); setShowLoanModal(true); }}
-                      loanType="personal"
-                      allLoans={CREDIT_MOCK_DATA.loans}
-                    />
-                  </TabsContent>
+                  {/* Home Loans */}
+                  <button
+                    onClick={() => {
+                      setSelectedLoanType("home");
+                      setShowLoanModal(true);
+                    }}
+                    className="w-full bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md hover:border-primary/30 transition-all active:scale-[0.98] text-left"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                          <Home className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-foreground">Home Loans</div>
+                          <div className="text-xs text-muted-foreground">
+                            {CREDIT_MOCK_DATA.loans.home.length} {CREDIT_MOCK_DATA.loans.home.length === 1 ? 'loan' : 'loans'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-base font-bold text-foreground">
+                          {formatINR(CREDIT_MOCK_DATA.loans.home.reduce((sum, loan) => sum + loan.amount, 0))}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
 
-                  <TabsContent value="overdraft" className="mt-0">
-                    <LoansOverview
-                      loans={[]}
-                      onClick={() => { setSelectedLoanType("overdraft"); setShowLoanModal(true); }}
-                      loanType="overdraft"
-                      allLoans={{ ...CREDIT_MOCK_DATA.loans, overdraft: [] }}
-                    />
-                  </TabsContent>
-                </Tabs>
+                  {/* Others / Overdraft */}
+                  <button
+                    onClick={() => {
+                      setSelectedLoanType("overdraft");
+                      setShowLoanModal(true);
+                    }}
+                    className="w-full bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md hover:border-primary/30 transition-all active:scale-[0.98] text-left"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-orange-500/10 flex items-center justify-center">
+                          <Briefcase className="h-5 w-5 text-orange-500" />
+                        </div>
+                        <div>
+                        <div className="text-sm font-bold text-foreground">Others</div>
+                        <div className="text-xs text-muted-foreground">
+                          {((CREDIT_MOCK_DATA.loans as any).overdraft || []).length} items
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-base font-bold text-foreground">
+                        {formatINR(((CREDIT_MOCK_DATA.loans as any).overdraft || []).reduce((sum: number, loan: any) => sum + loan.amount, 0))}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
               </div>
 
 
