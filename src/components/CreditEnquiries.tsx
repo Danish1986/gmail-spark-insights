@@ -29,26 +29,26 @@ export const CreditEnquiries = ({ last30Days, last60Days, last90Days, enquiries 
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+      <div className="flex items-center gap-2 mb-3">
         <Search className="h-5 w-5 text-primary" />
-        <h2 className="text-lg font-bold text-foreground">Credit Enquiries</h2>
+        <h2 className="text-base font-bold text-foreground">Credit Enquiries</h2>
       </div>
 
       {/* Time Period Cards */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="bg-muted/30 rounded-xl p-3 text-center">
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="bg-background rounded-xl p-3 text-center border border-border shadow-sm">
           <div className="text-xs text-muted-foreground mb-1">Last 30 Days</div>
           <div className="text-2xl font-bold text-foreground">{last30Days}</div>
-          <Badge variant="secondary" className="mt-1 text-xs">
-            Recent
-          </Badge>
+          {last30Days > 0 && (
+            <Badge variant="secondary" className="mt-1.5 text-xs">Recent</Badge>
+          )}
         </div>
-        <div className="bg-muted/30 rounded-xl p-3 text-center">
+        <div className="bg-background rounded-xl p-3 text-center border border-border shadow-sm">
           <div className="text-xs text-muted-foreground mb-1">Last 60 Days</div>
           <div className="text-2xl font-bold text-foreground">{last60Days}</div>
         </div>
-        <div className="bg-muted/30 rounded-xl p-3 text-center">
+        <div className="bg-background rounded-xl p-3 text-center border border-border shadow-sm">
           <div className="text-xs text-muted-foreground mb-1">Last 90 Days</div>
           <div className="text-2xl font-bold text-foreground">{last90Days}</div>
         </div>
@@ -56,7 +56,7 @@ export const CreditEnquiries = ({ last30Days, last60Days, last90Days, enquiries 
 
       {/* Impact Warning */}
       {last30Days > 2 && (
-        <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-4">
+        <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-2.5 mb-3">
           <div className="text-xs font-semibold text-orange-600">⚠️ High Enquiry Activity</div>
           <div className="text-xs text-muted-foreground mt-1">
             Multiple hard enquiries in a short period may negatively impact your credit score
@@ -67,7 +67,7 @@ export const CreditEnquiries = ({ last30Days, last60Days, last90Days, enquiries 
       {/* Expand Button */}
       <Button
         variant="outline"
-        className="w-full gap-2"
+        className="w-full gap-2 mb-3"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         {isExpanded ? (
@@ -85,7 +85,7 @@ export const CreditEnquiries = ({ last30Days, last60Days, last90Days, enquiries 
 
       {/* Detailed List */}
       {isExpanded && (
-        <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+        <div className="space-y-2 max-h-64 overflow-y-auto">
           {enquiries.map((enquiry, index) => (
             <div key={index} className="bg-muted/30 rounded-lg p-3 border border-border">
               <div className="flex justify-between items-start mb-2">
@@ -119,11 +119,10 @@ export const CreditEnquiries = ({ last30Days, last60Days, last90Days, enquiries 
       )}
 
       {/* Info */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mt-4">
-        <div className="text-xs font-semibold text-blue-600">ℹ️ What are enquiries?</div>
-        <div className="text-xs text-muted-foreground mt-1">
-          <strong>Hard enquiries</strong> occur when you apply for credit and can impact your score.{" "}
-          <strong>Soft enquiries</strong> are informational checks that don't affect your score.
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mt-3">
+        <div className="text-xs font-semibold text-blue-700 mb-1">ℹ️ What are enquiries?</div>
+        <div className="text-xs text-gray-600 leading-relaxed">
+          <strong>Hard enquiries</strong> impact your score. <strong>Soft enquiries</strong> don't affect it.
         </div>
       </div>
     </div>

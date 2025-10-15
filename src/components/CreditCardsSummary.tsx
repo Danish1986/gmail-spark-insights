@@ -6,6 +6,7 @@ interface Card {
   name: string;
   limit: number;
   used: number;
+  logo: string;
 }
 
 interface CreditCardsSummaryProps {
@@ -40,13 +41,13 @@ export const CreditCardsSummary = ({ cards, totalLimit, totalUsed }: CreditCards
   const utilizationPercent = (totalUsed / totalLimit) * 100;
 
   return (
-    <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+      <div className="flex items-center gap-2 mb-3">
         <CreditCard className="h-5 w-5 text-primary" />
-        <h2 className="text-lg font-bold text-foreground">Credit Cards</h2>
+        <h2 className="text-base font-bold text-foreground">Credit Cards</h2>
       </div>
 
-      <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 mb-4">
+      <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-3 mb-3">
         <div className="flex justify-between items-start mb-3">
           <div>
             <div className="text-sm text-muted-foreground">Total Cards</div>
@@ -83,31 +84,29 @@ export const CreditCardsSummary = ({ cards, totalLimit, totalUsed }: CreditCards
       </div>
 
       {/* Card-wise Breakdown */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="text-sm font-semibold text-foreground">Card-wise Breakdown</div>
         {cards.map((card, index) => {
           const cardUtilization = (card.used / card.limit) * 100;
           return (
-            <div key={index} className="bg-muted/30 rounded-lg p-3">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className="font-semibold text-foreground text-sm">{card.bank}</div>
+            <div key={index} className="bg-background rounded-xl p-3 border border-border shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center p-1.5 border border-border shrink-0">
+                  <img src={card.logo} alt={card.bank} className="w-full h-full object-contain" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-foreground text-sm">{card.bank}</div>
                   <div className="text-xs text-muted-foreground">{card.name}</div>
                 </div>
-                <div className={`text-xs font-semibold ${getUtilizationColor(cardUtilization)}`}>
+                <div className={`text-xs font-bold ${getUtilizationColor(cardUtilization)}`}>
                   {cardUtilization.toFixed(1)}%
                 </div>
               </div>
-              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
                 <span>{formatINR(card.used)}</span>
                 <span>{formatINR(card.limit)}</span>
               </div>
-              <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className={`absolute left-0 top-0 h-full ${getUtilizationBg(cardUtilization)} transition-all duration-500`}
-                  style={{ width: `${cardUtilization}%` }}
-                />
-              </div>
+              <Progress value={cardUtilization} className="h-2" />
             </div>
           );
         })}

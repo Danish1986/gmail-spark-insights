@@ -49,36 +49,36 @@ export const NewLoanOffer = ({ maxAmount, roi, eligibility }: NewLoanOfferProps)
   };
 
   return (
-    <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 rounded-2xl p-6 shadow-lg border-2 border-amber-500/20">
-      <div className="flex justify-between items-start mb-4">
+    <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 rounded-2xl p-4 shadow-lg border-2 border-amber-500/20">
+      <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-2">
-          <Gift className="h-6 w-6 text-amber-500" />
-          <h2 className="text-lg font-bold text-foreground">New Loan Offer</h2>
+          <Gift className="h-5 w-5 text-amber-500" />
+          <h2 className="text-base font-bold text-foreground">New Loan Offer</h2>
         </div>
-        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
           <Sparkles className="h-3 w-3" />
           Pre-Approved
         </div>
       </div>
 
       {/* Eligible Amount */}
-      <div className="bg-white/50 dark:bg-black/20 rounded-xl p-4 mb-4">
-        <div className="text-sm text-muted-foreground mb-1">Maximum Eligible Amount</div>
-        <div className="text-3xl font-bold text-foreground">{formatINR(maxAmount)}</div>
-        <div className="text-sm text-amber-600 font-semibold mt-1">Special ROI: {roi}% p.a.</div>
+      <div className="bg-white/50 dark:bg-black/20 rounded-xl p-3 mb-3">
+        <div className="text-xs text-muted-foreground">Maximum Eligible</div>
+        <div className="text-2xl font-bold text-foreground">{formatINR(maxAmount)}</div>
+        <div className="text-xs text-amber-600 font-semibold">ROI: {roi}% p.a.</div>
       </div>
 
       {/* EMI Calculator */}
-      <div className="bg-white/50 dark:bg-black/20 rounded-xl p-4 mb-4">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="bg-white/50 dark:bg-black/20 rounded-xl p-3 mb-3">
+        <div className="flex items-center gap-1.5 mb-2">
           <Calculator className="h-4 w-4 text-primary" />
-          <span className="text-sm font-semibold text-foreground">Calculate Your EMI</span>
+          <span className="text-xs font-semibold text-foreground">Calculate EMI</span>
         </div>
 
         {/* Loan Amount Slider */}
-        <div className="mb-4">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Loan Amount</span>
+        <div className="mb-3">
+          <div className="flex justify-between text-xs mb-1.5">
+            <span className="text-muted-foreground">Amount</span>
             <span className="font-semibold text-foreground">{formatINR(loanAmount)}</span>
           </div>
           <Slider
@@ -96,10 +96,10 @@ export const NewLoanOffer = ({ maxAmount, roi, eligibility }: NewLoanOfferProps)
         </div>
 
         {/* Tenure Selector */}
-        <div className="mb-4">
-          <div className="text-sm text-muted-foreground mb-2">Tenure</div>
+        <div className="mb-3">
+          <div className="text-xs text-muted-foreground mb-1.5">Tenure</div>
           <Select value={tenure} onValueChange={setTenure}>
-            <SelectTrigger>
+            <SelectTrigger className="h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -113,28 +113,26 @@ export const NewLoanOffer = ({ maxAmount, roi, eligibility }: NewLoanOfferProps)
         </div>
 
         {/* Calculated EMI */}
-        <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg p-3 border border-green-500/20">
-          <div className="text-xs text-muted-foreground mb-1">Monthly EMI</div>
-          <div className="text-2xl font-bold text-green-500">{formatINR(emi)}</div>
-          <div className="text-xs text-muted-foreground mt-1">
-            Total Payment: {formatINR(emi * parseInt(tenure))}
-          </div>
+        <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg p-2.5 border border-green-500/20">
+          <div className="text-xs text-muted-foreground">Monthly EMI</div>
+          <div className="text-xl font-bold text-green-600">{formatINR(emi)}</div>
+          <div className="text-xs text-muted-foreground">Total: {formatINR(emi * parseInt(tenure))}</div>
         </div>
       </div>
 
       {/* Eligibility Criteria */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
-        <div className="text-xs font-semibold text-blue-600 mb-2">✓ You're Eligible!</div>
-        <div className="space-y-1 text-xs text-muted-foreground">
-          <div>• Minimum Income: {formatINR(eligibility.minIncome)}/month</div>
-          <div>• Minimum Credit Score: {eligibility.minCreditScore}</div>
-          <div>• Employment Type: {eligibility.employmentType}</div>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-3">
+        <div className="text-xs font-semibold text-blue-700 mb-1">✓ You're Eligible!</div>
+        <div className="space-y-0.5 text-xs text-gray-600">
+          <div>• Min Income: {formatINR(eligibility.minIncome)}/mo</div>
+          <div>• Min Score: {eligibility.minCreditScore}</div>
+          <div>• Type: {eligibility.employmentType}</div>
         </div>
       </div>
 
       {/* Apply Button */}
-      <Button onClick={handleApply} className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
-        <Sparkles className="h-4 w-4" />
+      <Button onClick={handleApply} className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 py-2.5">
+        <Sparkles className="h-4 w-4 mr-1.5" />
         Apply Now at {roi}% ROI
       </Button>
     </div>

@@ -1133,10 +1133,10 @@ const CREDIT_MOCK_DATA = {
   creditCards: {
     total: 4,
     cards: [
-      { bank: "HDFC Bank", name: "Regalia", limit: 500000, used: 125000 },
-      { bank: "SBI Card", name: "SimplyCLICK", limit: 300000, used: 45000 },
-      { bank: "ICICI Bank", name: "Amazon Pay", limit: 200000, used: 80000 },
-      { bank: "Axis Bank", name: "Flipkart", limit: 150000, used: 30000 },
+      { bank: "HDFC Bank", name: "Regalia", limit: 500000, used: 125000, logo: "https://logo.clearbit.com/hdfcbank.com" },
+      { bank: "SBI Card", name: "SimplyCLICK", limit: 300000, used: 45000, logo: "https://logo.clearbit.com/sbi.co.in" },
+      { bank: "ICICI Bank", name: "Amazon Pay", limit: 200000, used: 80000, logo: "https://logo.clearbit.com/icicibank.com" },
+      { bank: "Axis Bank", name: "Flipkart", limit: 150000, used: 30000, logo: "https://logo.clearbit.com/axisbank.com" },
     ],
     totalLimit: 1150000,
     totalUsed: 280000,
@@ -2005,7 +2005,7 @@ const Index = () => {
           )}
 
           {activeTab === "credit" && (
-            <div className="p-4 space-y-6">
+            <div className="p-3 space-y-3">
               <CreditScoreGauge
                 score={creditScore}
                 status={CREDIT_MOCK_DATA.creditScore.status}
