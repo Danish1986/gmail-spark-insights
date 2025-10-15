@@ -1254,12 +1254,12 @@ const Index = () => {
                     View details →
                   </button>
                 </div>
-                <div className="bg-card rounded-2xl p-4 shadow-sm border border-border space-y-2">
-                  {MOCK_DATA.investments.categories.map((cat) => (
+                <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+                  {MOCK_DATA.investments.categories.map((cat, idx) => (
                     <button
                       key={cat.name}
                       onClick={() => setSelectedInvestmentCategory(cat)}
-                      className="w-full flex items-center justify-between py-2 hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors"
+                      className="w-full flex items-center justify-between py-2 hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors border-b border-border last:border-b-0"
                     >
                       <div className="flex items-center gap-2 flex-1">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
