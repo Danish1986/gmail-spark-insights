@@ -8,7 +8,7 @@ interface BottomTabNavProps {
 const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "optimize", label: "Optimize", icon: TrendingUp },
-  { id: "loans", label: "Loans", icon: FileText },
+  { id: "credit", label: "Credit", icon: FileText },
   { id: "goals", label: "Goals", icon: Target },
 ];
 

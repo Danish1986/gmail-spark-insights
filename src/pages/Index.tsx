@@ -16,7 +16,16 @@ import { InterestDetailModal } from "@/components/InterestDetailModal";
 import { InvestmentDetailModal } from "@/components/InvestmentDetailModal";
 import { IncomingTransactionModal } from "@/components/IncomingTransactionModal";
 import { RECOMMENDED_CARDS } from "@/data/recommendedCards";
-import { TrendingUp, Sparkles, Building2 } from "lucide-react";
+import { TrendingUp, Sparkles, Building2, User, Car, Home, Briefcase } from "lucide-react";
+import { CreditScoreGauge } from "@/components/CreditScoreGauge";
+import { CreditCardsSummary } from "@/components/CreditCardsSummary";
+import { LoanTypeCard } from "@/components/LoanTypeCard";
+import { LoanDetailModal } from "@/components/LoanDetailModal";
+import { IncomeToDebtRatio } from "@/components/IncomeToDebtRatio";
+import { CreditEnquiries } from "@/components/CreditEnquiries";
+import { NewLoanOffer } from "@/components/NewLoanOffer";
+import { FinancialHealthReport } from "@/components/FinancialHealthReport";
+import { PaymentModal } from "@/components/PaymentModal";
 
 // Mock data
 const MOCK_DATA = {
@@ -1114,6 +1123,123 @@ const MOCK_DATA = {
   ],
 };
 
+// Credit section mock data
+const CREDIT_MOCK_DATA = {
+  creditScore: {
+    score: 746,
+    status: "Good",
+    lastUpdated: "2025-10-10",
+  },
+  creditCards: {
+    total: 4,
+    cards: [
+      { bank: "HDFC Bank", name: "Regalia", limit: 500000, used: 125000 },
+      { bank: "SBI Card", name: "SimplyCLICK", limit: 300000, used: 45000 },
+      { bank: "ICICI Bank", name: "Amazon Pay", limit: 200000, used: 80000 },
+      { bank: "Axis Bank", name: "Flipkart", limit: 150000, used: 30000 },
+    ],
+    totalLimit: 1150000,
+    totalUsed: 280000,
+  },
+  loans: {
+    personal: [
+      {
+        id: "pl_001",
+        lender: "MAS Finance",
+        lenderLogo: "https://logo.clearbit.com/masfinance.com",
+        amount: 90000,
+        tenure: 12,
+        roi: 20,
+        emi: 8100,
+        paidTenure: 3,
+        startDate: "2025-07-01",
+        hasOffer: true,
+        proposedROI: 14.5,
+        proposedEMI: 7200,
+        monthlySavings: 900,
+        remainingTenure: 9,
+      },
+      {
+        id: "pl_002",
+        lender: "HDFC Bank",
+        lenderLogo: "https://logo.clearbit.com/hdfcbank.com",
+        amount: 200000,
+        tenure: 24,
+        roi: 18,
+        emi: 9667,
+        paidTenure: 6,
+        startDate: "2025-04-01",
+        hasOffer: true,
+        proposedROI: 13.5,
+        proposedEMI: 8500,
+        monthlySavings: 1167,
+        remainingTenure: 18,
+      },
+    ],
+    auto: [
+      {
+        id: "al_001",
+        lender: "Axis Finance",
+        lenderLogo: "https://logo.clearbit.com/axisbank.com",
+        amount: 500000,
+        tenure: 60,
+        roi: 9.5,
+        emi: 10500,
+        paidTenure: 12,
+        startDate: "2024-10-01",
+        hasOffer: false,
+      },
+    ],
+    home: [
+      {
+        id: "hl_001",
+        lender: "SBI Home Loans",
+        lenderLogo: "https://logo.clearbit.com/sbi.co.in",
+        amount: 3000000,
+        tenure: 240,
+        roi: 8.5,
+        emi: 27000,
+        paidTenure: 24,
+        startDate: "2023-10-01",
+        hasOffer: false,
+      },
+    ],
+    business: [],
+  },
+  incomeToDebt: {
+    monthlyIncome: 22000,
+    totalEMI: 24767,
+    creditCardPayment: 5000,
+  },
+  enquiries: {
+    last30Days: 2,
+    last60Days: 4,
+    last90Days: 7,
+    details: [
+      { date: "2025-10-05", lender: "HDFC Bank", type: "Hard" as const, amount: 50000 },
+      { date: "2025-09-28", lender: "Bajaj Finserv", type: "Hard" as const, amount: 80000 },
+      { date: "2025-09-15", lender: "ICICI Bank", type: "Soft" as const, amount: 0 },
+      { date: "2025-09-10", lender: "Axis Bank", type: "Hard" as const, amount: 100000 },
+      { date: "2025-08-25", lender: "Kotak Mahindra", type: "Soft" as const, amount: 0 },
+      { date: "2025-08-18", lender: "SBI Card", type: "Hard" as const, amount: 30000 },
+      { date: "2025-08-05", lender: "Tata Capital", type: "Soft" as const, amount: 0 },
+    ],
+  },
+  loanOffer: {
+    maxAmount: 200000,
+    roi: 9.99,
+    eligibility: {
+      minIncome: 20000,
+      minCreditScore: 700,
+      employmentType: "Salaried",
+    },
+  },
+  healthReport: {
+    purchased: false,
+    price: 99,
+  },
+};
+
 const formatINR = (amount: number) => `₹${Math.round(amount).toLocaleString("en-IN")}`;
 
 const Index = () => {
@@ -1149,6 +1275,11 @@ const Index = () => {
     color: string;
   }>({ isOpen: false, category: "", color: "" });
   const [transactions, setTransactions] = useState(MOCK_DATA.incomingTransactions);
+  const [selectedLoanType, setSelectedLoanType] = useState<string | null>(null);
+  const [showLoanModal, setShowLoanModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [reportPurchased, setReportPurchased] = useState(CREDIT_MOCK_DATA.healthReport.purchased);
+  const [creditScore, setCreditScore] = useState(CREDIT_MOCK_DATA.creditScore.score);
 
   const handleMonthNavigate = (direction: "prev" | "next") => {
     if (direction === "prev") {
@@ -1873,12 +2004,79 @@ const Index = () => {
             </div>
           )}
 
-          {activeTab === "loans" && (
-            <div className="p-4">
-              <div className="text-lg font-bold mb-3 text-foreground">Loans</div>
-              <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-                <p className="text-muted-foreground">No active loans</p>
+          {activeTab === "credit" && (
+            <div className="p-4 space-y-6">
+              <CreditScoreGauge
+                score={creditScore}
+                status={CREDIT_MOCK_DATA.creditScore.status}
+                lastUpdated={CREDIT_MOCK_DATA.creditScore.lastUpdated}
+                onRefresh={() => setCreditScore(prev => prev + Math.floor(Math.random() * 10 - 5))}
+              />
+              
+              <CreditCardsSummary
+                cards={CREDIT_MOCK_DATA.creditCards.cards}
+                totalLimit={CREDIT_MOCK_DATA.creditCards.totalLimit}
+                totalUsed={CREDIT_MOCK_DATA.creditCards.totalUsed}
+              />
+
+              <div>
+                <div className="text-lg font-bold mb-3 text-foreground">Loans Overview</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <LoanTypeCard
+                    type="personal"
+                    count={CREDIT_MOCK_DATA.loans.personal.length}
+                    totalAmount={CREDIT_MOCK_DATA.loans.personal.reduce((s, l) => s + l.amount, 0)}
+                    icon={User}
+                    onClick={() => { setSelectedLoanType("personal"); setShowLoanModal(true); }}
+                  />
+                  <LoanTypeCard
+                    type="auto"
+                    count={CREDIT_MOCK_DATA.loans.auto.length}
+                    totalAmount={CREDIT_MOCK_DATA.loans.auto.reduce((s, l) => s + l.amount, 0)}
+                    icon={Car}
+                    onClick={() => { setSelectedLoanType("auto"); setShowLoanModal(true); }}
+                  />
+                  <LoanTypeCard
+                    type="home"
+                    count={CREDIT_MOCK_DATA.loans.home.length}
+                    totalAmount={CREDIT_MOCK_DATA.loans.home.reduce((s, l) => s + l.amount, 0)}
+                    icon={Home}
+                    onClick={() => { setSelectedLoanType("home"); setShowLoanModal(true); }}
+                  />
+                  <LoanTypeCard
+                    type="business"
+                    count={CREDIT_MOCK_DATA.loans.business.length}
+                    totalAmount={0}
+                    icon={Briefcase}
+                    onClick={() => { setSelectedLoanType("business"); setShowLoanModal(true); }}
+                  />
+                </div>
               </div>
+
+              <IncomeToDebtRatio
+                monthlyIncome={CREDIT_MOCK_DATA.incomeToDebt.monthlyIncome}
+                totalEMI={CREDIT_MOCK_DATA.incomeToDebt.totalEMI}
+                ccPayment={CREDIT_MOCK_DATA.incomeToDebt.creditCardPayment}
+              />
+
+              <CreditEnquiries
+                last30Days={CREDIT_MOCK_DATA.enquiries.last30Days}
+                last60Days={CREDIT_MOCK_DATA.enquiries.last60Days}
+                last90Days={CREDIT_MOCK_DATA.enquiries.last90Days}
+                enquiries={CREDIT_MOCK_DATA.enquiries.details}
+              />
+
+              <NewLoanOffer
+                maxAmount={CREDIT_MOCK_DATA.loanOffer.maxAmount}
+                roi={CREDIT_MOCK_DATA.loanOffer.roi}
+                eligibility={CREDIT_MOCK_DATA.loanOffer.eligibility}
+              />
+
+              <FinancialHealthReport
+                purchased={reportPurchased}
+                onPurchase={() => setShowPaymentModal(true)}
+                onDownload={() => window.open("#", "_blank")}
+              />
             </div>
           )}
 
@@ -1969,6 +2167,23 @@ const Index = () => {
               return updated;
             });
           }}
+        />
+
+        {/* Credit Modals */}
+        {selectedLoanType && (
+          <LoanDetailModal
+            isOpen={showLoanModal}
+            onClose={() => { setShowLoanModal(false); setSelectedLoanType(null); }}
+            loanType={selectedLoanType}
+            loans={CREDIT_MOCK_DATA.loans[selectedLoanType as keyof typeof CREDIT_MOCK_DATA.loans] || []}
+          />
+        )}
+        
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          amount={99}
+          onSuccess={() => setReportPurchased(true)}
         />
       </div>
     </div>
