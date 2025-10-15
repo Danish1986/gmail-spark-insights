@@ -70,68 +70,78 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
               No active {loanType} loans
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
             {loans.map((loan) => {
               const paymentProgress = (loan.paidTenure / loan.tenure) * 100;
               const isExpanded = expandedLoan === loan.id;
 
               return (
-                <div key={loan.id} className="bg-muted/20 rounded-lg p-3 border border-border/50">
+                <div key={loan.id} className="bg-background rounded-xl p-5 border border-border shadow-sm">
                   {/* Loan Header */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2.5">
-                      <img
-                        src={loan.lenderLogo}
-                        alt={loan.lender}
-                        className="h-10 w-10 rounded-lg object-contain bg-white p-1"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${loan.lender}&background=random`;
-                        }}
-                      />
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center p-2">
+                        <img
+                          src={loan.lenderLogo}
+                          alt={loan.lender}
+                          className="h-full w-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${loan.lender}&background=random`;
+                          }}
+                        />
+                      </div>
                       <div>
-                        <div className="font-bold text-base">{loan.lender}</div>
+                        <div className="font-bold text-lg text-foreground">{loan.lender}</div>
                         <div className="text-xs text-muted-foreground">
-                          Started {new Date(loan.startDate).toLocaleDateString()}
+                          Started {new Date(loan.startDate).toLocaleDateString('en-IN', { 
+                            day: 'numeric', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })}
                         </div>
                       </div>
                     </div>
                     {loan.hasOffer && (
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white gap-1">
-                        <Sparkles className="h-3 w-3" />
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white gap-1 px-3 py-1">
+                        <Sparkles className="h-3.5 w-3.5" />
                         Better Offer
                       </Badge>
                     )}
                   </div>
 
                   {/* Loan Details Grid */}
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-3">
-                    <div>
-                      <div className="text-xs text-muted-foreground mb-1">Loan Amount</div>
-                      <div className="text-base font-semibold">{formatINR(loan.amount)}</div>
+                  <div className="space-y-4 mb-4">
+                    <div className="grid grid-cols-2 gap-8">
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-1.5">Loan Amount</div>
+                        <div className="text-xl font-bold text-foreground">{formatINR(loan.amount)}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-1.5">ROI</div>
+                        <div className="text-xl font-bold text-foreground">{loan.roi}% p.a.</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground mb-1">ROI</div>
-                      <div className="text-base font-semibold">{loan.roi}% p.a.</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground mb-1">EMI Amount</div>
-                      <div className="text-base font-semibold">{formatINR(loan.emi)}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground mb-1">Tenure</div>
-                      <div className="text-base font-semibold">{loan.tenure} months</div>
+                    <div className="grid grid-cols-2 gap-8">
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-1.5">EMI Amount</div>
+                        <div className="text-xl font-bold text-foreground">{formatINR(loan.emi)}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-1.5">Tenure</div>
+                        <div className="text-xl font-bold text-foreground">{loan.tenure} months</div>
+                      </div>
                     </div>
                   </div>
 
                   {/* Payment Progress */}
-                  <div className="mb-3">
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="text-muted-foreground">Repayment Progress</span>
-                      <span className="font-semibold text-foreground">
+                  <div className="mb-4">
+                    <div className="flex justify-between items-baseline mb-2">
+                      <span className="text-sm text-muted-foreground">Repayment Progress</span>
+                      <span className="text-sm font-bold text-foreground">
                         {loan.paidTenure}/{loan.tenure} months ({paymentProgress.toFixed(0)}%)
                       </span>
                     </div>
-                    <Progress value={paymentProgress} className="h-2" />
+                    <Progress value={paymentProgress} className="h-2.5" />
                   </div>
 
                   {/* Balance Transfer Offer */}
@@ -139,11 +149,11 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                     <div className="mt-3">
                       <Button
                         variant="outline"
-                        className="w-full gap-2"
+                        className="w-full gap-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-medium py-6 rounded-xl"
                         onClick={() => setExpandedLoan(isExpanded ? null : loan.id)}
                       >
-                        <TrendingDown className="h-4 w-4" />
-                        {isExpanded ? "Hide" : "View"} Balance Transfer Offer
+                        <TrendingDown className="h-5 w-5" />
+                        View Balance Transfer Offer
                       </Button>
 
                       {isExpanded && (
