@@ -1207,8 +1207,8 @@ const CREDIT_MOCK_DATA = {
     business: [],
   },
   incomeToDebt: {
-    monthlyIncome: 22000,
-    totalEMI: 24767,
+    monthlyIncome: 80000,
+    totalEMI: 18167,
     creditCardPayment: 5000,
   },
   enquiries: {
@@ -2005,7 +2005,7 @@ const Index = () => {
           )}
 
           {activeTab === "credit" && (
-            <div className="p-3 space-y-3">
+            <div className="p-3 space-y-2.5">
               <CreditScoreGauge
                 score={creditScore}
                 status={CREDIT_MOCK_DATA.creditScore.status}

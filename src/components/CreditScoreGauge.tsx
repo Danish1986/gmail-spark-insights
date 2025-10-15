@@ -52,94 +52,102 @@ export const CreditScoreGauge = ({ score, status, lastUpdated, onRefresh }: Cred
   const rotation = (percentage / 100) * 180 - 90;
 
   return (
-    <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-            <Award className="h-5 w-5 text-primary" />
-            Credit Score
-          </h2>
-          <p className="text-xs text-muted-foreground mt-1">Last updated: {lastUpdated}</p>
+    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center gap-2">
+          <Award className="h-5 w-5 text-blue-500" />
+          <h2 className="text-base font-bold text-foreground">Credit Score</h2>
         </div>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="gap-2"
         >
           <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
         </Button>
       </div>
+      
+      <p className="text-xs text-muted-foreground mb-3">Last updated: {lastUpdated}</p>
 
-      <div className="flex flex-col items-center py-6">
-        {/* Speedometer Gauge */}
-        <div className="relative w-64 h-32">
-          <svg viewBox="0 0 200 100" className="w-full h-full">
-            {/* Background arc */}
-            <path
-              d="M 20 90 A 80 80 0 0 1 180 90"
-              fill="none"
-              stroke="hsl(var(--muted))"
-              strokeWidth="12"
-              strokeLinecap="round"
-            />
-            {/* Colored segments */}
-            <path d="M 20 90 A 80 80 0 0 1 52 35" fill="none" stroke="#ef4444" strokeWidth="12" strokeLinecap="round" />
-            <path d="M 52 35 A 80 80 0 0 1 84 15" fill="none" stroke="#f97316" strokeWidth="12" strokeLinecap="round" />
-            <path d="M 84 15 A 80 80 0 0 1 116 15" fill="none" stroke="#eab308" strokeWidth="12" strokeLinecap="round" />
-            <path d="M 116 15 A 80 80 0 0 1 148 35" fill="none" stroke="#84cc16" strokeWidth="12" strokeLinecap="round" />
-            <path d="M 148 35 A 80 80 0 0 1 180 90" fill="none" stroke="#22c55e" strokeWidth="12" strokeLinecap="round" />
-            
-            {/* Needle */}
-            <line
-              x1="100"
-              y1="90"
-              x2="100"
-              y2="30"
-              stroke={getScoreStroke(score)}
-              strokeWidth="3"
-              strokeLinecap="round"
-              transform={`rotate(${rotation} 100 90)`}
-              className="transition-transform duration-1000 ease-out"
-            />
-            <circle cx="100" cy="90" r="6" fill={getScoreStroke(score)} />
-          </svg>
-        </div>
+      <div className="flex flex-col items-center py-4">
+        {/* Clean Semicircular Gauge */}
+        <svg viewBox="0 0 200 120" className="w-56 h-28">
+          <defs>
+            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#EF4444" />
+              <stop offset="25%" stopColor="#F97316" />
+              <stop offset="50%" stopColor="#EAB308" />
+              <stop offset="75%" stopColor="#84CC16" />
+              <stop offset="100%" stopColor="#22C55E" />
+            </linearGradient>
+          </defs>
+          
+          {/* Background arc */}
+          <path
+            d="M 30 100 A 70 70 0 0 1 170 100"
+            fill="none"
+            stroke="#E5E7EB"
+            strokeWidth="16"
+            strokeLinecap="round"
+          />
+          
+          {/* Progress arc with gradient */}
+          <path
+            d="M 30 100 A 70 70 0 0 1 170 100"
+            fill="none"
+            stroke="url(#scoreGradient)"
+            strokeWidth="16"
+            strokeLinecap="round"
+            strokeDasharray={`${(percentage / 100) * 220} ${220 - (percentage / 100) * 220}`}
+            className="transition-all duration-1000"
+          />
+          
+          {/* Needle */}
+          <line
+            x1="100" y1="100"
+            x2="100" y2="45"
+            stroke="#1F2937"
+            strokeWidth="3"
+            strokeLinecap="round"
+            transform={`rotate(${rotation} 100 100)`}
+            className="transition-transform duration-1000"
+          />
+          <circle cx="100" cy="100" r="8" fill="#1F2937" />
+        </svg>
 
-        {/* Score Display */}
-        <div className={`mt-4 text-center ${getScoreBgColor(score)} rounded-2xl px-8 py-4`}>
-          <div className={`text-5xl font-bold ${getScoreColor(score)} flex items-center justify-center gap-2`}>
+        {/* Score display - cleaner */}
+        <div className="mt-3 text-center bg-green-50 rounded-xl px-6 py-3">
+          <div className={`text-4xl font-bold ${getScoreColor(score)} flex items-center gap-2`}>
             {score}
-            <TrendingUp className="h-8 w-8" />
+            <TrendingUp className="h-6 w-6" />
           </div>
-          <div className="text-sm font-semibold text-foreground mt-2">{status}</div>
+          <div className="text-sm font-semibold text-foreground mt-1">{status}</div>
         </div>
 
-        {/* Score Range Labels */}
-        <div className="flex justify-between w-64 mt-4 text-xs text-muted-foreground">
+        {/* Range labels */}
+        <div className="flex justify-between w-56 mt-3 text-xs text-muted-foreground">
           <span>300</span>
-          <span className="text-foreground font-semibold">Credit Score Range</span>
+          <span className="text-foreground font-medium text-xs">Credit Score Range</span>
           <span>900</span>
         </div>
       </div>
 
-      {/* Score Breakdown */}
-      <div className="grid grid-cols-2 gap-3 mt-4">
-        <div className="bg-muted/30 rounded-xl p-3">
+      {/* Score breakdown - compact */}
+      <div className="grid grid-cols-2 gap-2 mt-3">
+        <div className="bg-gray-100 rounded-xl p-2.5">
           <div className="text-xs text-muted-foreground">Payment History</div>
           <div className="text-lg font-bold text-foreground">85%</div>
         </div>
-        <div className="bg-muted/30 rounded-xl p-3">
+        <div className="bg-gray-100 rounded-xl p-2.5">
           <div className="text-xs text-muted-foreground">Credit Utilization</div>
           <div className="text-lg font-bold text-foreground">65%</div>
         </div>
-        <div className="bg-muted/30 rounded-xl p-3">
+        <div className="bg-gray-100 rounded-xl p-2.5">
           <div className="text-xs text-muted-foreground">Credit Length</div>
           <div className="text-lg font-bold text-foreground">90%</div>
         </div>
-        <div className="bg-muted/30 rounded-xl p-3">
+        <div className="bg-gray-100 rounded-xl p-2.5">
           <div className="text-xs text-muted-foreground">Credit Mix</div>
           <div className="text-lg font-bold text-foreground">70%</div>
         </div>

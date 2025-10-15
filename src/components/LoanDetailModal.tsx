@@ -4,7 +4,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Building2, TrendingDown, Sparkles } from "lucide-react";
+import { Building2, TrendingDown, Sparkles, User, Car, Home, Briefcase, LucideIcon } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,8 +43,19 @@ const formatINR = (amount: number) => {
   }).format(amount);
 };
 
+const getLoanIcon = (loanType: string): { Icon: LucideIcon; color: string; bgColor: string } => {
+  switch(loanType.toLowerCase()) {
+    case 'personal': return { Icon: User, color: 'text-blue-500', bgColor: 'bg-blue-500' };
+    case 'auto': return { Icon: Car, color: 'text-purple-500', bgColor: 'bg-purple-500' };
+    case 'home': return { Icon: Home, color: 'text-green-500', bgColor: 'bg-green-500' };
+    case 'business': return { Icon: Briefcase, color: 'text-orange-500', bgColor: 'bg-orange-500' };
+    default: return { Icon: Building2, color: 'text-gray-500', bgColor: 'bg-gray-500' };
+  }
+};
+
 export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetailModalProps) => {
   const [expandedLoan, setExpandedLoan] = useState<string | null>(null);
+  const iconInfo = getLoanIcon(loanType);
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -80,15 +91,8 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                   {/* Loan Header */}
                   <div className="flex items-start justify-between mb-5">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center p-2">
-                        <img
-                          src={loan.lenderLogo}
-                          alt={loan.lender}
-                          className="h-full w-full object-contain"
-                          onError={(e) => {
-                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${loan.lender}&background=random`;
-                          }}
-                        />
+                      <div className={`h-12 w-12 rounded-xl ${iconInfo.bgColor} flex items-center justify-center`}>
+                        <iconInfo.Icon className="h-6 w-6 text-white" />
                       </div>
                       <div>
                         <div className="font-bold text-lg text-foreground">{loan.lender}</div>
