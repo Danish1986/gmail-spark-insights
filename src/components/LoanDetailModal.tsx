@@ -2,6 +2,7 @@ import { Building2, Lightbulb, ArrowRight, User, Car, Home, Briefcase, LucideIco
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -179,39 +180,45 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
 
                       {/* 5. Impact Over Time Section */}
                       <div className="bg-muted/50 rounded-lg p-2.5">
-                        <div className="text-xs font-semibold mb-2">Impact Over Time</div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-xs font-semibold">Impact Over Time</div>
+                          <div className="text-xs font-bold text-primary">{period}M</div>
+                        </div>
                         
-                        {/* Period Selector */}
-                        <div className="flex gap-1.5 mb-2">
-                          {[3, 6, 12].map((months) => (
-                            <button
-                              key={months}
-                              onClick={() => setSelectedPeriod({ ...selectedPeriod, [loan.id]: months })}
-                              className={`flex-1 px-2 py-1 rounded text-[10px] font-medium transition-colors ${
-                                period === months
-                                  ? 'bg-primary text-primary-foreground'
-                                  : 'bg-background text-muted-foreground hover:bg-muted'
-                              }`}
-                            >
-                              {months}M
-                            </button>
-                          ))}
+                        {/* Tenure Slider */}
+                        <div className="mb-3 px-1">
+                          <Slider
+                            value={[period]}
+                            onValueChange={(value) => setSelectedPeriod({ ...selectedPeriod, [loan.id]: value[0] })}
+                            min={1}
+                            max={loan.remainingTenure || 12}
+                            step={1}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between mt-1">
+                            <span className="text-[9px] text-muted-foreground">1M</span>
+                            <span className="text-[9px] text-muted-foreground">{loan.remainingTenure || 12}M</span>
+                          </div>
                         </div>
 
                         {/* Savings Projection */}
                         <div className="space-y-1.5 text-[11px]">
                           <div className="flex items-center justify-between py-1 border-b border-border">
                             <div className="text-muted-foreground">Current EMI total:</div>
-                            <div className="font-semibold">{formatINR(loan.emi * period)}</div>
+                            <div className="font-semibold transition-all duration-300">{formatINR(loan.emi * period)}</div>
                           </div>
                           <div className="flex items-center justify-between py-1 border-b border-border">
                             <div className="text-muted-foreground">With balance transfer:</div>
-                            <div className="font-semibold text-green-600">{formatINR(loan.proposedEMI! * period)}</div>
+                            <div className="font-semibold text-green-600 transition-all duration-300">{formatINR(loan.proposedEMI! * period)}</div>
                           </div>
                           <div className="flex items-center justify-between py-1.5 bg-green-500/10 rounded px-2 -mx-2">
                             <div className="font-semibold">Extra you'll save:</div>
-                            <div className="font-bold text-green-600">+{formatINR(loan.monthlySavings! * period)}</div>
+                            <div className="font-bold text-green-600 transition-all duration-300">+{formatINR(loan.monthlySavings! * period)}</div>
                           </div>
+                        </div>
+                        
+                        <div className="mt-2 text-[9px] text-muted-foreground text-center">
+                          Savings shown are based on the selected remaining tenure
                         </div>
                       </div>
 
