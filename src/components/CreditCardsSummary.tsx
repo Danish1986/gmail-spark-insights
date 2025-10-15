@@ -85,28 +85,28 @@ export const CreditCardsSummary = ({ cards, totalLimit, totalUsed }: CreditCards
 
       {/* Card-wise Breakdown */}
       <div className="space-y-2">
-        <div className="text-sm font-semibold text-foreground">Card-wise Breakdown</div>
+        <div className="text-xs font-semibold text-foreground">Card-wise Breakdown</div>
         {cards.map((card, index) => {
           const cardUtilization = (card.used / card.limit) * 100;
           return (
-            <div key={index} className="bg-background rounded-xl p-3 border border-border shadow-sm">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center p-1.5 border border-border shrink-0">
+            <div key={index} className="bg-background rounded-2xl px-3 py-2 border border-border shadow-sm hover:scale-[1.02] hover:shadow transition-all duration-200">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center p-1 border border-border shrink-0">
                   <img src={card.logo} alt={card.bank} className="w-full h-full object-contain" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-foreground text-sm">{card.bank}</div>
-                  <div className="text-xs text-muted-foreground">{card.name}</div>
+                  <div className="font-semibold text-foreground text-sm leading-tight">{card.bank}</div>
+                  <div className="text-xs text-muted-foreground leading-tight">{card.name}</div>
                 </div>
-                <div className={`text-xs font-bold ${getUtilizationColor(cardUtilization)}`}>
+                <div className={`text-sm font-semibold ${getUtilizationColor(cardUtilization)}`}>
                   {cardUtilization.toFixed(1)}%
                 </div>
               </div>
-              <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-                <span>{formatINR(card.used)}</span>
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span className="font-medium">{formatINR(card.used)}</span>
                 <span>{formatINR(card.limit)}</span>
               </div>
-              <Progress value={cardUtilization} className="h-2" />
+              <Progress value={cardUtilization} className="h-[3px]" />
             </div>
           );
         })}
