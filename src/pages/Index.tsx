@@ -28,6 +28,8 @@ import { FinancialHealthReport } from "@/components/FinancialHealthReport";
 import { PaymentModal } from "@/components/PaymentModal";
 import { OfferBanner } from "@/components/OfferBanner";
 import { BalanceTransferToggles } from "@/components/BalanceTransferToggles";
+import { LoansOverview } from "@/components/LoansOverview";
+import { LoanEligibilityCalculator } from "@/components/LoanEligibilityCalculator";
 
 // Mock data
 const MOCK_DATA = {
@@ -2032,39 +2034,16 @@ const Index = () => {
                 totalUsed={CREDIT_MOCK_DATA.creditCards.totalUsed}
               />
 
-              <div>
-                <div className="text-lg font-bold mb-3 text-foreground">Loans Overview</div>
-                <div className="grid grid-cols-2 gap-3">
-                  <LoanTypeCard
-                    type="personal"
-                    count={CREDIT_MOCK_DATA.loans.personal.length}
-                    totalAmount={CREDIT_MOCK_DATA.loans.personal.reduce((s, l) => s + l.amount, 0)}
-                    icon={User}
-                    onClick={() => { setSelectedLoanType("personal"); setShowLoanModal(true); }}
-                  />
-                  <LoanTypeCard
-                    type="auto"
-                    count={CREDIT_MOCK_DATA.loans.auto.length}
-                    totalAmount={CREDIT_MOCK_DATA.loans.auto.reduce((s, l) => s + l.amount, 0)}
-                    icon={Car}
-                    onClick={() => { setSelectedLoanType("auto"); setShowLoanModal(true); }}
-                  />
-                  <LoanTypeCard
-                    type="home"
-                    count={CREDIT_MOCK_DATA.loans.home.length}
-                    totalAmount={CREDIT_MOCK_DATA.loans.home.reduce((s, l) => s + l.amount, 0)}
-                    icon={Home}
-                    onClick={() => { setSelectedLoanType("home"); setShowLoanModal(true); }}
-                  />
-                  <LoanTypeCard
-                    type="business"
-                    count={CREDIT_MOCK_DATA.loans.business.length}
-                    totalAmount={0}
-                    icon={Briefcase}
-                    onClick={() => { setSelectedLoanType("business"); setShowLoanModal(true); }}
-                  />
-                </div>
-              </div>
+              <LoansOverview
+                loans={CREDIT_MOCK_DATA.loans.personal}
+                onClick={() => { setSelectedLoanType("personal"); setShowLoanModal(true); }}
+              />
+
+              <LoanEligibilityCalculator
+                existingEMI={CREDIT_MOCK_DATA.incomeToDebt.totalEMI}
+                balanceTransferEnabled={personalLoanEnabled}
+                transferredEMI={personalLoanEnabled ? CREDIT_MOCK_DATA.loans.personal.reduce((sum, loan) => sum + loan.emi, 0) : 0}
+              />
 
               <IncomeToDebtRatio
                 monthlyIncome={CREDIT_MOCK_DATA.incomeToDebt.monthlyIncome}

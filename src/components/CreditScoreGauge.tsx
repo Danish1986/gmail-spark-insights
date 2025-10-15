@@ -136,20 +136,28 @@ export const CreditScoreGauge = ({ score, status, lastUpdated, onRefresh }: Cred
 
       {/* Score breakdown - 2x2 grid */}
       <div className="grid grid-cols-2 gap-2 mt-2">
-        <div className="bg-muted/50 rounded-lg p-2">
-          <div className="text-[10px] text-muted-foreground">Payment History</div>
+        <div className="bg-white dark:bg-white/5 border border-border rounded-lg p-2">
+          <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+            <span>🕒</span> Payment History
+          </div>
           <div className="text-base font-bold text-foreground">85%</div>
         </div>
-        <div className="bg-muted/50 rounded-lg p-2">
-          <div className="text-[10px] text-muted-foreground">Utilization</div>
+        <div className="bg-white dark:bg-white/5 border border-border rounded-lg p-2">
+          <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+            <span>💳</span> Utilization
+          </div>
           <div className="text-base font-bold text-foreground">65%</div>
         </div>
-        <div className="bg-muted/50 rounded-lg p-2">
-          <div className="text-[10px] text-muted-foreground">Credit Length</div>
+        <div className="bg-white dark:bg-white/5 border border-border rounded-lg p-2">
+          <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+            <span>📅</span> Credit Length
+          </div>
           <div className="text-base font-bold text-foreground">90%</div>
         </div>
-        <div className="bg-muted/50 rounded-lg p-2">
-          <div className="text-[10px] text-muted-foreground">Credit Mix</div>
+        <div className="bg-white dark:bg-white/5 border border-border rounded-lg p-2">
+          <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+            <span>⚙️</span> Credit Mix
+          </div>
           <div className="text-base font-bold text-foreground">70%</div>
         </div>
       </div>
