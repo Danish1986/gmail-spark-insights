@@ -20,7 +20,7 @@ const formatINR = (amount: number) => {
 const KPICard = ({ title, value, delta }: { title: string; value: string; delta?: number }) => (
   <div className="bg-white rounded-2xl p-3 shadow-sm border border-gray-100">
     <div className="text-xs text-gray-500 mb-1">{title}</div>
-    <div className="text-lg font-extrabold text-gray-900 truncate">{value}</div>
+    <div className="text-lg font-extrabold text-gray-900 whitespace-nowrap overflow-visible" style={{ fontSize: 'clamp(16px, 2vw, 20px)' }}>{value}</div>
     {delta != null && (
       <div className={`mt-1 text-xs font-semibold ${delta >= 0 ? "text-success" : "text-destructive"}`}>
         {delta >= 0 ? "▲" : "▼"} {Math.abs(delta).toFixed(1)}%
