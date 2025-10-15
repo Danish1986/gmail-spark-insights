@@ -1,9 +1,9 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Building2, TrendingDown, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -47,21 +47,30 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
   const [expandedLoan, setExpandedLoan] = useState<string | null>(null);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl capitalize">
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent 
+        side="right" 
+        className="w-full h-full sm:w-3/4 sm:max-w-3xl p-0 flex flex-col"
+      >
+        <SheetHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b px-6 py-4">
+          <SheetTitle className="flex items-center gap-3 text-xl font-bold">
             <Building2 className="h-6 w-6 text-primary" />
-            {loanType} Loans
-          </DialogTitle>
-        </DialogHeader>
+            <span className="capitalize">{loanType} Loans</span>
+            {loans.length > 0 && (
+              <Badge variant="secondary" className="ml-auto">
+                {loans.length}
+              </Badge>
+            )}
+          </SheetTitle>
+        </SheetHeader>
 
-        {loans.length === 0 ? (
-          <div className="py-8 text-center text-muted-foreground">
-            No active {loanType} loans
-          </div>
-        ) : (
-          <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          {loans.length === 0 ? (
+            <div className="py-8 text-center text-muted-foreground">
+              No active {loanType} loans
+            </div>
+          ) : (
+            <div className="space-y-4">
             {loans.map((loan) => {
               const paymentProgress = (loan.paidTenure / loan.tenure) * 100;
               const isExpanded = expandedLoan === loan.id;
@@ -154,9 +163,10 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                 </div>
               );
             })}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+            </div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
