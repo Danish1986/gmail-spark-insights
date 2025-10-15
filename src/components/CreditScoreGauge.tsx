@@ -52,27 +52,28 @@ export const CreditScoreGauge = ({ score, status, lastUpdated, onRefresh }: Cred
   const rotation = (percentage / 100) * 180 - 90;
 
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-      <div className="flex justify-between items-center mb-3">
+    <div className="bg-card rounded-2xl p-3 shadow-sm border border-border">
+      <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-2">
-          <Award className="h-5 w-5 text-blue-500" />
-          <h2 className="text-base font-bold text-foreground">Credit Score</h2>
+          <Award className="h-4 w-4 text-blue-500" />
+          <h2 className="text-sm font-bold text-foreground">Credit Score</h2>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={handleRefresh}
           disabled={isRefreshing}
+          className="h-7 w-7 p-0"
         >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
         </Button>
       </div>
       
-      <p className="text-xs text-muted-foreground mb-3">Last updated: {lastUpdated}</p>
+      <p className="text-[10px] text-muted-foreground mb-2">Last updated: {lastUpdated}</p>
 
-      <div className="flex flex-col items-center py-4">
-        {/* Clean Semicircular Gauge */}
-        <svg viewBox="0 0 200 120" className="w-56 h-28">
+      <div className="flex flex-col items-center py-2">
+        {/* Compact Semicircular Gauge */}
+        <svg viewBox="0 0 200 120" className="w-44 h-22">
           <defs>
             <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#EF4444" />
@@ -88,7 +89,7 @@ export const CreditScoreGauge = ({ score, status, lastUpdated, onRefresh }: Cred
             d="M 30 100 A 70 70 0 0 1 170 100"
             fill="none"
             stroke="#E5E7EB"
-            strokeWidth="16"
+            strokeWidth="12"
             strokeLinecap="round"
           />
           
@@ -97,7 +98,7 @@ export const CreditScoreGauge = ({ score, status, lastUpdated, onRefresh }: Cred
             d="M 30 100 A 70 70 0 0 1 170 100"
             fill="none"
             stroke="url(#scoreGradient)"
-            strokeWidth="16"
+            strokeWidth="12"
             strokeLinecap="round"
             strokeDasharray={`${(percentage / 100) * 220} ${220 - (percentage / 100) * 220}`}
             className="transition-all duration-1000"
@@ -106,50 +107,50 @@ export const CreditScoreGauge = ({ score, status, lastUpdated, onRefresh }: Cred
           {/* Needle */}
           <line
             x1="100" y1="100"
-            x2="100" y2="45"
+            x2="100" y2="50"
             stroke="#1F2937"
-            strokeWidth="3"
+            strokeWidth="2.5"
             strokeLinecap="round"
             transform={`rotate(${rotation} 100 100)`}
             className="transition-transform duration-1000"
           />
-          <circle cx="100" cy="100" r="8" fill="#1F2937" />
+          <circle cx="100" cy="100" r="6" fill="#1F2937" />
         </svg>
 
-        {/* Score display - cleaner */}
-        <div className="mt-3 text-center bg-green-50 rounded-xl px-6 py-3">
-          <div className={`text-4xl font-bold ${getScoreColor(score)} flex items-center gap-2`}>
+        {/* Score display - compact */}
+        <div className="mt-2 text-center bg-green-50 rounded-xl px-4 py-2">
+          <div className={`text-3xl font-bold ${getScoreColor(score)} flex items-center gap-1.5`}>
             {score}
-            <TrendingUp className="h-6 w-6" />
+            <TrendingUp className="h-5 w-5" />
           </div>
-          <div className="text-sm font-semibold text-foreground mt-1">{status}</div>
+          <div className="text-xs font-semibold text-foreground mt-0.5">{status}</div>
         </div>
 
         {/* Range labels */}
-        <div className="flex justify-between w-56 mt-3 text-xs text-muted-foreground">
+        <div className="flex justify-between w-44 mt-2 text-[10px] text-muted-foreground">
           <span>300</span>
-          <span className="text-foreground font-medium text-xs">Credit Score Range</span>
+          <span className="text-foreground font-medium">Score Range</span>
           <span>900</span>
         </div>
       </div>
 
-      {/* Score breakdown - compact */}
-      <div className="grid grid-cols-2 gap-2 mt-3">
-        <div className="bg-gray-100 rounded-xl p-2.5">
-          <div className="text-xs text-muted-foreground">Payment History</div>
-          <div className="text-lg font-bold text-foreground">85%</div>
+      {/* Score breakdown - 2x2 grid */}
+      <div className="grid grid-cols-2 gap-2 mt-2">
+        <div className="bg-muted/50 rounded-lg p-2">
+          <div className="text-[10px] text-muted-foreground">Payment History</div>
+          <div className="text-base font-bold text-foreground">85%</div>
         </div>
-        <div className="bg-gray-100 rounded-xl p-2.5">
-          <div className="text-xs text-muted-foreground">Credit Utilization</div>
-          <div className="text-lg font-bold text-foreground">65%</div>
+        <div className="bg-muted/50 rounded-lg p-2">
+          <div className="text-[10px] text-muted-foreground">Utilization</div>
+          <div className="text-base font-bold text-foreground">65%</div>
         </div>
-        <div className="bg-gray-100 rounded-xl p-2.5">
-          <div className="text-xs text-muted-foreground">Credit Length</div>
-          <div className="text-lg font-bold text-foreground">90%</div>
+        <div className="bg-muted/50 rounded-lg p-2">
+          <div className="text-[10px] text-muted-foreground">Credit Length</div>
+          <div className="text-base font-bold text-foreground">90%</div>
         </div>
-        <div className="bg-gray-100 rounded-xl p-2.5">
-          <div className="text-xs text-muted-foreground">Credit Mix</div>
-          <div className="text-lg font-bold text-foreground">70%</div>
+        <div className="bg-muted/50 rounded-lg p-2">
+          <div className="text-[10px] text-muted-foreground">Credit Mix</div>
+          <div className="text-base font-bold text-foreground">70%</div>
         </div>
       </div>
     </div>

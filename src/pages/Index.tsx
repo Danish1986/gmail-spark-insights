@@ -26,6 +26,8 @@ import { CreditEnquiries } from "@/components/CreditEnquiries";
 import { NewLoanOffer } from "@/components/NewLoanOffer";
 import { FinancialHealthReport } from "@/components/FinancialHealthReport";
 import { PaymentModal } from "@/components/PaymentModal";
+import { OfferBanner } from "@/components/OfferBanner";
+import { BalanceTransferToggles } from "@/components/BalanceTransferToggles";
 
 // Mock data
 const MOCK_DATA = {
@@ -1244,6 +1246,10 @@ const formatINR = (amount: number) => `₹${Math.round(amount).toLocaleString("e
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
+  const [personalLoanEnabled, setPersonalLoanEnabled] = useState(true);
+  const [creditCardsEnabled, setCreditCardsEnabled] = useState(false);
+  const [extraCashEnabled, setExtraCashEnabled] = useState(false);
+  const [extraCashAmount, setExtraCashAmount] = useState(0);
   const [monthIndex, setMonthIndex] = useState(1); // Sep 2025
   const [selectedCardId, setSelectedCardId] = useState(MOCK_DATA.cards[0].id);
   const [optimizationPeriod, setOptimizationPeriod] = useState<"1m" | "3m" | "6m" | "12m">("12m");
@@ -2006,6 +2012,13 @@ const Index = () => {
 
           {activeTab === "credit" && (
             <div className="p-3 space-y-2.5">
+              {/* Offer Banner */}
+              <OfferBanner
+                savingsAmount="₹8,100"
+                tenure={9}
+                onClick={() => { setSelectedLoanType("personal"); setShowLoanModal(true); }}
+              />
+              
               <CreditScoreGauge
                 score={creditScore}
                 status={CREDIT_MOCK_DATA.creditScore.status}

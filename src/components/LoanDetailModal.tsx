@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { BalanceTransferToggles } from "./BalanceTransferToggles";
 
 interface Loan {
   id: string;
@@ -52,14 +53,28 @@ const getLoanIcon = (loanType: string): { Icon: LucideIcon; color: string; bgCol
 
 export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetailModalProps) => {
   const [selectedPeriod, setSelectedPeriod] = useState<{[key: string]: number}>({});
+  const [personalLoanEnabled, setPersonalLoanEnabled] = useState(true);
+  const [creditCardsEnabled, setCreditCardsEnabled] = useState(false);
+  const [extraCashEnabled, setExtraCashEnabled] = useState(false);
+  const [extraCashAmount, setExtraCashAmount] = useState(0);
+  
   const iconInfo = getLoanIcon(loanType);
   
   const loansWithOffers = loans.filter(loan => loan.hasOffer);
   const totalCurrentEMI = loansWithOffers.reduce((sum, loan) => sum + loan.emi, 0);
-  const totalLoanAmount = loansWithOffers.reduce((sum, loan) => sum + loan.amount, 0);
-  const consolidatedEMI = loansWithOffers.length > 0 && loansWithOffers[0].proposedEMI ? loansWithOffers[0].proposedEMI : 0;
+  
+  // Calculate dynamic loan amount based on toggles
+  const baseLoanAmount = loansWithOffers.reduce((sum, loan) => sum + loan.amount, 0);
+  const creditCardAmount = creditCardsEnabled ? 50000 : 0; // Mock credit card amount
+  const totalLoanAmount = (personalLoanEnabled ? baseLoanAmount : 0) + creditCardAmount + (extraCashEnabled ? extraCashAmount : 0);
+  
+  // Recalculate EMI based on total amount (simplified calculation)
+  const baseConsolidatedEMI = loansWithOffers.length > 0 && loansWithOffers[0].proposedEMI ? loansWithOffers[0].proposedEMI : 0;
+  const consolidatedEMI = personalLoanEnabled ? baseConsolidatedEMI : 0;
+  const adjustedConsolidatedEMI = consolidatedEMI + (creditCardAmount + (extraCashEnabled ? extraCashAmount : 0)) * 0.015; // ~1.5% of additional amount
+  
   const consolidatedROI = loansWithOffers.length > 0 && loansWithOffers[0].proposedROI ? loansWithOffers[0].proposedROI : 0;
-  const totalMonthlySavings = totalCurrentEMI - consolidatedEMI;
+  const totalMonthlySavings = totalCurrentEMI - adjustedConsolidatedEMI;
   const maxRemainingTenure = Math.max(...loansWithOffers.map(loan => loan.remainingTenure || 12));
 
   // Initialize selected period for each loan (default to max remaining tenure)
@@ -114,6 +129,21 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
             </div>
           ) : (
             <>
+            {/* Balance Transfer Toggles - only show if there are loans with offers */}
+            {loansWithOffers.length > 0 && (
+              <BalanceTransferToggles
+                onTogglePersonalLoan={setPersonalLoanEnabled}
+                onToggleCreditCards={setCreditCardsEnabled}
+                onToggleExtraCash={(enabled, amount) => {
+                  setExtraCashEnabled(enabled);
+                  setExtraCashAmount(amount);
+                }}
+                personalLoanEnabled={personalLoanEnabled}
+                creditCardsEnabled={creditCardsEnabled}
+                extraCashEnabled={extraCashEnabled}
+              />
+            )}
+            
             {/* Show consolidation message if multiple loans */}
             {loansWithOffers.length > 1 && (
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-2.5 mb-3">
@@ -225,21 +255,17 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                             </div>
                           <div className="mt-2">
                             <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1.5 text-[11px]">
-                              {loansWithOffers.length > 1 && (
-                                <>
-                                  <div className="text-muted-foreground">Total amount:</div>
-                                  <div className="font-semibold text-green-600">{formatINR(totalLoanAmount)}</div>
-                                </>
-                              )}
+                              <div className="text-muted-foreground">Total amount:</div>
+                              <div className="font-semibold text-green-600">{formatINR(totalLoanAmount)}</div>
                               
                               <div className="font-medium text-green-600">New EMI:</div>
                               <div className="font-semibold text-green-600">
-                                {formatINR(loansWithOffers.length > 1 ? consolidatedEMI : loan.proposedEMI!)}/mo
+                                {formatINR(Math.round(loansWithOffers.length > 1 ? adjustedConsolidatedEMI : loan.proposedEMI!))}/mo
                               </div>
                               
                               <div className="font-medium text-green-600">You save:</div>
                               <div className="font-semibold text-green-600">
-                                +{formatINR(loansWithOffers.length > 1 ? totalMonthlySavings : loan.monthlySavings!)}/mo
+                                +{formatINR(Math.round(loansWithOffers.length > 1 ? totalMonthlySavings : loan.monthlySavings!))}/mo
                               </div>
                             </div>
                           </div>
@@ -296,19 +322,19 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                               <div className="flex items-center justify-between py-1 border-b border-border">
                                 <div className="text-muted-foreground">Current EMI total:</div>
                                 <div className="font-semibold transition-all duration-300">
-                                  {formatINR((loansWithOffers.length > 1 ? totalCurrentEMI : loan.emi) * period)}
+                                  {formatINR(Math.round((loansWithOffers.length > 1 ? totalCurrentEMI : loan.emi) * period))}
                                 </div>
                               </div>
                               <div className="flex items-center justify-between py-1 border-b border-border">
                                 <div className="text-muted-foreground">With balance transfer:</div>
                                 <div className="font-semibold text-green-600 transition-all duration-300">
-                                  {formatINR((loansWithOffers.length > 1 ? consolidatedEMI : loan.proposedEMI!) * period)}
+                                  {formatINR(Math.round((loansWithOffers.length > 1 ? adjustedConsolidatedEMI : loan.proposedEMI!) * period))}
                                 </div>
                               </div>
                               <div className="flex items-center justify-between py-1.5 bg-green-500/10 rounded px-2 -mx-2">
                                 <div className="font-semibold">Extra you'll save:</div>
                                 <div className="font-bold text-green-600 transition-all duration-300">
-                                  +{formatINR((loansWithOffers.length > 1 ? totalMonthlySavings : loan.monthlySavings!) * period)}
+                                  +{formatINR(Math.round((loansWithOffers.length > 1 ? totalMonthlySavings : loan.monthlySavings!) * period))}
                                 </div>
                               </div>
                             </div>
