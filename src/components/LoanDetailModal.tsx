@@ -21,6 +21,8 @@ interface Loan {
   proposedEMI?: number;
   monthlySavings?: number;
   remainingTenure?: number;
+  proposedLender?: string;
+  proposedLenderLogo?: string;
 }
 
 interface LoanDetailModalProps {
@@ -51,12 +53,20 @@ const getLoanIcon = (loanType: string): { Icon: LucideIcon; color: string; bgCol
 export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetailModalProps) => {
   const [selectedPeriod, setSelectedPeriod] = useState<{[key: string]: number}>({});
   const iconInfo = getLoanIcon(loanType);
+  
+  const loansWithOffers = loans.filter(loan => loan.hasOffer);
+  const totalCurrentEMI = loansWithOffers.reduce((sum, loan) => sum + loan.emi, 0);
+  const totalLoanAmount = loansWithOffers.reduce((sum, loan) => sum + loan.amount, 0);
+  const consolidatedEMI = loansWithOffers.length > 0 && loansWithOffers[0].proposedEMI ? loansWithOffers[0].proposedEMI : 0;
+  const consolidatedROI = loansWithOffers.length > 0 && loansWithOffers[0].proposedROI ? loansWithOffers[0].proposedROI : 0;
+  const totalMonthlySavings = totalCurrentEMI - consolidatedEMI;
+  const maxRemainingTenure = Math.max(...loansWithOffers.map(loan => loan.remainingTenure || 12));
 
-  // Initialize selected period for each loan (default to min of remaining tenure or 12)
+  // Initialize selected period for each loan (default to max remaining tenure)
   useState(() => {
     const initial = loans.reduce((acc, loan) => ({
       ...acc,
-      [loan.id]: Math.min(loan.remainingTenure || 12, 12)
+      [loan.id]: loan.remainingTenure || 12
     }), {});
     setSelectedPeriod(initial);
   });
@@ -104,136 +114,231 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
             </div>
           ) : (
             <>
+            {/* Show consolidation message if multiple loans */}
+            {loansWithOffers.length > 1 && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-2.5 mb-3">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
+                  <div className="text-xs font-semibold">
+                    Consolidating {loansWithOffers.length} loans into 1 single loan with better terms
+                  </div>
+                </div>
+              </div>
+            )}
+
             {loans.map((loan) => {
               const paymentProgress = (loan.paidTenure / loan.tenure) * 100;
-              const totalSavings = loan.monthlySavings! * loan.remainingTenure!;
-              const period = selectedPeriod[loan.id] || 12;
+              const totalSavings = loansWithOffers.length > 1 
+                ? totalMonthlySavings * maxRemainingTenure
+                : (loan.monthlySavings! * loan.remainingTenure!);
+              const period = loansWithOffers.length > 1 
+                ? (selectedPeriod['consolidated'] || maxRemainingTenure)
+                : (selectedPeriod[loan.id] || loan.remainingTenure || 12);
 
               return (
                 <div key={loan.id} className="space-y-3">
                   {loan.hasOffer ? (
                     // Loans WITH offers - Interest Optimizer pattern
                     <>
-                      {/* 1. Top Savings Banner */}
-                      <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2.5">
-                        <div className="flex items-center gap-2">
-                          <Lightbulb className="h-4 w-4 text-destructive flex-shrink-0" />
-                          <div className="text-xs font-semibold">
-                            Switch to save <span className="text-destructive">{formatINR(totalSavings)}</span> over {loan.remainingTenure} months
+                      {/* 1. Top Savings Banner - only show for first loan or single loan */}
+                      {(loansWithOffers.length === 1 || loans.indexOf(loan) === 0) && (
+                        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2.5">
+                          <div className="flex items-center gap-2">
+                            <Lightbulb className="h-4 w-4 text-destructive flex-shrink-0" />
+                            <div className="text-xs font-semibold">
+                              Switch to save <span className="text-destructive">{formatINR(totalSavings)}</span> over {loansWithOffers.length > 1 ? maxRemainingTenure : loan.remainingTenure} months
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* 2. CURRENT Loan Card */}
                       <div className="bg-card border rounded-lg p-2.5">
                         <div className="flex items-center justify-between mb-1.5">
-                          <div>
-                            <div className="text-[10px] text-muted-foreground">CURRENT</div>
-                            <div className="text-sm font-bold">{loan.lender}</div>
-                            <div className="text-[10px] text-muted-foreground capitalize">{loanType} Loan</div>
+                          <div className="flex items-center gap-2">
+                            {loan.lenderLogo && (
+                              <img src={loan.lenderLogo} alt={loan.lender} className="h-6 w-6 rounded object-contain" />
+                            )}
+                            <div>
+                              <div className="text-[10px] text-muted-foreground">CURRENT</div>
+                              <div className="text-sm font-bold">{loan.lender}</div>
+                              <div className="text-[10px] text-muted-foreground capitalize">{loanType} Loan</div>
+                            </div>
                           </div>
                           <div className="text-center px-2 py-1 bg-destructive/10 rounded">
                             <div className="text-lg font-bold text-destructive">{loan.roi}%</div>
                             <div className="text-[9px] text-muted-foreground">p.a.</div>
                           </div>
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
-                          Amount: {formatINR(loan.amount)} • EMI: {formatINR(loan.emi)}/mo
+                        <div className="space-y-1 text-[10px] text-muted-foreground">
+                          <div className="flex justify-between">
+                            <span>Amount:</span>
+                            <span className="font-semibold text-foreground">{formatINR(loan.amount)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>EMI:</span>
+                            <span className="font-semibold text-foreground">{formatINR(loan.emi)}/mo</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Tenure left:</span>
+                            <span className="font-semibold text-foreground">{loan.remainingTenure || loan.tenure - loan.paidTenure} of {loan.tenure} months</span>
+                          </div>
                         </div>
                       </div>
 
-                      {/* 3. Transfer Indicator */}
-                      <div className="flex items-center justify-center gap-2 py-1">
-                        <div className="flex-1 h-px bg-border" />
-                        <div className="flex items-center gap-1 text-xs font-medium text-primary">
-                          <ArrowRight className="h-3 w-3" />
-                          Transfer 100%
-                        </div>
-                        <div className="flex-1 h-px bg-border" />
-                      </div>
+                      {/* Show transfer indicator only for last loan with offer or single loan */}
+                      {(loansWithOffers.length === 1 || loans.indexOf(loan) === loansWithOffers.length - 1) && (
+                        <>
+                          {/* 3. Transfer Indicator */}
+                          <div className="flex items-center justify-center gap-2 py-1">
+                            <div className="flex-1 h-px bg-border" />
+                            <div className="flex items-center gap-1 text-xs font-medium text-primary">
+                              <ArrowRight className="h-3 w-3" />
+                              {loansWithOffers.length > 1 ? 'Consolidate & Transfer 100%' : 'Transfer 100%'}
+                            </div>
+                            <div className="flex-1 h-px bg-border" />
+                          </div>
 
-                      {/* 4. RECOMMENDED Offer Card */}
-                      <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-2 border-green-500/30 rounded-lg p-2.5">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <div>
-                            <div className="text-[10px] text-green-600 font-semibold">RECOMMENDED</div>
-                            <div className="text-sm font-bold">Better Finance</div>
-                            <div className="text-[10px] text-muted-foreground capitalize">{loanType} Loan</div>
+                          {/* 4. RECOMMENDED Offer Card */}
+                          <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-2 border-green-500/30 rounded-lg p-2.5">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-2">
+                                {(loan.proposedLenderLogo || loan.lenderLogo) && (
+                                  <img 
+                                    src={loan.proposedLenderLogo || loan.lenderLogo} 
+                                    alt={loan.proposedLender || 'Better Finance'} 
+                                    className="h-6 w-6 rounded object-contain" 
+                                  />
+                                )}
+                                <div>
+                                  <div className="text-[10px] text-green-600 font-semibold">RECOMMENDED</div>
+                                  <div className="text-sm font-bold">{loan.proposedLender || 'Better Finance'}</div>
+                                  <div className="text-[10px] text-muted-foreground capitalize">
+                                    {loansWithOffers.length > 1 ? 'Consolidated Loan' : `${loanType} Loan`}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-center px-2 py-1 bg-green-500/20 rounded">
+                                <div className="text-lg font-bold text-green-600">
+                                  {loansWithOffers.length > 1 ? consolidatedROI : loan.proposedROI}%
+                                </div>
+                                <div className="text-[9px] text-muted-foreground">p.a.</div>
+                              </div>
+                            </div>
+                            <div className="space-y-1 text-[10px]">
+                              {loansWithOffers.length > 1 && (
+                                <div className="flex justify-between text-muted-foreground">
+                                  <span>Total amount:</span>
+                                  <span className="font-semibold text-green-600">{formatINR(totalLoanAmount)}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between font-medium text-green-600">
+                                <span>New EMI:</span>
+                                <span className="font-semibold">
+                                  {formatINR(loansWithOffers.length > 1 ? consolidatedEMI : loan.proposedEMI!)}/mo
+                                </span>
+                              </div>
+                              <div className="flex justify-between font-medium text-green-600">
+                                <span>You save:</span>
+                                <span className="font-semibold">
+                                  +{formatINR(loansWithOffers.length > 1 ? totalMonthlySavings : loan.monthlySavings!)}/mo
+                                </span>
+                              </div>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">
+                                ✓ Lower EMI
+                              </span>
+                              {loansWithOffers.length > 1 && (
+                                <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">
+                                  ✓ Single loan
+                                </span>
+                              )}
+                              <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">
+                                ✓ Better rate
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-center px-2 py-1 bg-green-500/20 rounded">
-                            <div className="text-lg font-bold text-green-600">{loan.proposedROI}%</div>
-                            <div className="text-[9px] text-muted-foreground">p.a.</div>
-                          </div>
-                        </div>
-                        <div className="text-[10px] font-medium text-green-600">
-                          Will pay: {formatINR(loan.proposedEMI!)}/mo • +{formatINR(loan.monthlySavings!)} saved/mo
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">
-                            ✓ Lower EMI
-                          </span>
-                          <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">
-                            ✓ Same tenure
-                          </span>
-                        </div>
-                      </div>
 
-                      {/* 5. Impact Over Time Section */}
-                      <div className="bg-muted/50 rounded-lg p-2.5">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="text-xs font-semibold">Impact Over Time</div>
-                          <div className="text-xs font-bold text-primary">{period}M</div>
-                        </div>
-                        
-                        {/* Tenure Slider */}
-                        <div className="mb-3 px-1">
-                          <Slider
-                            value={[period]}
-                            onValueChange={(value) => setSelectedPeriod({ ...selectedPeriod, [loan.id]: value[0] })}
-                            min={1}
-                            max={loan.remainingTenure || 12}
-                            step={1}
-                            className="w-full"
-                          />
-                          <div className="flex justify-between mt-1">
-                            <span className="text-[9px] text-muted-foreground">1M</span>
-                            <span className="text-[9px] text-muted-foreground">{loan.remainingTenure || 12}M</span>
-                          </div>
-                        </div>
+                          {/* 5. Impact Over Time Section */}
+                          <div className="bg-muted/50 rounded-lg p-2.5">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="text-xs font-semibold">Impact Over Time</div>
+                              <div className="text-xs font-bold text-primary">{period}M</div>
+                            </div>
+                            
+                            {/* Enhanced Tenure Slider */}
+                            <div className="mb-3 px-1">
+                              <div className="relative">
+                                <Slider
+                                  value={[period]}
+                                  onValueChange={(value) => {
+                                    if (loansWithOffers.length > 1) {
+                                      setSelectedPeriod({ ...selectedPeriod, 'consolidated': value[0] });
+                                    } else {
+                                      setSelectedPeriod({ ...selectedPeriod, [loan.id]: value[0] });
+                                    }
+                                  }}
+                                  min={1}
+                                  max={loansWithOffers.length > 1 ? maxRemainingTenure : (loan.remainingTenure || 12)}
+                                  step={1}
+                                  className="w-full [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:border-2 [&_[role=slider]]:border-primary [&_[role=slider]]:bg-background [&_[role=slider]]:shadow-md [&_.relative]:h-2"
+                                />
+                              </div>
+                              <div className="flex justify-between mt-1.5">
+                                <span className="text-[9px] text-muted-foreground font-medium">1M</span>
+                                <span className="text-[9px] text-muted-foreground font-medium">
+                                  {loansWithOffers.length > 1 ? maxRemainingTenure : (loan.remainingTenure || 12)}M (Max)
+                                </span>
+                              </div>
+                            </div>
 
-                        {/* Savings Projection */}
-                        <div className="space-y-1.5 text-[11px]">
-                          <div className="flex items-center justify-between py-1 border-b border-border">
-                            <div className="text-muted-foreground">Current EMI total:</div>
-                            <div className="font-semibold transition-all duration-300">{formatINR(loan.emi * period)}</div>
+                            {/* Savings Projection */}
+                            <div className="space-y-1.5 text-[11px]">
+                              <div className="flex items-center justify-between py-1 border-b border-border">
+                                <div className="text-muted-foreground">Current EMI total:</div>
+                                <div className="font-semibold transition-all duration-300">
+                                  {formatINR((loansWithOffers.length > 1 ? totalCurrentEMI : loan.emi) * period)}
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between py-1 border-b border-border">
+                                <div className="text-muted-foreground">With balance transfer:</div>
+                                <div className="font-semibold text-green-600 transition-all duration-300">
+                                  {formatINR((loansWithOffers.length > 1 ? consolidatedEMI : loan.proposedEMI!) * period)}
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between py-1.5 bg-green-500/10 rounded px-2 -mx-2">
+                                <div className="font-semibold">Extra you'll save:</div>
+                                <div className="font-bold text-green-600 transition-all duration-300">
+                                  +{formatINR((loansWithOffers.length > 1 ? totalMonthlySavings : loan.monthlySavings!) * period)}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-2 text-[9px] text-muted-foreground text-center">
+                              Savings shown are based on the selected remaining tenure
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between py-1 border-b border-border">
-                            <div className="text-muted-foreground">With balance transfer:</div>
-                            <div className="font-semibold text-green-600 transition-all duration-300">{formatINR(loan.proposedEMI! * period)}</div>
-                          </div>
-                          <div className="flex items-center justify-between py-1.5 bg-green-500/10 rounded px-2 -mx-2">
-                            <div className="font-semibold">Extra you'll save:</div>
-                            <div className="font-bold text-green-600 transition-all duration-300">+{formatINR(loan.monthlySavings! * period)}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-2 text-[9px] text-muted-foreground text-center">
-                          Savings shown are based on the selected remaining tenure
-                        </div>
-                      </div>
 
-                      {/* Apply Button */}
-                      <Button onClick={handleApply} className="w-full text-sm py-2">
-                        Apply for Balance Transfer
-                      </Button>
+                          {/* Apply Button - only show once */}
+                          <Button onClick={handleApply} className="w-full text-sm py-2">
+                            Apply for Balance Transfer
+                          </Button>
+                        </>
+                      )}
                     </>
                   ) : (
                     // Loans WITHOUT offers - Simple card view
                     <div className="bg-card border rounded-lg p-2.5">
                       <div className="flex items-center justify-between mb-1.5">
-                        <div>
-                          <div className="text-sm font-bold">{loan.lender}</div>
-                          <div className="text-[10px] text-muted-foreground capitalize">{loanType} Loan</div>
+                        <div className="flex items-center gap-2">
+                          {loan.lenderLogo && (
+                            <img src={loan.lenderLogo} alt={loan.lender} className="h-6 w-6 rounded object-contain" />
+                          )}
+                          <div>
+                            <div className="text-sm font-bold">{loan.lender}</div>
+                            <div className="text-[10px] text-muted-foreground capitalize">{loanType} Loan</div>
+                          </div>
                         </div>
                         <div className="text-center px-2 py-1 bg-primary/10 rounded">
                           <div className="text-lg font-bold text-primary">{loan.roi}%</div>
@@ -253,6 +358,10 @@ export const LoanDetailModal = ({ isOpen, onClose, loanType, loans }: LoanDetail
                         <div className="flex justify-between py-1 border-b border-border">
                           <span className="text-muted-foreground">Tenure:</span>
                           <span className="font-semibold">{loan.tenure} months</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-border">
+                          <span className="text-muted-foreground">Tenure left:</span>
+                          <span className="font-semibold">{loan.remainingTenure || loan.tenure - loan.paidTenure} months</span>
                         </div>
                         <div className="flex justify-between py-1">
                           <span className="text-muted-foreground">Progress:</span>
